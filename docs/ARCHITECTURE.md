@@ -155,7 +155,7 @@ ObjectRelation
 ## 12. Предварительный стек
 
 - TypeScript
-- Next.js
+- React + Vite
 - PostgreSQL
 - JSONB для динамических properties
 - объектное хранилище для файлов
