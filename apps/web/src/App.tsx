@@ -56,7 +56,7 @@ export function App() {
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [toast, setToast] = useState("");
-  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [draggedId, setDraggedId] = useState<string | null>(null);\n  const [mobileQuickOpen, setMobileQuickOpen] = useState(false);\n  const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
@@ -466,10 +466,16 @@ export function App() {
       </aside>
 
       <main className="tasks-page">
-        <header className="mobile-topbar">
-          <div className="mobile-brand">СФЕРА</div>
-          <div className="mobile-title">Задачи</div>
-          <button className="icon-button" aria-label="Поиск" onClick={() => setSearchOpen((value) => !value)}>⌕</button>
+        <header className="mobile-topbar mobile-appbar">
+          <div className="mobile-profile-mark">S</div>
+          <div className="mobile-app-title">
+            <strong>СФЕРА</strong>
+            <span>Задачи</span>
+          </div>
+          <div className="mobile-app-actions">
+            <button className="mobile-icon-action" aria-label="Поиск" onClick={() => setSearchOpen((value) => !value)}>⌕</button>
+            <button className="mobile-icon-action" aria-label="Настройки" onClick={() => setSettingsOpen(true)}>⚙</button>
+          </div>
         </header>
 
         <div className="page-header">
@@ -547,15 +553,75 @@ export function App() {
           )}
         </section>
 
-        <button className="fab" aria-label="Добавить задачу" onClick={() => document.getElementById("quick-add")?.focus()}>＋</button>
+        <button className="fab" aria-label="Добавить задачу" onClick={() => setMobileQuickOpen(true)}>＋</button>
 
-        <nav className="bottom-nav" aria-label="Основная навигация">
-          <button><span>◉</span>Сегодня</button>
-          <button><span>▦</span>Неделя</button>
-          <button className="active"><span>✓</span>Задачи</button>
-          <button><span>◇</span>Пространство</button>
+        <nav className="bottom-nav mobile-tabbar" aria-label="Основная навигация">
+          <button className={filter === "inbox" ? "active" : ""} onClick={() => setFilter("inbox")}><span>▱</span>Входящие</button>
+          <button className={filter === "today" ? "active" : ""} onClick={() => setFilter("today")}><span>◉</span>Сегодня</button>
+          <button className={filter === "all" ? "active" : ""} onClick={() => setFilter("all")}><span>▦</span>Задачи</button>
+          <button className={settingsOpen ? "active" : ""} onClick={() => setSettingsOpen(true)}><span>☰</span>Настройки</button>
         </nav>
+
+        {mobileQuickOpen && (
+          <div className="mobile-quick-backdrop" onClick={() => setMobileQuickOpen(false)}>
+            <form className="mobile-quick-sheet" onSubmit={addTask} onClick={(event) => event.stopPropagation()}>
+              <div className="mobile-sheet-handle" />
+              <div className="mobile-quick-head">
+                <strong>Новая задача</strong>
+                <button type="button" onClick={() => setMobileQuickOpen(false)}>Отмена</button>
+              </div>
+              <textarea
+                autoFocus
+                value={quickTitle}
+                onChange={(event) => setQuickTitle(event.target.value)}
+                placeholder="Что нужно сделать?"
+                rows={3}
+              />
+              <div className="mobile-quick-tools">
+                <button type="button" onClick={() => setQuickTitle((value) => value + " сегодня")}>Сегодня</button>
+                <button type="button" onClick={() => setQuickTitle((value) => value + " завтра")}>Завтра</button>
+                <button type="button" onClick={() => setQuickTitle((value) => value + " p1")}>P1</button>
+              </div>
+              <button className="mobile-add-submit" disabled={!quickTitle.trim()}>Добавить задачу</button>
+            </form>
+          </div>
+        )}
       </main>
+
+      <section className={`mobile-settings-screen ${settingsOpen ? "open" : ""}`} aria-hidden={!settingsOpen}>
+        <header className="mobile-settings-header">
+          <div />
+          <h2>Настройки</h2>
+          <button onClick={() => setSettingsOpen(false)}>Готово</button>
+        </header>
+        <div className="mobile-settings-content">
+          <div className="settings-card">
+            <button><span className="settings-icon">◎</span><span>Аккаунт</span><b>›</b></button>
+            <button><span className="settings-icon">⚙</span><span>Основное</span><b>›</b></button>
+            <button><span className="settings-icon">▦</span><span>Календарь</span><b>›</b></button>
+          </div>
+
+          <p className="settings-section-label">ПОЛЬЗОВАТЕЛЬСКИЕ НАСТРОЙКИ</p>
+          <div className="settings-card">
+            <button><span className="settings-icon">◐</span><span>Тема</span><em>Системная</em><b>›</b></button>
+            <button><span className="settings-icon">▤</span><span>Навигация</span><b>›</b></button>
+            <button><span className="settings-icon">⊞</span><span>Быстрое добавление</span><b>›</b></button>
+          </div>
+
+          <p className="settings-section-label">ПРОДУКТИВНОСТЬ</p>
+          <div className="settings-card">
+            <button><span className="settings-icon">↗</span><span>Продуктивность</span><b>›</b></button>
+            <button><span className="settings-icon">◴</span><span>Напоминания</span><b>›</b></button>
+            <button><span className="settings-icon">♢</span><span>Уведомления</span><b>›</b></button>
+          </div>
+
+          <div className="settings-card settings-spaced">
+            <button><span className="settings-icon">?</span><span>Поддержка и обратная связь</span><b>›</b></button>
+            <button><span className="settings-icon">i</span><span>О СФЕРЕ</span><b>›</b></button>
+            <button><span className="settings-icon">↻</span><span>Синхронизация</span><small>Локальные данные</small><b>›</b></button>
+          </div>
+        </div>
+      </section>
 
       <aside className={`detail-pane todo-detail ${selected ? "open" : ""}`} aria-hidden={!selected}>
         {selected && (
