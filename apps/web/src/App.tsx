@@ -56,7 +56,9 @@ export function App() {
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [toast, setToast] = useState("");
-  const [draggedId, setDraggedId] = useState<string | null>(null);\n  const [mobileQuickOpen, setMobileQuickOpen] = useState(false);\n  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [mobileQuickOpen, setMobileQuickOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
