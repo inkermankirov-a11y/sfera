@@ -236,6 +236,48 @@ export function App() {
   }).format(new Date());
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Доброе утро" : hour < 18 ? "Добрый день" : "Добрый вечер";
+  const weekDates = useMemo(() => currentWeekDates(), []);
+  const weekTaskCount = useMemo(
+    () => tasks.filter((task) => task.status === "active" && task.date && weekDates.some((day) => day.iso === task.date)).length,
+    [tasks, weekDates]
+  );
+  const visibleNotes = useMemo(() => {
+    if (noteView === "ideas") return notes.filter((note) => note.kind === "idea");
+    if (noteView === "diary") return notes.filter((note) => note.kind === "diary");
+    if (noteView === "collections") return notes.filter((note) => note.kind === "collection");
+    if (noteView === "lists") return notes.filter((note) => note.kind === "list");
+    if (noteView === "favorites") return notes.filter((note) => note.favorite);
+    return notes;
+  }, [notes, noteView]);
+  const calendarCells = useMemo(() => monthCells(calendarCursor), [calendarCursor]);
+  const calendarTitle = new Intl.DateTimeFormat("ru-RU", { month: "long", year: "numeric" }).format(calendarCursor);
+  const historyEvents = useMemo(() => {
+    const taskEvents = tasks.flatMap((task) => {
+      const events = [
+        { id: "task-created-" + task.id, at: task.createdAt, icon: "✓", title: task.title, meta: "Задача создана" }
+      ];
+      if (task.completedAt) events.push({ id: "task-done-" + task.id, at: task.completedAt, icon: "✓", title: task.title, meta: "Задача выполнена" });
+      return events;
+    });
+    const noteEvents = notes.map((note) => ({
+      id: "note-" + note.id,
+      at: note.createdAt,
+      icon: "✎",
+      title: note.title,
+      meta: noteKindLabels[note.kind]
+    }));
+    const goalEvents = goals.map((goal) => ({
+      id: "goal-" + goal.id,
+      at: goal.createdAt,
+      icon: "◎",
+      title: goal.title,
+      meta: "Цель"
+    }));
+    return [...taskEvents, ...noteEvents, ...goalEvents]
+      .filter((event) => !!event.at)
+      .sort((a, b) => b.at.localeCompare(a.at))
+      .slice(0, 40);
+  }, [tasks, notes, goals]);
 
   function matchesFilter(task: Task) {
     const normalized = query.trim().toLowerCase();
@@ -250,6 +292,7 @@ export function App() {
 
     if (filter === "today") return task.status === "active" && task.date === isoToday();
     if (filter === "inbox") return task.status === "active" && task.date === null;
+    if (filter === "overdue") return task.status === "active" && !!task.date && task.date < isoToday();
     if (filter === "done") return task.status === "done";
     return task.status === "active";
   }
