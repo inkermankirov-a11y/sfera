@@ -10,6 +10,13 @@ type GraphNode = {
   vy: number;
 };
 
+type HierarchyMeta = {
+  depth: number;
+  rootKey: string;
+  targetX: number;
+  targetY: number;
+};
+
 export type GraphStructureEdge = {
   id: string;
   a: ObjectRef;
@@ -110,6 +117,72 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
     [relations, structureEdges]
   );
 
+  const hierarchy = useMemo(() => {
+    const parentByKey = new Map<string, string>();
+    structureEdges.forEach((edge) => {
+      parentByKey.set(keyOf(edge.b), keyOf(edge.a));
+    });
+
+    const refsByKey = new Map(nodeRefs.map((ref) => [keyOf(ref), ref]));
+    const depthCache = new Map<string, number>();
+    const rootCache = new Map<string, string>();
+
+    const resolve = (key: string, stack = new Set<string>()): { depth: number; rootKey: string } => {
+      if (depthCache.has(key) && rootCache.has(key)) {
+        return { depth: depthCache.get(key)!, rootKey: rootCache.get(key)! };
+      }
+      if (stack.has(key)) {
+        depthCache.set(key, 0);
+        rootCache.set(key, key);
+        return { depth: 0, rootKey: key };
+      }
+      const parent = parentByKey.get(key);
+      if (!parent || !refsByKey.has(parent)) {
+        depthCache.set(key, 0);
+        rootCache.set(key, key);
+        return { depth: 0, rootKey: key };
+      }
+      const nextStack = new Set(stack);
+      nextStack.add(key);
+      const resolvedParent = resolve(parent, nextStack);
+      const result = { depth: resolvedParent.depth + 1, rootKey: resolvedParent.rootKey };
+      depthCache.set(key, result.depth);
+      rootCache.set(key, result.rootKey);
+      return result;
+    };
+
+    const rootKeys = nodeRefs
+      .map((ref) => keyOf(ref))
+      .filter((key) => resolve(key).depth === 0)
+      .sort((a, b) => a.localeCompare(b));
+
+    const rootIndex = new Map(rootKeys.map((key, index) => [key, index]));
+    const rootCount = Math.max(1, rootKeys.length);
+    const centerX = WIDTH / 2;
+    const centerY = HEIGHT / 2;
+
+    const result = new Map<string, HierarchyMeta>();
+    nodeRefs.forEach((ref) => {
+      const key = keyOf(ref);
+      const { depth, rootKey } = resolve(key);
+      const index = rootIndex.get(rootKey) ?? 0;
+      const rootAngle = -Math.PI / 2 + (index / rootCount) * Math.PI * 2;
+      const sector = Math.min(.68, (Math.PI * 2 / rootCount) * .62);
+      const jitterSeed = ((hash(key) % 1000) / 1000) - .5;
+      const angle = rootAngle + (depth === 0 ? 0 : jitterSeed * sector);
+
+      const radiusByDepth = [92, 190, 275, 345, 405];
+      const rawRadius = radiusByDepth[Math.min(depth, radiusByDepth.length - 1)] + Math.max(0, depth - 4) * 48;
+      const yCompression = .72;
+      const targetX = centerX + Math.cos(angle) * rawRadius;
+      const targetY = centerY + Math.sin(angle) * rawRadius * yCompression;
+
+      result.set(key, { depth, rootKey, targetX, targetY });
+    });
+
+    return result;
+  }, [nodeRefs, structureEdges]);
+
   const connectedToHovered = useMemo(() => {
     if (!hovered) return new Set<string>();
     const result = new Set<string>([hovered]);
@@ -127,21 +200,20 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
       const key = keyOf(ref);
       const existing = previous.get(key);
       if (existing) return { ...existing };
-      const angle = (index / count) * Math.PI * 2;
-      const jitter = (hash(key) % 130) - 65;
-      const radius = 175 + (hash(`${key}:r`) % 95);
+      const meta = hierarchy.get(key);
+      const fallbackAngle = (index / count) * Math.PI * 2;
       return {
         key,
         ref,
-        x: WIDTH / 2 + Math.cos(angle) * radius + jitter,
-        y: HEIGHT / 2 + Math.sin(angle) * radius + jitter * .42,
+        x: meta?.targetX ?? WIDTH / 2 + Math.cos(fallbackAngle) * 180,
+        y: meta?.targetY ?? HEIGHT / 2 + Math.sin(fallbackAngle) * 135,
         vx: 0,
         vy: 0
       };
     });
     simulationRef.current = next;
     setNodes(next.map((node) => ({ ...node })));
-  }, [nodeRefs]);
+  }, [nodeRefs, hierarchy]);
 
   useEffect(() => {
     if (!live || simulationRef.current.length === 0) return;
@@ -178,8 +250,11 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
         let dx = b.x - a.x;
         let dy = b.y - a.y;
         const dist = Math.max(1, Math.sqrt(dx * dx + dy * dy));
-        const target = 150;
-        const force = (dist - target) * .0052;
+        const childMeta = hierarchy.get(edge.b);
+        const target = edge.kind === "structure"
+          ? childMeta?.depth === 1 ? 112 : childMeta?.depth === 2 ? 96 : 84
+          : 145;
+        const force = (dist - target) * (edge.kind === "structure" ? .009 : .0048);
         dx /= dist;
         dy /= dist;
         a.vx += dx * force * dt;
@@ -194,8 +269,12 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
           node.vy = 0;
           return;
         }
-        node.vx += (WIDTH / 2 - node.x) * .00075 * dt;
-        node.vy += (HEIGHT / 2 - node.y) * .00075 * dt;
+        const meta = hierarchy.get(node.key);
+        const targetX = meta?.targetX ?? WIDTH / 2;
+        const targetY = meta?.targetY ?? HEIGHT / 2;
+        const anchorStrength = meta?.depth === 0 ? .0075 : meta?.depth === 1 ? .0048 : .0032;
+        node.vx += (targetX - node.x) * anchorStrength * dt;
+        node.vy += (targetY - node.y) * anchorStrength * dt;
         node.vx *= .91;
         node.vy *= .91;
         node.x = Math.min(WIDTH - 44, Math.max(44, node.x + node.vx * dt));
@@ -210,7 +289,7 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
     return () => {
       if (frameRef.current) cancelAnimationFrame(frameRef.current);
     };
-  }, [edgeKeys, live]);
+  }, [edgeKeys, hierarchy, live]);
 
   useEffect(() => {
     viewBoxRef.current = viewBox;
@@ -290,10 +369,10 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
   function resetGraph() {
     const count = Math.max(1, simulationRef.current.length);
     simulationRef.current.forEach((node, index) => {
-      const angle = (index / count) * Math.PI * 2;
-      const radius = 190 + (hash(node.key) % 65);
-      node.x = WIDTH / 2 + Math.cos(angle) * radius;
-      node.y = HEIGHT / 2 + Math.sin(angle) * radius;
+      const meta = hierarchy.get(node.key);
+      const fallbackAngle = (index / count) * Math.PI * 2;
+      node.x = meta?.targetX ?? WIDTH / 2 + Math.cos(fallbackAngle) * 180;
+      node.y = meta?.targetY ?? HEIGHT / 2 + Math.sin(fallbackAngle) * 135;
       node.vx = 0;
       node.vy = 0;
     });
@@ -396,13 +475,19 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
             <g className="relations-graph-nodes">
               {nodes.map((node) => {
                 const highlighted = !hovered || connectedToHovered.has(node.key);
+                const meta = hierarchy.get(node.key);
+                const depth = meta?.depth ?? 0;
                 const degree = degreeByKey.get(node.key) ?? 0;
-                const baseRadius = Math.min(16, 9.5 + degree * 1.25);
-                const activeRadius = hovered === node.key ? baseRadius + 3 : baseRadius;
+                const baseRadius = node.ref.type === "project"
+                  ? depth === 0 ? 18 : depth === 1 ? 13.5 : depth === 2 ? 10.5 : 8.5
+                  : depth <= 1 ? 10 : depth === 2 ? 8.5 : 7.5;
+                const degreeBoost = depth === 0 ? Math.min(2, degree * .22) : 0;
+                const radius = baseRadius + degreeBoost;
+                const activeRadius = hovered === node.key ? radius + 2.5 : radius;
                 return (
                   <g
                     key={node.key}
-                    className={`graph-node node-${node.ref.type} ${highlighted ? "" : "dimmed"} ${hovered === node.key ? "hovered" : ""}`}
+                    className={`graph-node node-${node.ref.type} depth-${Math.min(depth, 4)} ${highlighted ? "" : "dimmed"} ${hovered === node.key ? "hovered" : ""}`}
                     transform={`translate(${node.x} ${node.y})`}
                     onPointerEnter={() => setHovered(node.key)}
                     onPointerLeave={() => setHovered(null)}
@@ -430,7 +515,7 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
                       if (!moved) onOpen(node.ref);
                     }}
                   >
-                    <circle className="graph-node-halo" r={Math.max(27, baseRadius + 13)} />
+                    <circle className="graph-node-halo" r={Math.max(24, radius + 12)} />
                     <circle className="graph-node-core" r={activeRadius} filter={hovered === node.key ? "url(#nodeGlow)" : undefined} />
                     <text className="graph-node-label" x="0" y="30" textAnchor="middle">{shortTitle(getTitle(node.ref))}</text>
                   </g>

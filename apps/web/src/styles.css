@@ -9097,3 +9097,37 @@ html,
 .relations-graph-stage svg {
   touch-action: none;
 }
+
+
+/* Radial hierarchy: parents visually dominate, children move outward */
+.relations-graph-stage {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(17, 125, 129, .055) 0 12%, transparent 12.5% 27%, rgba(71, 102, 120, .035) 27.5% 28%, transparent 28.5% 45%, rgba(71, 102, 120, .025) 45.5% 46%, transparent 46.5%),
+    #f8fbfc !important;
+}
+
+.graph-node.depth-0 .graph-node-label {
+  font-size: 13.5px;
+  font-weight: 900;
+}
+
+.graph-node.depth-1 .graph-node-label {
+  font-size: 11.5px;
+  font-weight: 820;
+}
+
+.graph-node.depth-2 .graph-node-label {
+  font-size: 10.5px;
+  font-weight: 760;
+}
+
+.graph-node.depth-3 .graph-node-label,
+.graph-node.depth-4 .graph-node-label {
+  font-size: 9.5px;
+  font-weight: 720;
+}
+
+.graph-node.depth-0 .graph-node-halo {
+  fill: rgba(22, 136, 139, .07);
+  stroke: rgba(22, 136, 139, .13);
+}
