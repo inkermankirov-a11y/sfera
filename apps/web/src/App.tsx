@@ -1395,19 +1395,7 @@ export function App() {
           )}
         </section>
 
-        <button
-          className="fab"
-          aria-label="Быстрое добавление"
-          onClick={() => {
-            if (mobileSection === "projects" && !selectedProject) {
-              setProjectParentId("");
-              setProjectCreateOpen(true);
-              return;
-            }
-            setQuickProjectId(mobileSection === "projects" && selectedProject ? selectedProject.id : null);
-            setMobileQuickOpen(true);
-          }}
-        >＋</button>
+        <button className="fab" aria-label="Быстрое добавление" onClick={() => setQuickMenuOpen(true)}>＋</button>
 
         <nav className="bottom-nav mobile-tabbar" aria-label="Основная навигация">
           <button className={mobileSection === "projects" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("projects"); setSettingsOpen(false); }}><span>◇</span>Проекты</button>
@@ -1415,6 +1403,53 @@ export function App() {
           <button className={mobileSection === "notes" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("notes"); setSettingsOpen(false); }}><span>✎</span>Заметки</button>
           <button className={mobileSection === "photos" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("photos"); setSettingsOpen(false); }}><span>▧</span>Фото</button>
         </nav>
+
+        {quickMenuOpen && (
+          <div className="mobile-quick-backdrop" onClick={() => setQuickMenuOpen(false)}>
+            <div className="mobile-quick-sheet quick-type-sheet" onClick={(event) => event.stopPropagation()}>
+              <div className="mobile-sheet-handle" />
+              <div className="mobile-quick-head"><strong>Что добавить?</strong><button onClick={() => setQuickMenuOpen(false)}>Отмена</button></div>
+              <div className="quick-type-grid">
+                <button onClick={() => {
+                  setQuickMenuOpen(false);
+                  setQuickProjectId(mobileSection === "projects" && selectedProject ? selectedProject.id : null);
+                  setMobileQuickOpen(true);
+                }}><span>✓</span><strong>Задачу</strong><small>Дело, дата, приоритет</small></button>
+                <button onClick={() => { setQuickMenuOpen(false); setNoteKind("note"); setNoteCreateOpen(true); }}><span>✎</span><strong>Заметку</strong><small>Мысль или запись</small></button>
+                <button onClick={() => { setQuickMenuOpen(false); setNoteKind("diary"); setNoteCreateOpen(true); }}><span>☼</span><strong>Дневник</strong><small>Запись сегодняшнего дня</small></button>
+                <button onClick={() => { setQuickMenuOpen(false); setMobileSection("photos"); setToast("Открыт раздел фото"); }}><span>▧</span><strong>Фото</strong><small>Визуальные материалы</small></button>
+                <button onClick={() => { setQuickMenuOpen(false); setProjectParentId(selectedProject?.id ?? ""); setProjectCreateOpen(true); }}><span>◇</span><strong>Проект</strong><small>Сфера или подпроект</small></button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {noteCreateOpen && (
+          <div className="mobile-quick-backdrop" onClick={() => setNoteCreateOpen(false)}>
+            <form className="mobile-quick-sheet note-create-sheet" onSubmit={addNote} onClick={(event) => event.stopPropagation()}>
+              <div className="mobile-sheet-handle" />
+              <div className="mobile-quick-head">
+                <strong>Новая запись</strong>
+                <button type="button" onClick={() => setNoteCreateOpen(false)}>Отмена</button>
+              </div>
+              <div className="note-kind-picker">
+                {([
+                  ["note", "Заметка"],
+                  ["idea", "Идея"],
+                  ["diary", "Дневник"],
+                  ["collection", "Коллекция"],
+                  ["list", "Список"]
+                ] as Array<[NoteKind, string]>).map(([value, label]) => (
+                  <button type="button" key={value} className={noteKind === value ? "active" : ""} onClick={() => setNoteKind(value)}>{label}</button>
+                ))}
+              </div>
+              <input className="project-title-input" autoFocus value={noteTitle} onChange={(event) => setNoteTitle(event.target.value)} placeholder="Название" />
+              <textarea value={noteBody} onChange={(event) => setNoteBody(event.target.value)} placeholder="Текст, мысль, список..." rows={5} />
+              {selectedProject && <div className="note-project-hint">◇ {projectPath(projects, selectedProject.id)}</div>}
+              <button className="mobile-add-submit" disabled={!noteTitle.trim()}>Сохранить</button>
+            </form>
+          </div>
+        )}
 
         {projectCreateOpen && (
           <div className="mobile-quick-backdrop" onClick={() => setProjectCreateOpen(false)}>
