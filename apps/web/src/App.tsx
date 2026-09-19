@@ -73,6 +73,8 @@ import {
   monthCells
 } from "./calendar/calendar-utils";
 
+const PROFILE_NAME_STORAGE_KEY = "sfera.profile.name";
+
 const filterLabels: Record<Filter, string> = {
   all: "Все",
   today: "Сегодня",
@@ -214,6 +216,21 @@ export function App() {
   const [calendarRangeStart, setCalendarRangeStart] = useState(() => isoToday());
   const [calendarRangeEnd, setCalendarRangeEnd] = useState(() => addDaysIso(isoToday(), 6));
   const [calendarPickingEnd, setCalendarPickingEnd] = useState(false);
+  const [profileName, setProfileName] = useState(() => {
+    try {
+      return localStorage.getItem(PROFILE_NAME_STORAGE_KEY)?.trim() || "Лаура";
+    } catch {
+      return "Лаура";
+    }
+  });
+  const [profileDraft, setProfileDraft] = useState(profileName);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(PROFILE_NAME_STORAGE_KEY, profileName);
+    } catch {}
+  }, [profileName]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
@@ -922,6 +939,20 @@ export function App() {
     });
   }
 
+  function saveProfileName(event?: FormEvent) {
+    event?.preventDefault();
+    const nextName = profileDraft.trim();
+    if (!nextName) return;
+    setProfileName(nextName);
+    setProfileDraft(nextName);
+    setProfileMenuOpen(false);
+  }
+
+  function openProfileNamePicker() {
+    setProfileDraft(profileName);
+    setProfileMenuOpen((value) => !value);
+  }
+
   function openDetail(id: string, replace = false) {
     const hash = "#task=" + encodeURIComponent(id);
     if (replace) history.replaceState(null, "", hash);
@@ -1400,11 +1431,47 @@ export function App() {
             <span>⌕</span>
             <span>Поиск по задачам, проектам, заметкам...</span>
           </button>
-          <div className="desktop-user">
+          <div className="desktop-user-area">
             <button className="desktop-bell" aria-label="Уведомления">♢</button>
-            <span className="desktop-avatar">Л</span>
-            <strong>Лаура</strong>
-            <span>⌄</span>
+            <div className="desktop-profile-picker">
+              <button
+                type="button"
+                className="desktop-user"
+                onClick={openProfileNamePicker}
+                aria-expanded={profileMenuOpen}
+                aria-label="Выбрать имя пользователя"
+              >
+                <span className="desktop-avatar">{profileName.slice(0, 1).toUpperCase()}</span>
+                <strong>{profileName}</strong>
+                <span className={profileMenuOpen ? "desktop-user-chevron open" : "desktop-user-chevron"}>⌄</span>
+              </button>
+
+              {profileMenuOpen && (
+                <>
+                  <button
+                    type="button"
+                    className="profile-picker-dismiss"
+                    aria-label="Закрыть выбор имени"
+                    onClick={() => setProfileMenuOpen(false)}
+                  />
+                  <form className="profile-name-menu" onSubmit={saveProfileName}>
+                    <span>Имя пользователя</span>
+                    <input
+                      autoFocus
+                      value={profileDraft}
+                      onChange={(event) => setProfileDraft(event.target.value)}
+                      placeholder="Введите имя"
+                      maxLength={40}
+                    />
+                    <small>Это имя показывается в профиле и приветствии на главной.</small>
+                    <div>
+                      <button type="button" onClick={() => setProfileMenuOpen(false)}>Отмена</button>
+                      <button type="submit" disabled={!profileDraft.trim()}>Сохранить</button>
+                    </div>
+                  </form>
+                </>
+              )}
+            </div>
           </div>
         </header>
 
@@ -1427,7 +1494,7 @@ export function App() {
             <div className="dashboard-hero-copy">
               <div className="dashboard-wordmark">SFERA</div>
               <p className="dashboard-date">{dashboardDate}</p>
-              <h1>{greeting}, Лаура!</h1>
+              <h1>{greeting}, {profileName}!</h1>
               <p className="dashboard-lead">Большие перемены начинаются<br />с маленьких шагов ✨</p>
             </div>
             <div className="dashboard-hero-motto">Гармония<br />в каждом дне<span /></div>
