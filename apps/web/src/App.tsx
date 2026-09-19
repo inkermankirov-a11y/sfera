@@ -42,6 +42,25 @@ import {
   createGoal,
   readGoals
 } from "./goals-model";
+import {
+  RELATIONS_STORAGE_KEY,
+  EntityType,
+  ObjectRef,
+  Relation,
+  areLinked,
+  createRelation,
+  otherRef,
+  readRelations,
+  relationsFor,
+  removeRelationsFor
+} from "./relations-model";
+import {
+  ATTACHMENTS_STORAGE_KEY,
+  Attachment,
+  attachmentsFor,
+  readAttachments,
+  removeAttachmentLink
+} from "./attachments-model";
 import { CalendarMiniMonth } from "./calendar/CalendarMiniMonth";
 import { DesktopCalendar } from "./calendar/DesktopCalendar";
 import {
@@ -146,6 +165,14 @@ export function App() {
   const [projectView, setProjectView] = useState<"grid" | "list">(() => {
     try { return localStorage.getItem("sfera.projectView") === "list" ? "list" : "grid"; } catch { return "grid"; }
   });
+  const [relations, setRelations] = useState<Relation[]>(() => readRelations());
+  const [attachments, setAttachments] = useState<Attachment[]>(() => readAttachments());
+  const [linkType, setLinkType] = useState<EntityType>("project");
+  const [linkTargetId, setLinkTargetId] = useState("");
+  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
+  const [projectEditOpen, setProjectEditOpen] = useState(false);
+  const [editProjectTitle, setEditProjectTitle] = useState("");
+  const [editProjectParentId, setEditProjectParentId] = useState("");
   const [subtaskTitle, setSubtaskTitle] = useState("");
   const [commentBody, setCommentBody] = useState("");
   const [query, setQuery] = useState("");
@@ -195,6 +222,18 @@ export function App() {
   }, [goals]);
 
   useEffect(() => {
+    localStorage.setItem(RELATIONS_STORAGE_KEY, JSON.stringify(relations));
+  }, [relations]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(ATTACHMENTS_STORAGE_KEY, JSON.stringify(attachments));
+    } catch {
+      setToast("Не удалось сохранить вложение: локальное хранилище заполнено");
+    }
+  }, [attachments]);
+
+  useEffect(() => {
     if (!selectedProjectId) setProjectTab("overview");
   }, [selectedProjectId]);
 
@@ -235,6 +274,9 @@ export function App() {
   const activeCount = tasks.filter((task) => task.status === "active").length;
   const selectedProject = selectedProjectId
     ? projects.find((project) => project.id === selectedProjectId) ?? null
+    : null;
+  const selectedNote = selectedNoteId
+    ? notes.find((note) => note.id === selectedNoteId) ?? null
     : null;
   const flattenedProjects = useMemo(() => flattenProjects(projects), [projects]);
   const todayTasks = useMemo(
