@@ -9082,3 +9082,18 @@ html,
     margin: 0 8px 8px;
   }
 }
+
+
+/* Relations graph navigation: drag empty canvas to pan */
+.relations-graph-pan-surface {
+  cursor: grab;
+  pointer-events: all;
+}
+
+.relations-graph-stage svg:active .relations-graph-pan-surface {
+  cursor: grabbing;
+}
+
+.relations-graph-stage svg {
+  touch-action: none;
+}

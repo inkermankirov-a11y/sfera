@@ -68,6 +68,12 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
   const simulationRef = useRef<GraphNode[]>([]);
   const frameRef = useRef<number | null>(null);
   const dragRef = useRef<{ key: string; moved: boolean } | null>(null);
+  const panRef = useRef<{
+    pointerId: number;
+    clientX: number;
+    clientY: number;
+    viewBox: GraphViewBox;
+  } | null>(null);
   const [nodes, setNodes] = useState<GraphNode[]>([]);
   const [hovered, setHovered] = useState<string | null>(null);
   const [viewBox, setViewBox] = useState<GraphViewBox>(INITIAL_VIEWBOX);
@@ -346,6 +352,43 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
           viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
           role="img"
           aria-label="Интерактивная карта связей"
+          onPointerDown={(event) => {
+            if (event.button !== 0) return;
+            const target = event.target as Element;
+            if (event.target !== event.currentTarget && !target.classList.contains("relations-graph-pan-surface")) return;
+            event.currentTarget.setPointerCapture(event.pointerId);
+            panRef.current = {
+              pointerId: event.pointerId,
+              clientX: event.clientX,
+              clientY: event.clientY,
+              viewBox: { ...viewBoxRef.current }
+            };
+          }}
+          onPointerMove={(event) => {
+            const pan = panRef.current;
+            if (!pan || pan.pointerId !== event.pointerId) return;
+            const rect = event.currentTarget.getBoundingClientRect();
+            if (!rect.width || !rect.height) return;
+            const dx = event.clientX - pan.clientX;
+            const dy = event.clientY - pan.clientY;
+            const next = {
+              x: pan.viewBox.x - dx * (pan.viewBox.width / rect.width),
+              y: pan.viewBox.y - dy * (pan.viewBox.height / rect.height),
+              width: pan.viewBox.width,
+              height: pan.viewBox.height
+            };
+            viewBoxRef.current = next;
+            setViewBox(next);
+          }}
+          onPointerUp={(event) => {
+            if (panRef.current?.pointerId !== event.pointerId) return;
+            panRef.current = null;
+            try { event.currentTarget.releasePointerCapture(event.pointerId); } catch {}
+          }}
+          onPointerCancel={(event) => {
+            if (panRef.current?.pointerId !== event.pointerId) return;
+            panRef.current = null;
+          }}
         >
           <defs>
             <filter id="nodeGlow" x="-80%" y="-80%" width="260%" height="260%">
@@ -353,6 +396,14 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
               <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
             </filter>
           </defs>
+          <rect
+            className="relations-graph-pan-surface"
+            x={viewBox.x}
+            y={viewBox.y}
+            width={viewBox.width}
+            height={viewBox.height}
+            fill="transparent"
+          />
           <g>
             <g className="relations-graph-edges">
               {edgeKeys.map((edge) => {
@@ -378,6 +429,7 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
                     onPointerEnter={() => setHovered(node.key)}
                     onPointerLeave={() => setHovered(null)}
                     onPointerDown={(event) => {
+                      event.stopPropagation();
                       event.currentTarget.setPointerCapture(event.pointerId);
                       dragRef.current = { key: node.key, moved: false };
                     }}
