@@ -112,9 +112,25 @@ export function DesktopCalendar({
               </div>
 
               {dates.map((iso) => {
+                const dayStart = isoDate(iso);
+                dayStart.setHours(0, 0, 0, 0);
+                const dayEnd = new Date(dayStart);
+                dayEnd.setDate(dayEnd.getDate() + 1);
+
                 const timedTasks = tasks
-                  .filter((task) => task.status === "active" && task.date === iso && !!task.time)
-                  .sort((a, b) => (a.time ?? "").localeCompare(b.time ?? ""));
+                  .filter((task) => {
+                    if (task.status !== "active" || !task.date || !task.time) return false;
+                    const [hours, minutes] = task.time.split(":").map(Number);
+                    const taskStart = isoDate(task.date);
+                    taskStart.setHours(hours, minutes, 0, 0);
+                    const taskEnd = new Date(taskStart.getTime() + (task.durationMinutes ?? 45) * 60_000);
+                    return taskStart < dayEnd && taskEnd > dayStart;
+                  })
+                  .sort((a, b) => {
+                    const aStart = a.date === iso ? (a.time ?? "") : "00:00";
+                    const bStart = b.date === iso ? (b.time ?? "") : "00:00";
+                    return aStart.localeCompare(bStart);
+                  });
 
                 return (
                   <div
@@ -134,19 +150,31 @@ export function DesktopCalendar({
                   >
                     {timedTasks.map((task) => {
                       const [hours, minutes] = (task.time ?? "00:00").split(":").map(Number);
-                      const top = TOP_OFFSET + (hours * 60 + minutes) * (HOUR_HEIGHT / 60);
-                      const height = Math.max(30, (task.durationMinutes ?? 45) * (HOUR_HEIGHT / 60));
+                      const taskStart = isoDate(task.date!);
+                      taskStart.setHours(hours, minutes, 0, 0);
+                      const taskEnd = new Date(taskStart.getTime() + (task.durationMinutes ?? 45) * 60_000);
+
+                      const segmentStart = taskStart > dayStart ? taskStart : dayStart;
+                      const segmentEnd = taskEnd < dayEnd ? taskEnd : dayEnd;
+                      const startMinutes = Math.max(0, (segmentStart.getTime() - dayStart.getTime()) / 60_000);
+                      const segmentMinutes = Math.max(1, (segmentEnd.getTime() - segmentStart.getTime()) / 60_000);
+                      const top = TOP_OFFSET + startMinutes * (HOUR_HEIGHT / 60);
+                      const height = Math.max(22, segmentMinutes * (HOUR_HEIGHT / 60));
+                      const continuesFromPreviousDay = taskStart < dayStart;
+                      const continuesToNextDay = taskEnd > dayEnd;
+                      const endLabel = `${String(taskEnd.getHours()).padStart(2, "0")}:${String(taskEnd.getMinutes()).padStart(2, "0")}`;
 
                       return (
                         <button
-                          className={`calendar-timed-task p${task.priority}`}
-                          key={task.id}
+                          className={`calendar-timed-task p${task.priority} ${continuesFromPreviousDay ? "continues-from-previous" : ""} ${continuesToNextDay ? "continues-to-next" : ""}`}
+                          key={`${task.id}:${iso}`}
                           style={{ top, height }}
                           onClick={(event) => { event.stopPropagation(); onOpenTask(task.id); }}
                         >
-                          <strong>{task.time}</strong>
+                          <strong>{continuesFromPreviousDay ? `↳ до ${endLabel}` : task.time}</strong>
                           <span>{task.title}</span>
-                          {dayCount <= 7 && task.projectId && <small>{projectPath(projects, task.projectId)}</small>}
+                          {continuesToNextDay && <small>продолжение завтра ↓</small>}
+                          {!continuesToNextDay && dayCount <= 7 && task.projectId && <small>{projectPath(projects, task.projectId)}</small>}
                         </button>
                       );
                     })}
