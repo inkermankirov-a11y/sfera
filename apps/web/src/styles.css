@@ -9557,3 +9557,155 @@ html,
     min-width: 104px;
   }
 }
+
+
+/* Desktop profile name picker */
+.desktop-user-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.desktop-bell {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #49667a;
+  cursor: pointer;
+}
+
+.desktop-bell:hover {
+  background: #edf4f5;
+}
+
+.desktop-profile-picker {
+  position: relative;
+  z-index: 40;
+}
+
+.desktop-user {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 2px 6px 2px 2px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #354a5d;
+  cursor: pointer;
+}
+
+.desktop-user:hover {
+  background: rgba(233, 244, 244, .78);
+}
+
+.desktop-user strong {
+  max-width: 150px;
+  overflow: hidden;
+  color: #29465a;
+  font-size: .88rem;
+  font-weight: 820;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.desktop-user-chevron {
+  color: #607687;
+  font-size: .72rem;
+  transition: transform 140ms ease;
+}
+
+.desktop-user-chevron.open {
+  transform: rotate(180deg);
+}
+
+.profile-picker-dismiss {
+  position: fixed !important;
+  z-index: 39 !important;
+  inset: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+.profile-name-menu {
+  position: absolute;
+  z-index: 41;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 290px;
+  display: grid;
+  gap: 9px;
+  padding: 14px;
+  border: 1px solid #dce5e9;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 16px 40px rgba(32, 49, 61, .18);
+}
+
+.profile-name-menu > span {
+  color: #29485d;
+  font-size: .76rem;
+  font-weight: 820;
+}
+
+.profile-name-menu input {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 11px;
+  border: 1px solid #d8e2e6;
+  border-radius: 10px;
+  background: #fbfdfe;
+  color: #21394a;
+  font-size: .86rem;
+  outline: none;
+}
+
+.profile-name-menu input:focus {
+  border-color: #9dcfcb;
+  box-shadow: 0 0 0 3px rgba(24, 128, 131, .10);
+}
+
+.profile-name-menu small {
+  color: #7b8b96;
+  font-size: .65rem;
+  line-height: 1.4;
+}
+
+.profile-name-menu > div {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+  margin-top: 2px;
+}
+
+.profile-name-menu > div button {
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid #dbe4e8;
+  border-radius: 9px;
+  background: #fff;
+  color: #536b7a;
+  cursor: pointer;
+  font-size: .72rem;
+  font-weight: 760;
+}
+
+.profile-name-menu > div button[type="submit"] {
+  border-color: #187f80;
+  background: #187f80;
+  color: #fff;
+}
+
+.profile-name-menu > div button:disabled {
+  opacity: .45;
+  cursor: default;
+}
