@@ -143,6 +143,9 @@ export function App() {
   });
   const [quickTitle, setQuickTitle] = useState("");
   const [quickPriority, setQuickPriority] = useState<Priority>(4);
+  const [projectView, setProjectView] = useState<"grid" | "list">(() => {
+    try { return localStorage.getItem("sfera.projectView") === "list" ? "list" : "grid"; } catch { return "grid"; }
+  });
   const [subtaskTitle, setSubtaskTitle] = useState("");
   const [commentBody, setCommentBody] = useState("");
   const [query, setQuery] = useState("");
@@ -480,6 +483,35 @@ export function App() {
       projectDescendants(projects, projectId).forEach((project) => ids.add(project.id));
     }
     return tasks.filter((task) => task.status === "active" && task.projectId && ids.has(task.projectId)).length;
+  }
+
+  function setProjectViewMode(mode: "grid" | "list") {
+    setProjectView(mode);
+    try { localStorage.setItem("sfera.projectView", mode); } catch {}
+  }
+
+  function renderProjectGrid(parentId: string | null) {
+    const items = projectChildren(projects, parentId);
+    return (
+      <div className="project-grid">
+        {items.map((project) => {
+          const children = projectChildren(projects, project.id);
+          const tone = sphereTone(projects, project.id);
+          return (
+            <button
+              className={`project-tile sphere-tone-${tone} ${project.kind === "sphere" ? "sphere-root-tile" : "sphere-child-tile"}`}
+              key={project.id}
+              onClick={() => setSelectedProjectId(project.id)}
+            >
+              <span className="project-tile-icon">{project.kind === "sphere" ? "◇" : "▰"}</span>
+              <strong>{project.title}</strong>
+              <small>{projectTaskCount(project.id)} задач · {children.length} подпроектов</small>
+              <b>›</b>
+            </button>
+          );
+        })}
+      </div>
+    );
   }
 
   function renderProjectTree(parentId: string | null, depth = 0): React.ReactNode {
@@ -1174,14 +1206,19 @@ export function App() {
                   <span>Сферы жизни</span>
                   <h2>Проекты</h2>
                 </div>
-                <button
-                  aria-label="Создать сферу жизни"
-                  onClick={() => { setProjectParentId(""); setProjectCreateOpen(true); }}
-                >＋</button>
+                <div className="projects-header-actions">
+                  <div className="project-view-toggle" role="group" aria-label="Вид проектов">
+                    <button className={projectView === "grid" ? "active" : ""} onClick={() => setProjectViewMode("grid")} aria-label="Плитка" title="Плитка">▦</button>
+                    <button className={projectView === "list" ? "active" : ""} onClick={() => setProjectViewMode("list")} aria-label="Список" title="Список">☷</button>
+                  </div>
+                  <button className="projects-add-root" aria-label="Создать сферу жизни" onClick={() => { setProjectParentId(""); setProjectCreateOpen(true); }}>＋</button>
+                </div>
               </header>
-              <div className="project-tree-card">
-                {renderProjectTree(null)}
-              </div>
+              {projectView === "grid" ? renderProjectGrid(null) : (
+                <div className="project-tree-card">
+                  {renderProjectTree(null)}
+                </div>
+              )}
             </>
           ) : (
             <>
