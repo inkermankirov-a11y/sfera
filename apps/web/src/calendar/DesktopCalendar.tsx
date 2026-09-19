@@ -12,7 +12,7 @@ type DesktopCalendarProps = {
   timezoneLabel: string;
   todayIso: string;
   onOpenTask: (taskId: string) => void;
-  onCreateTask: (date: string, time: string | null) => void;
+  onCreateTask: (date: string, time: string | null, position: { x: number; y: number }) => void;
   onToday: () => void;
   onMovePeriod: (direction: -1 | 1) => void;
   onSetPeriod: (start: string, days: number) => void;
@@ -88,7 +88,7 @@ export function DesktopCalendar({
             {dates.map((iso) => {
               const allDayTasks = tasks.filter((task) => task.status === "active" && task.date === iso && !task.time);
               return (
-                <div className="all-day-cell" key={iso} onClick={() => onCreateTask(iso, null)} title="Добавить задачу на весь день">
+                <div className="all-day-cell" key={iso} onClick={(event) => onCreateTask(iso, null, { x: event.clientX, y: event.clientY })} title="Добавить задачу на весь день">
                   {allDayTasks.slice(0, 3).map((task) => (
                     <button className={`calendar-all-day-task p${task.priority}`} key={task.id} onClick={(event) => { event.stopPropagation(); onOpenTask(task.id); }}>
                       {task.title}
@@ -128,7 +128,7 @@ export function DesktopCalendar({
                       const hours = Math.floor(snappedMinutes / 60);
                       const minutes = snappedMinutes % 60;
                       const time = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
-                      onCreateTask(iso, time);
+                      onCreateTask(iso, time, { x: event.clientX, y: event.clientY });
                     }}
                   >
                     {timedTasks.map((task) => {
