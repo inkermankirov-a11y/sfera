@@ -10,8 +10,16 @@ type GraphNode = {
   vy: number;
 };
 
+export type GraphStructureEdge = {
+  id: string;
+  a: ObjectRef;
+  b: ObjectRef;
+};
+
 type Props = {
   relations: Relation[];
+  objects: ObjectRef[];
+  structureEdges?: GraphStructureEdge[];
   getTitle: (ref: ObjectRef) => string;
   getTypeLabel: (type: ObjectRef["type"]) => string;
   onOpen: (ref: ObjectRef) => void;
@@ -37,7 +45,7 @@ function shortTitle(value: string) {
   return value.length > 28 ? `${value.slice(0, 27)}…` : value;
 }
 
-export function RelationsGraph({ relations, getTitle, getTypeLabel, onOpen }: Props) {
+export function RelationsGraph({ relations, objects, structureEdges = [], getTitle, getTypeLabel, onOpen }: Props) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const simulationRef = useRef<GraphNode[]>([]);
   const frameRef = useRef<number | null>(null);
@@ -49,20 +57,34 @@ export function RelationsGraph({ relations, getTitle, getTypeLabel, onOpen }: Pr
 
   const nodeRefs = useMemo(() => {
     const map = new Map<string, ObjectRef>();
+    objects.forEach((ref) => map.set(keyOf(ref), ref));
     relations.forEach((relation) => {
       map.set(keyOf(relation.a), relation.a);
       map.set(keyOf(relation.b), relation.b);
     });
+    structureEdges.forEach((edge) => {
+      map.set(keyOf(edge.a), edge.a);
+      map.set(keyOf(edge.b), edge.b);
+    });
     return Array.from(map.values());
-  }, [relations]);
+  }, [objects, relations, structureEdges]);
 
   const edgeKeys = useMemo(
-    () => relations.map((relation) => ({
-      id: relation.id,
-      a: keyOf(relation.a),
-      b: keyOf(relation.b)
-    })),
-    [relations]
+    () => [
+      ...structureEdges.map((edge) => ({
+        id: `structure:${edge.id}`,
+        a: keyOf(edge.a),
+        b: keyOf(edge.b),
+        kind: "structure" as const
+      })),
+      ...relations.map((relation) => ({
+        id: relation.id,
+        a: keyOf(relation.a),
+        b: keyOf(relation.b),
+        kind: "relation" as const
+      }))
+    ],
+    [relations, structureEdges]
   );
 
   const connectedToHovered = useMemo(() => {
@@ -197,7 +219,7 @@ export function RelationsGraph({ relations, getTitle, getTypeLabel, onOpen }: Pr
       <header className="relations-graph-toolbar">
         <div>
           <strong>Карта связей</strong>
-          <small>{nodes.length} объектов · {relations.length} связей</small>
+          <small>{nodes.length} объектов · {relations.length} ручных связей · {structureEdges.length} структурных</small>
         </div>
         <div className="relations-graph-actions">
           <button onClick={() => setLive((value) => !value)} className={live ? "active" : ""} title="Живая физика">{live ? "◉" : "○"}</button>
@@ -222,7 +244,7 @@ export function RelationsGraph({ relations, getTitle, getTypeLabel, onOpen }: Pr
                 const b = byKey.get(edge.b);
                 if (!a || !b) return null;
                 const active = !hovered || edge.a === hovered || edge.b === hovered;
-                return <line key={edge.id} x1={a.x} y1={a.y} x2={b.x} y2={b.y} className={active ? "active" : "dimmed"} />;
+                return <line key={edge.id} x1={a.x} y1={a.y} x2={b.x} y2={b.y} className={`${edge.kind === "structure" ? "structure" : "relation"} ${active ? "active" : "dimmed"}`} />;
               })}
             </g>
             <g className="relations-graph-nodes">
@@ -272,7 +294,7 @@ export function RelationsGraph({ relations, getTitle, getTypeLabel, onOpen }: Pr
           <span><i className="project" />Проект</span>
           <span><i className="task" />Задача</span>
           <span><i className="note" />Заметка</span>
-          <small>Перетаскивай узлы · наведи, чтобы увидеть соседние связи</small>
+          <small>Сплошные линии — ручные связи · пунктир — структура проектов и размещение объектов</small>
         </div>
       </div>
     </section>

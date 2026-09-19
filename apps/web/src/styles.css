@@ -9003,3 +9003,22 @@ html,
     transition: none;
   }
 }
+
+
+/* Relations graph: distinguish automatic structure from manual links */
+.relations-graph-edges line.structure {
+  stroke-dasharray: 6 7;
+  stroke: rgba(92, 121, 139, .30);
+}
+
+.relations-graph-edges line.relation {
+  stroke: rgba(30, 126, 132, .55);
+  stroke-width: 2;
+}
+
+.relations-list-empty {
+  padding: 0 13px 13px;
+  color: #748590;
+  font-size: .7rem;
+  line-height: 1.4;
+}
