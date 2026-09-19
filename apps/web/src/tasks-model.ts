@@ -93,7 +93,7 @@ export function seedTasks(): Task[] {
     priority: 1,
     labels: ["личное"],
     order: 10,
-    description: "Главная задача с подзадачами. Можно сворачивать дерево и открывать каждую подзадачу отдельно."
+    description: "Главная задача с подзадачами. Можно сворачивать дерево и открывать каждую подзадачу отдельно.",\n    projectId: "sphere-family"
   });
   const dates = createTask({
     title: "Согласовать даты",
@@ -107,7 +107,7 @@ export function seedTasks(): Task[] {
     priority: 2,
     order: 20,
     labels: ["покупки"],
-    description: "Посмотреть варианты после 18:00."
+    description: "Посмотреть варианты после 18:00.",\n    projectId: "sphere-family"
   });
   const hotel = createTask({
     title: "Забронировать гостиницу",
@@ -131,7 +131,7 @@ export function seedTasks(): Task[] {
       priority: 1,
       labels: ["работа", "звонок"],
       order: 0,
-      description: "Обсудить следующую встречу."
+      description: "Обсудить следующую встречу.",\n      projectId: "project-practice"
     }),
     parent,
     dates,
@@ -180,7 +180,7 @@ export function readTasks(): Task[] {
     const current = localStorage.getItem(STORAGE_KEY);
     if (current) {
       const parsed = JSON.parse(current);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed)) return parsed.map((task) => ({ ...task, projectId: task.projectId ?? null })) as Task[];
     }
 
     const old = localStorage.getItem(OLD_STORAGE_KEY);
