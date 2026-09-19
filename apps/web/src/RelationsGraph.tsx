@@ -13,8 +13,7 @@ type GraphNode = {
 type HierarchyMeta = {
   depth: number;
   rootKey: string;
-  targetX: number;
-  targetY: number;
+  parentKey: string | null;
 };
 
 export type GraphStructureEdge = {
@@ -151,33 +150,15 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
       return result;
     };
 
-    const rootKeys = nodeRefs
-      .map((ref) => keyOf(ref))
-      .filter((key) => resolve(key).depth === 0)
-      .sort((a, b) => a.localeCompare(b));
-
-    const rootIndex = new Map(rootKeys.map((key, index) => [key, index]));
-    const rootCount = Math.max(1, rootKeys.length);
-    const centerX = WIDTH / 2;
-    const centerY = HEIGHT / 2;
-
     const result = new Map<string, HierarchyMeta>();
     nodeRefs.forEach((ref) => {
       const key = keyOf(ref);
       const { depth, rootKey } = resolve(key);
-      const index = rootIndex.get(rootKey) ?? 0;
-      const rootAngle = -Math.PI / 2 + (index / rootCount) * Math.PI * 2;
-      const sector = Math.min(.68, (Math.PI * 2 / rootCount) * .62);
-      const jitterSeed = ((hash(key) % 1000) / 1000) - .5;
-      const angle = rootAngle + (depth === 0 ? 0 : jitterSeed * sector);
-
-      const radiusByDepth = [92, 190, 275, 345, 405];
-      const rawRadius = radiusByDepth[Math.min(depth, radiusByDepth.length - 1)] + Math.max(0, depth - 4) * 48;
-      const yCompression = .72;
-      const targetX = centerX + Math.cos(angle) * rawRadius;
-      const targetY = centerY + Math.sin(angle) * rawRadius * yCompression;
-
-      result.set(key, { depth, rootKey, targetX, targetY });
+      result.set(key, {
+        depth,
+        rootKey,
+        parentKey: parentByKey.get(key) ?? null
+      });
     });
 
     return result;
@@ -194,21 +175,29 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
   }, [edgeKeys, hovered]);
 
   useEffect(() => {
-    const count = Math.max(1, nodeRefs.length);
     const previous = new Map(simulationRef.current.map((node) => [node.key, node]));
     const next = nodeRefs.map((ref, index) => {
       const key = keyOf(ref);
       const existing = previous.get(key);
       if (existing) return { ...existing };
       const meta = hierarchy.get(key);
-      const fallbackAngle = (index / count) * Math.PI * 2;
+      const rootKey = meta?.rootKey ?? key;
+      const rootAngle = ((hash(rootKey) % 6283) / 1000);
+      const rootRadius = ref.type === "project" && (meta?.depth ?? 0) === 0
+        ? 38 + (hash(`${rootKey}:root-radius`) % 54)
+        : 160 + (hash(`${rootKey}:outer-radius`) % 55);
+      const rootX = WIDTH / 2 + Math.cos(rootAngle) * rootRadius;
+      const rootY = HEIGHT / 2 + Math.sin(rootAngle) * rootRadius * .72;
+      const depth = meta?.depth ?? 0;
+      const childAngle = ((hash(key) % 6283) / 1000);
+      const childDistance = depth === 0 ? 0 : 92 + Math.min(230, (depth - 1) * 72) + (hash(`${key}:offset`) % 32);
       return {
         key,
         ref,
-        x: meta?.targetX ?? WIDTH / 2 + Math.cos(fallbackAngle) * 180,
-        y: meta?.targetY ?? HEIGHT / 2 + Math.sin(fallbackAngle) * 135,
-        vx: 0,
-        vy: 0
+        x: rootX + Math.cos(childAngle) * childDistance,
+        y: rootY + Math.sin(childAngle) * childDistance * .82,
+        vx: (((hash(`${key}:vx`) % 200) - 100) / 850),
+        vy: (((hash(`${key}:vy`) % 200) - 100) / 850)
       };
     });
     simulationRef.current = next;
@@ -233,7 +222,13 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
           let dy = b.y - a.y;
           const dist2 = Math.max(220, dx * dx + dy * dy);
           const dist = Math.sqrt(dist2);
-          const force = Math.min(2.4, 25000 / dist2);
+          const metaA = hierarchy.get(a.key);
+          const metaB = hierarchy.get(b.key);
+          const bothRootProjects = a.ref.type === "project" && b.ref.type === "project"
+            && (metaA?.depth ?? 0) === 0 && (metaB?.depth ?? 0) === 0;
+          const sameBranch = metaA?.rootKey && metaA.rootKey === metaB?.rootKey;
+          const repulsion = bothRootProjects ? 52000 : sameBranch ? 19000 : 27000;
+          const force = Math.min(bothRootProjects ? 3.2 : 2.35, repulsion / dist2);
           dx /= dist;
           dy /= dist;
           a.vx -= dx * force * dt;
@@ -252,9 +247,9 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
         const dist = Math.max(1, Math.sqrt(dx * dx + dy * dy));
         const childMeta = hierarchy.get(edge.b);
         const target = edge.kind === "structure"
-          ? childMeta?.depth === 1 ? 112 : childMeta?.depth === 2 ? 96 : 84
+          ? childMeta?.depth === 1 ? 122 : childMeta?.depth === 2 ? 96 : 82
           : 145;
-        const force = (dist - target) * (edge.kind === "structure" ? .009 : .0048);
+        const force = (dist - target) * (edge.kind === "structure" ? .0105 : .0048);
         dx /= dist;
         dy /= dist;
         a.vx += dx * force * dt;
@@ -270,11 +265,10 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
           return;
         }
         const meta = hierarchy.get(node.key);
-        const targetX = meta?.targetX ?? WIDTH / 2;
-        const targetY = meta?.targetY ?? HEIGHT / 2;
-        const anchorStrength = meta?.depth === 0 ? .0075 : meta?.depth === 1 ? .0048 : .0032;
-        node.vx += (targetX - node.x) * anchorStrength * dt;
-        node.vy += (targetY - node.y) * anchorStrength * dt;
+        const isRootProject = node.ref.type === "project" && (meta?.depth ?? 0) === 0;
+        const centerStrength = isRootProject ? .0044 : node.ref.type === "project" ? .00028 : .00012;
+        node.vx += (WIDTH / 2 - node.x) * centerStrength * dt;
+        node.vy += (HEIGHT / 2 - node.y) * centerStrength * dt;
         node.vx *= .91;
         node.vy *= .91;
         node.x = Math.min(WIDTH - 44, Math.max(44, node.x + node.vx * dt));
@@ -367,14 +361,22 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
   }
 
   function resetGraph() {
-    const count = Math.max(1, simulationRef.current.length);
     simulationRef.current.forEach((node, index) => {
       const meta = hierarchy.get(node.key);
-      const fallbackAngle = (index / count) * Math.PI * 2;
-      node.x = meta?.targetX ?? WIDTH / 2 + Math.cos(fallbackAngle) * 180;
-      node.y = meta?.targetY ?? HEIGHT / 2 + Math.sin(fallbackAngle) * 135;
-      node.vx = 0;
-      node.vy = 0;
+      const rootKey = meta?.rootKey ?? node.key;
+      const rootAngle = ((hash(rootKey) % 6283) / 1000);
+      const rootRadius = node.ref.type === "project" && (meta?.depth ?? 0) === 0
+        ? 38 + (hash(`${rootKey}:root-radius`) % 54)
+        : 160 + (hash(`${rootKey}:outer-radius`) % 55);
+      const rootX = WIDTH / 2 + Math.cos(rootAngle) * rootRadius;
+      const rootY = HEIGHT / 2 + Math.sin(rootAngle) * rootRadius * .72;
+      const depth = meta?.depth ?? 0;
+      const childAngle = ((hash(node.key) % 6283) / 1000);
+      const childDistance = depth === 0 ? 0 : 92 + Math.min(230, (depth - 1) * 72) + (hash(`${node.key}:offset`) % 32);
+      node.x = rootX + Math.cos(childAngle) * childDistance;
+      node.y = rootY + Math.sin(childAngle) * childDistance * .82;
+      node.vx = (((hash(`${node.key}:reset-vx:${index}`) % 200) - 100) / 850);
+      node.vy = (((hash(`${node.key}:reset-vy:${index}`) % 200) - 100) / 850);
     });
     viewBoxRef.current = INITIAL_VIEWBOX;
     setViewBox(INITIAL_VIEWBOX);

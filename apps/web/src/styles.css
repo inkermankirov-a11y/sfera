@@ -9099,11 +9099,9 @@ html,
 }
 
 
-/* Radial hierarchy: parents visually dominate, children move outward */
+/* Hierarchy through physics: no target/radar background */
 .relations-graph-stage {
-  background:
-    radial-gradient(circle at 50% 50%, rgba(17, 125, 129, .055) 0 12%, transparent 12.5% 27%, rgba(71, 102, 120, .035) 27.5% 28%, transparent 28.5% 45%, rgba(71, 102, 120, .025) 45.5% 46%, transparent 46.5%),
-    #f8fbfc !important;
+  background: #f8fbfc !important;
 }
 
 .graph-node.depth-0 .graph-node-label {
@@ -9128,6 +9126,6 @@ html,
 }
 
 .graph-node.depth-0 .graph-node-halo {
-  fill: rgba(22, 136, 139, .07);
-  stroke: rgba(22, 136, 139, .13);
+  fill: rgba(22, 136, 139, .055);
+  stroke: rgba(22, 136, 139, .11);
 }
