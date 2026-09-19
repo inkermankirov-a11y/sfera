@@ -1414,9 +1414,9 @@ export function App() {
 
   return (
     <div className={`app-shell section-${mobileSection} ${selected ? "has-detail" : ""}`}>
-      <aside className="sidebar" aria-label="Навигация SFERA">
-        <button className="brand brand-button" onClick={() => setMobileSection("home")} aria-label="Главная SFERA">
-          <img className="brand-logo" src="/sfera/sfera-logo.webp" alt="SFERA" />
+      <aside className="sidebar" aria-label="Навигация СФЕРА">
+        <button className="brand brand-button" onClick={() => setMobileSection("home")} aria-label="Главная СФЕРА">
+          <img className="brand-logo" src="/sfera/sfera-logo.webp" alt="СФЕРА" />
         </button>
 
         <nav className="side-nav">
@@ -1518,7 +1518,7 @@ export function App() {
         <section className={`home-dashboard ${mobileSection === "home" ? "active" : ""}`} aria-hidden={mobileSection !== "home"}>
           <header className="dashboard-hero">
             <div className="dashboard-hero-copy">
-              <div className="dashboard-wordmark">SFERA</div>
+              <div className="dashboard-wordmark">СФЕРА</div>
               <p className="dashboard-date">{dashboardDate}</p>
               <h1>{greeting}, {profileName}!</h1>
               <p className="dashboard-lead">Большие перемены начинаются<br />с маленьких шагов ✨</p>
@@ -2171,7 +2171,7 @@ export function App() {
 
           {calendarMode === "history" && (
             <section className="calendar-list-card history-timeline">
-              <div className="calendar-list-title"><strong>История SFERA</strong><span>последние изменения</span></div>
+              <div className="calendar-list-title"><strong>История СФЕРЫ</strong><span>последние изменения</span></div>
               {historyEvents.map((event) => (
                 <div className="history-row" key={event.id}>
                   <span>{event.icon}</span>
