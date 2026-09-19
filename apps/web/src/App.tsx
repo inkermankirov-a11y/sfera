@@ -29,13 +29,79 @@ import {
   projectPath,
   readProjects
 } from "./projects-model";
+import {
+  NOTES_STORAGE_KEY,
+  Note,
+  NoteKind,
+  createNote,
+  readNotes
+} from "./notes-model";
+import {
+  GOALS_STORAGE_KEY,
+  Goal,
+  createGoal,
+  readGoals
+} from "./goals-model";
 
 const filterLabels: Record<Filter, string> = {
   all: "Все",
   today: "Сегодня",
   inbox: "Без даты",
-  done: "Готово"
+  overdue: "Просрочено",
+  done: "Выполнено"
 };
+
+type Section = "home" | "projects" | "tasks" | "notes" | "photos" | "calendar";
+type TaskView = Filter | "week";
+type NoteView = "all" | "ideas" | "diary" | "collections" | "lists" | "favorites";
+type ProjectTab = "overview" | "tasks" | "notes" | "photos" | "goals" | "history";
+type CalendarMode = "day" | "week" | "month" | "history";
+
+const noteKindLabels: Record<NoteKind, string> = {
+  note: "Заметка",
+  idea: "Идея",
+  diary: "Дневник",
+  collection: "Коллекция",
+  list: "Список"
+};
+
+function localIso(date: Date) {
+  const offset = date.getTimezoneOffset();
+  return new Date(date.getTime() - offset * 60_000).toISOString().slice(0, 10);
+}
+
+function currentWeekDates() {
+  const now = new Date();
+  const day = now.getDay() || 7;
+  const monday = new Date(now);
+  monday.setHours(12, 0, 0, 0);
+  monday.setDate(now.getDate() - day + 1);
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + index);
+    return {
+      iso: localIso(date),
+      short: new Intl.DateTimeFormat("ru-RU", { weekday: "short" }).format(date).replace(".", ""),
+      day: date.getDate()
+    };
+  });
+}
+
+function monthCells(cursor: Date) {
+  const first = new Date(cursor.getFullYear(), cursor.getMonth(), 1, 12);
+  const mondayIndex = (first.getDay() + 6) % 7;
+  const start = new Date(first);
+  start.setDate(first.getDate() - mondayIndex);
+  return Array.from({ length: 42 }, (_, index) => {
+    const date = new Date(start);
+    date.setDate(start.getDate() + index);
+    return {
+      iso: localIso(date),
+      day: date.getDate(),
+      inMonth: date.getMonth() === cursor.getMonth()
+    };
+  });
+}
 
 const priorityLabels: Record<Priority, string> = {
   1: "P1",
@@ -57,6 +123,7 @@ function dateTimeLocalToIso(value: string) {
 export function App() {
   const [tasks, setTasks] = useState<Task[]>(() => readTasks());
   const [filter, setFilter] = useState<Filter>("all");
+  const [taskView, setTaskView] = useState<TaskView>("all");
   const [selectedId, setSelectedId] = useState<string | null>(() => {
     const match = location.hash.match(/^#task=(.+)$/);
     return match ? decodeURIComponent(match[1]) : null;
@@ -69,14 +136,26 @@ export function App() {
   const [toast, setToast] = useState("");
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [mobileQuickOpen, setMobileQuickOpen] = useState(false);
+  const [quickMenuOpen, setQuickMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [mobileSection, setMobileSection] = useState<"home" | "projects" | "tasks" | "notes" | "photos">("home");
+  const [mobileSection, setMobileSection] = useState<Section>("home");
   const [projects, setProjects] = useState<ProjectNode[]>(() => readProjects());
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [projectCreateOpen, setProjectCreateOpen] = useState(false);
   const [projectTitle, setProjectTitle] = useState("");
   const [projectParentId, setProjectParentId] = useState("");
   const [quickProjectId, setQuickProjectId] = useState<string | null>(null);
+  const [notes, setNotes] = useState<Note[]>(() => readNotes());
+  const [goals, setGoals] = useState<Goal[]>(() => readGoals());
+  const [noteView, setNoteView] = useState<NoteView>("all");
+  const [noteCreateOpen, setNoteCreateOpen] = useState(false);
+  const [noteTitle, setNoteTitle] = useState("");
+  const [noteBody, setNoteBody] = useState("");
+  const [noteKind, setNoteKind] = useState<NoteKind>("note");
+  const [projectTab, setProjectTab] = useState<ProjectTab>("overview");
+  const [goalTitle, setGoalTitle] = useState("");
+  const [calendarMode, setCalendarMode] = useState<CalendarMode>("month");
+  const [calendarCursor, setCalendarCursor] = useState(() => new Date());
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
@@ -85,6 +164,18 @@ export function App() {
   useEffect(() => {
     localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects));
   }, [projects]);
+
+  useEffect(() => {
+    localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notes));
+  }, [notes]);
+
+  useEffect(() => {
+    localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify(goals));
+  }, [goals]);
+
+  useEffect(() => {
+    setProjectTab("overview");
+  }, [selectedProjectId]);
 
   useEffect(() => {
     if (!toast) return;
