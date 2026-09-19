@@ -126,6 +126,14 @@ const priorityLabels: Record<Priority, string> = {
   4: "Без приоритета"
 };
 
+function russianPlural(count: number, one: string, few: string, many: string) {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod10 === 1 && mod100 !== 11) return one;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return few;
+  return many;
+}
+
 function rootSphereId(projects: ProjectNode[], projectId: string | null | undefined) {
   if (!projectId) return null;
   let current = projects.find((item) => item.id === projectId);
@@ -592,7 +600,7 @@ export function App() {
   }
 
   function entityTypeLabel(type: EntityType) {
-    return type === "project" ? "Проект" : type === "task" ? "Задача" : "Заметка";
+    return type === "project" ? "Сфера / проект" : type === "task" ? "Задача" : "Заметка";
   }
 
   function relationTargetOptions(type: EntityType, source: ObjectRef) {
@@ -672,7 +680,7 @@ export function App() {
         )}
         <div className="link-object-form">
           <select value={linkType} onChange={(event) => { setLinkType(event.target.value as EntityType); setLinkTargetId(""); }}>
-            <option value="project">Проект / сфера</option>
+            <option value="project">Сфера / проект</option>
             <option value="task">Задача</option>
             <option value="note">Заметка</option>
           </select>
@@ -899,7 +907,7 @@ export function App() {
             >
               <span className="project-tile-icon">{project.kind === "sphere" ? "◇" : "▰"}</span>
               <strong>{project.title}</strong>
-              <small>{projectTaskCount(project.id)} задач · {children.length} подпроектов</small>
+              <small>{projectTaskCount(project.id)} задач · {children.length} {russianPlural(children.length, "подпроект", "подпроекта", "подпроектов")}</small>
               <b>›</b>
             </button>
           );
@@ -929,7 +937,7 @@ export function App() {
                 <small>{projectTaskCount(project.id)} активных задач</small>
               </span>
             </button>
-            <button className="project-open" onClick={() => setSelectedProjectId(project.id)}>›</button>
+            <button className="project-open" aria-label={`Открыть ${project.kind === "sphere" ? "сферу" : "проект"} «${project.title}»`} onClick={() => setSelectedProjectId(project.id)}>›</button>
           </div>
           {!project.collapsed && children.length > 0 && (
             <div className="project-subtree">{renderProjectTree(project.id, depth + 1)}</div>
@@ -951,6 +959,28 @@ export function App() {
   function openProfileNamePicker() {
     setProfileDraft(profileName);
     setProfileMenuOpen((value) => !value);
+  }
+
+  function openNewTask() {
+    setQuickTitle("");
+    setQuickDate(isoToday());
+    setQuickTime("");
+    setQuickDeadline("");
+    setQuickProjectId(null);
+    setQuickPriority(4);
+    setQuickOptionsOpen(false);
+    setFilter("today");
+    setTaskView("today");
+    setMobileSection("tasks");
+    window.setTimeout(() => document.getElementById("quick-add")?.focus(), 0);
+  }
+
+  function openNewNote() {
+    setNoteKind("note");
+    setNoteTitle("");
+    setNoteBody("");
+    setNoteProjectId(null);
+    setNoteCreateOpen(true);
   }
 
   function openDetail(id: string, replace = false) {
@@ -1315,7 +1345,7 @@ export function App() {
             ) : (
               <button
                 className={`check-button priority-ring p${task.priority} ${task.status === "done" ? "checked" : ""}`}
-                aria-label={task.status === "done" ? "Вернуть задачу" : "Выполнить задачу"}
+                aria-label={task.status === "done" ? `Вернуть задачу «${task.title}»` : `Выполнить задачу «${task.title}»`}
                 onClick={() => completeTask(task)}
               >
                 {task.status === "done" ? "✓" : ""}
@@ -1339,7 +1369,7 @@ export function App() {
               </span>
             </button>
 
-            <button className="row-more" aria-label="Открыть задачу" onClick={() => openDetail(task.id)}>›</button>
+            <button className="row-more" aria-label={`Открыть задачу «${task.title}»`} onClick={() => openDetail(task.id)}>›</button>
           </article>
 
           {showNested && directChildren.length > 0 && (
@@ -1395,7 +1425,7 @@ export function App() {
 
         <nav className="side-nav">
           <button className={mobileSection === "home" ? "active" : ""} onClick={() => setMobileSection("home")}><span>⌂</span>Главная</button>
-          <button className={mobileSection === "projects" ? "active" : ""} onClick={() => setMobileSection("projects")}><span>◇</span>Проекты</button>
+          <button className={mobileSection === "projects" ? "active" : ""} onClick={() => setMobileSection("projects")}><span>◇</span>Сферы</button>
           <button className={mobileSection === "tasks" ? "active" : ""} onClick={() => setMobileSection("tasks")}><span>✓</span>Задачи</button>
           <button className={mobileSection === "notes" ? "active" : ""} onClick={() => setMobileSection("notes")}><span>✎</span>Заметки</button>
           <button className={mobileSection === "photos" ? "active" : ""} onClick={() => setMobileSection("photos")}><span>▧</span>Фото</button>
@@ -1429,7 +1459,7 @@ export function App() {
         <header className="desktop-topbar">
           <button className="desktop-search" onClick={() => { setMobileSection("tasks"); setSearchOpen(true); }}>
             <span>⌕</span>
-            <span>Поиск по задачам, проектам, заметкам...</span>
+            <span>Поиск по задачам, сферам, проектам и заметкам...</span>
           </button>
           <div className="desktop-user-area">
             <button className="desktop-bell" aria-label="Уведомления">♢</button>
@@ -1479,7 +1509,7 @@ export function App() {
           <button className="mobile-profile-mark mobile-home-mark" onClick={() => setMobileSection("home")} aria-label="На главную">S</button>
           <div className="mobile-app-title">
             <strong>СФЕРА</strong>
-            <span>{mobileSection === "home" ? "Сегодня" : mobileSection === "projects" ? "Проекты" : mobileSection === "tasks" ? "Задачи" : mobileSection === "notes" ? "Заметки" : mobileSection === "photos" ? "Фото" : mobileSection === "relations" ? "Связи" : "Календарь"}</span>
+            <span>{mobileSection === "home" ? "Сегодня" : mobileSection === "projects" ? "Сферы" : mobileSection === "tasks" ? "Задачи" : mobileSection === "notes" ? "Заметки" : mobileSection === "photos" ? "Фото" : mobileSection === "relations" ? "Связи" : "Календарь"}</span>
           </div>
           <div className="mobile-app-actions">
             {mobileSection === "tasks" && (
@@ -1504,9 +1534,13 @@ export function App() {
             <section className="dashboard-card dashboard-today">
               <div className="dashboard-card-head">
                 <h2>Сегодня</h2>
-                <button onClick={() => { chooseTaskView("today"); setMobileSection("tasks"); }}>
-                  {todayTasks.length} {todayTasks.length === 1 ? "задача" : todayTasks.length < 5 ? "задачи" : "задач"} ›
-                </button>
+                <div className="dashboard-card-actions">
+                  <button className="dashboard-action dashboard-action-task" onClick={openNewTask}>＋ Новая задача</button>
+                  <button className="dashboard-action dashboard-action-note" onClick={openNewNote}>＋ Новая заметка</button>
+                  <button className="dashboard-count-link" onClick={() => { chooseTaskView("today"); setMobileSection("tasks"); }}>
+                    {todayTasks.length} {russianPlural(todayTasks.length, "задача", "задачи", "задач")} ›
+                  </button>
+                </div>
               </div>
 
               <div className="dashboard-task-list">
@@ -1515,11 +1549,11 @@ export function App() {
                     <span>✓</span>
                     <div>
                       <strong>На сегодня всё свободно</strong>
-                      <small>Добавь задачу или выбери один из проектов.</small>
+                      <small>Добавь задачу или выбери одну из сфер жизни.</small>
                     </div>
                   </div>
                 ) : (
-                  todayTasks.slice(0, 4).map((task) => (
+                  todayTasks.map((task) => (
                     <div className="dashboard-task-row" key={task.id}>
                       {task.uncompletable ? (
                         <span className="dashboard-task-dot">◆</span>
@@ -1527,7 +1561,7 @@ export function App() {
                         <button
                           className={`check-button priority-ring p${task.priority}`}
                           onClick={() => completeTask(task)}
-                          aria-label="Выполнить задачу"
+                          aria-label={`Выполнить задачу «${task.title}»`}
                         />
                       )}
                       <span className="dashboard-task-time">{task.time || "—"}</span>
@@ -1539,7 +1573,7 @@ export function App() {
                           {projectPath(projects, task.projectId).split(" / ").at(-1)}
                         </span>
                       )}
-                      <button className="dashboard-row-arrow" onClick={() => openDetail(task.id)}>›</button>
+                      <button className="dashboard-row-arrow" aria-label={`Открыть задачу «${task.title}»`} onClick={() => openDetail(task.id)}>›</button>
                     </div>
                   ))
                 )}
@@ -1555,7 +1589,7 @@ export function App() {
               <button className="stat-tile stat-projects" onClick={() => { setSelectedProjectId(null); setMobileSection("projects"); }}>
                 <span className="stat-icon">▰</span><b>›</b>
                 <strong>{rootSpheres.length}</strong>
-                <small>Проекты</small>
+                <small>Сферы</small>
               </button>
               <button className="stat-tile stat-notes" onClick={() => setMobileSection("notes")}>
                 <span className="stat-icon">▤</span><b>›</b>
@@ -1564,7 +1598,7 @@ export function App() {
               </button>
               <button className="stat-tile stat-photos" onClick={() => setMobileSection("photos")}>
                 <span className="stat-icon">▧</span><b>›</b>
-                <strong>0</strong>
+                <strong>{attachments.filter((item) => item.mime.startsWith("image/")).length}</strong>
                 <small>Фото</small>
               </button>
             </aside>
@@ -1575,7 +1609,7 @@ export function App() {
               <div>
                 <h2>Мои сферы жизни</h2>
               </div>
-              <button onClick={() => { setSelectedProjectId(null); setMobileSection("projects"); }}>Все проекты ›</button>
+              <button onClick={() => { setSelectedProjectId(null); setMobileSection("projects"); }}>Все сферы ›</button>
             </div>
 
             <div className="sphere-card-grid">
@@ -1588,7 +1622,7 @@ export function App() {
                   <span className="sphere-symbol">{["⌂","☾","✦","▣","✈","♡"][index % 6]}</span>
                   <span className="sphere-info">
                     <strong>{sphere.title}</strong>
-                    <small>{projectTaskCount(sphere.id)} задач · 0 заметок</small>
+                    <small>{projectTaskCount(sphere.id)} задач · {projectNoteCount(sphere.id)} заметок</small>
                   </span>
                   <b>›</b>
                 </button>
@@ -1605,7 +1639,7 @@ export function App() {
 
           <div className="home-function-strip">
             <button onClick={() => { chooseTaskView("week"); setMobileSection("tasks"); }}>
-              <span>▦</span><strong>Неделя</strong><small>{weekTaskCount} задач</small>
+              <span>▦</span><strong>Неделя</strong><small>{weekTaskCount} {russianPlural(weekTaskCount, "задача", "задачи", "задач")}</small>
             </button>
             <button onClick={() => { setSelectedProjectId(rootSpheres[0]?.id ?? null); setProjectTab("goals"); setMobileSection("projects"); }}>
               <span>◎</span><strong>Цели</strong><small>{goals.length} активных</small>
@@ -1802,10 +1836,10 @@ export function App() {
                 <button className="module-back-button" onClick={() => setMobileSection("home")} aria-label="Назад">←</button>
                 <div>
                   <span>Сферы жизни</span>
-                  <h2>Проекты</h2>
+                  <h2>Сферы</h2>
                 </div>
                 <div className="projects-header-actions">
-                  <div className="project-view-toggle" role="group" aria-label="Вид проектов">
+                  <div className="project-view-toggle" role="group" aria-label="Вид сфер">
                     <button className={projectView === "grid" ? "active" : ""} onClick={() => setProjectViewMode("grid")} aria-label="Плитка" title="Плитка">▦</button>
                     <button className={projectView === "list" ? "active" : ""} onClick={() => setProjectViewMode("list")} aria-label="Список" title="Список">☷</button>
                   </div>
@@ -1827,7 +1861,7 @@ export function App() {
                   aria-label="Назад"
                 >←</button>
                 <div>
-                  <span>{projectPath(projects, selectedProject.parentId) || "Проекты"}</span>
+                  <span>{projectPath(projects, selectedProject.parentId) || "Сферы жизни"}</span>
                   <h2>{selectedProject.title}</h2>
                 </div>
                 <div className="project-detail-actions">
@@ -1846,7 +1880,7 @@ export function App() {
 
               <div className="project-summary-grid">
                 <div><strong>{projectTaskCount(selectedProject.id, false)}</strong><span>задач</span></div>
-                <div><strong>{projectChildren(projects, selectedProject.id).length}</strong><span>подпроектов</span></div>
+                <div><strong>{projectChildren(projects, selectedProject.id).length}</strong><span>{russianPlural(projectChildren(projects, selectedProject.id).length, "подпроект", "подпроекта", "подпроектов")}</span></div>
                 <div><strong>{projectNoteCount(selectedProject.id)}</strong><span>заметок</span></div>
                 <div><strong>{attachmentsFor(attachments, { type: "project", id: selectedProject.id }).filter((item) => item.mime.startsWith("image/")).length}</strong><span>фото</span></div>
               </div>
@@ -1876,8 +1910,8 @@ export function App() {
                       <div className="project-section-title-row">
                         <div className="project-section-title">Подпроекты</div>
                         <div className="project-view-toggle compact" role="group" aria-label="Вид подпроектов">
-                          <button className={projectView === "grid" ? "active" : ""} onClick={() => setProjectViewMode("grid")}>▦</button>
-                          <button className={projectView === "list" ? "active" : ""} onClick={() => setProjectViewMode("list")}>☷</button>
+                          <button aria-label="Плитка" title="Плитка" className={projectView === "grid" ? "active" : ""} onClick={() => setProjectViewMode("grid")}>▦</button>
+                          <button aria-label="Список" title="Список" className={projectView === "list" ? "active" : ""} onClick={() => setProjectViewMode("list")}>☷</button>
                         </div>
                       </div>
                       {projectView === "grid" ? renderProjectGrid(selectedProject.id) : <div className="project-subtree-list">{renderProjectTree(selectedProject.id)}</div>}
@@ -1975,7 +2009,7 @@ export function App() {
         <section className={`mobile-module-screen notes-screen ${mobileSection === "notes" ? "active" : ""}`} aria-hidden={mobileSection !== "notes"}>
           <header className="module-page-header">
             <div><span>Личная база знаний</span><h2>Заметки</h2></div>
-            <button onClick={() => { setNoteKind("note"); setNoteProjectId(null); setNoteCreateOpen(true); }}>＋</button>
+            <button aria-label="Создать заметку" onClick={openNewNote}>＋</button>
           </header>
 
           <div className="section-tabs notes-tabs" role="tablist" aria-label="Типы заметок">
@@ -2009,7 +2043,7 @@ export function App() {
                 <div className="note-card-top">
                   <span>{note.kind === "diary" ? "☼" : note.kind === "idea" ? "✦" : note.kind === "collection" ? "▦" : note.kind === "list" ? "☷" : "✎"}</span>
                   <small>{noteKindLabels[note.kind]}</small>
-                  <button className={note.favorite ? "favorite active" : "favorite"} onClick={(event) => { event.stopPropagation(); setNotes((current) => current.map((item) => item.id === note.id ? { ...item, favorite: !item.favorite, updatedAt: nowIso() } : item)); }}>☆</button>
+                  <button className={note.favorite ? "favorite active" : "favorite"} aria-label={note.favorite ? "Убрать из важного" : "Добавить в важное"} onClick={(event) => { event.stopPropagation(); setNotes((current) => current.map((item) => item.id === note.id ? { ...item, favorite: !item.favorite, updatedAt: nowIso() } : item)); }}>☆</button>
                 </div>
                 <h3>{note.title}</h3>
                 {note.body && <p>{note.body}</p>}
@@ -2026,7 +2060,7 @@ export function App() {
           <header className="module-page-header">
             <button className="module-back-button" onClick={() => setMobileSection("home")} aria-label="Назад">←</button>
             <div><span>Визуальная память</span><h2>Фото</h2></div>
-            <button onClick={() => setToast("Загрузка фото — следующий функциональный шаг")}>＋</button>
+            <button aria-label="Добавить фото" onClick={() => setToast("Загрузка фото — следующий функциональный шаг")}>＋</button>
           </header>
           <div className="section-tabs photo-tabs">
             {["Все", "Последние", "По проектам", "По сферам", "Альбомы", "Без проекта"].map((label, index) => (
@@ -2041,7 +2075,10 @@ export function App() {
             </div>
           </div>
           {attachments.filter((item) => item.mime.startsWith("image/")).length === 0 ? (
-            <div className="module-empty-card"><strong>Фото пока нет</strong><span>Прикрепи фото внутри проекта, задачи или заметки — оно появится здесь автоматически.</span></div>
+            <div className="module-empty-card">
+              <strong>Фото пока нет</strong>
+              <span>Прикрепи фото внутри сферы, задачи или заметки — оно появится здесь автоматически.</span>
+            </div>
           ) : (
             <div className="global-photo-grid">
               {attachments.filter((item) => item.mime.startsWith("image/")).map((item) => (
@@ -2091,9 +2128,9 @@ export function App() {
           {calendarMode === "month" && (
             <section className="calendar-month-card">
               <header className="calendar-month-head">
-                <button onClick={() => setMonthOffset(-1)}>←</button>
+                <button aria-label="Предыдущий месяц" onClick={() => setMonthOffset(-1)}>←</button>
                 <h3>{calendarTitle}</h3>
-                <button onClick={() => setMonthOffset(1)}>→</button>
+                <button aria-label="Следующий месяц" onClick={() => setMonthOffset(1)}>→</button>
               </header>
               <div className="calendar-weekdays">{["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map((day) => <span key={day}>{day}</span>)}</div>
               <div className="calendar-grid">
@@ -2113,7 +2150,7 @@ export function App() {
 
           {calendarMode === "day" && (
             <section className="calendar-list-card">
-              <div className="calendar-list-title"><strong>Сегодня</strong><span>{todayTasks.length} задач</span></div>
+              <div className="calendar-list-title"><strong>Сегодня</strong><span>{todayTasks.length} {russianPlural(todayTasks.length, "задача", "задачи", "задач")}</span></div>
               {todayTasks.length === 0 ? <p className="project-empty-row">На сегодня ничего не запланировано.</p> : todayTasks.map((task) => (
                 <button className="calendar-event-row" key={task.id} onClick={() => openDetail(task.id)}>
                   <time>{task.time ?? "—"}</time><div><strong>{task.title}</strong><small>{task.projectId ? projectPath(projects, task.projectId) : "Без проекта"}</small></div><b>›</b>
@@ -2162,7 +2199,7 @@ export function App() {
           {relationGraphObjects.length === 0 ? (
             <div className="module-empty-card">
               <strong>Объектов пока нет</strong>
-              <span>Создай проект, задачу или заметку — они сразу появятся на карте.</span>
+              <span>Создай сферу, проект, задачу или заметку — они сразу появятся на карте.</span>
             </div>
           ) : (
             <>
@@ -2208,7 +2245,7 @@ export function App() {
         <button className="fab" aria-label="Быстрое добавление" onClick={() => setQuickMenuOpen(true)}>＋</button>
 
         <nav className="bottom-nav mobile-tabbar" aria-label="Основная навигация">
-          <button className={mobileSection === "projects" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("projects"); setSettingsOpen(false); }}><span>◇</span>Проекты</button>
+          <button className={mobileSection === "projects" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("projects"); setSettingsOpen(false); }}><span>◇</span>Сферы</button>
           <button className={mobileSection === "tasks" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("tasks"); setSettingsOpen(false); }}><span>✓</span>Задачи</button>
           <button className={mobileSection === "notes" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("notes"); setSettingsOpen(false); }}><span>✎</span>Заметки</button>
           <button className={mobileSection === "photos" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("photos"); setSettingsOpen(false); }}><span>▧</span>Фото</button>
@@ -2744,6 +2781,7 @@ export function App() {
                         ) : (
                           <button
                             className={`check-button priority-ring p${subtask.priority} ${subtask.status === "done" ? "checked" : ""}`}
+                            aria-label={subtask.status === "done" ? `Вернуть подзадачу «${subtask.title}»` : `Выполнить подзадачу «${subtask.title}»`}
                             onClick={() => completeTask(subtask)}
                           >
                             {subtask.status === "done" ? "✓" : ""}
