@@ -70,7 +70,7 @@ export function App() {
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [mobileQuickOpen, setMobileQuickOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [mobileSection, setMobileSection] = useState<"projects" | "tasks" | "notes" | "photos">("projects");
+  const [mobileSection, setMobileSection] = useState<"home" | "projects" | "tasks" | "notes" | "photos">("home");
   const [projects, setProjects] = useState<ProjectNode[]>(() => readProjects());
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [projectCreateOpen, setProjectCreateOpen] = useState(false);
@@ -125,6 +125,26 @@ export function App() {
     ? projects.find((project) => project.id === selectedProjectId) ?? null
     : null;
   const flattenedProjects = useMemo(() => flattenProjects(projects), [projects]);
+  const todayTasks = useMemo(
+    () => tasks
+      .filter((task) => task.status === "active" && task.date === isoToday())
+      .sort((a, b) => (a.time ?? "99:99").localeCompare(b.time ?? "99:99") || a.order - b.order),
+    [tasks]
+  );
+  const overdueTasks = useMemo(
+    () => tasks
+      .filter((task) => task.status === "active" && task.date && task.date < isoToday())
+      .sort((a, b) => (a.date ?? "").localeCompare(b.date ?? "")),
+    [tasks]
+  );
+  const rootSpheres = useMemo(() => projectChildren(projects, null), [projects]);
+  const dashboardDate = new Intl.DateTimeFormat("ru-RU", {
+    weekday: "long",
+    day: "numeric",
+    month: "long"
+  }).format(new Date());
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Доброе утро" : hour < 18 ? "Добрый день" : "Добрый вечер";
 
   function matchesFilter(task: Task) {
     const normalized = query.trim().toLowerCase();
@@ -558,33 +578,33 @@ export function App() {
   return (
     <div className={`app-shell ${selected ? "has-detail" : ""}`}>
       <aside className="sidebar" aria-label="Навигация SFERA">
-        <div className="brand">
+        <button className="brand brand-button" onClick={() => setMobileSection("home")} aria-label="Главная SFERA">
           <div className="brand-mark">S</div>
           <div>
             <strong>СФЕРА</strong>
             <span>личное пространство</span>
           </div>
-        </div>
+        </button>
 
         <nav className="side-nav">
-          <button><span>◉</span>Сегодня</button>
-          <button><span>▦</span>Неделя</button>
-          <button className="active"><span>✓</span>Задачи</button>
-          <button><span>○</span>Календарь</button>
-          <button><span>◇</span>Пространство</button>
+          <button className={mobileSection === "home" ? "active" : ""} onClick={() => setMobileSection("home")}><span>⌂</span>Главная</button>
+          <button className={mobileSection === "projects" ? "active" : ""} onClick={() => setMobileSection("projects")}><span>◇</span>Проекты</button>
+          <button className={mobileSection === "tasks" ? "active" : ""} onClick={() => setMobileSection("tasks")}><span>✓</span>Задачи</button>
+          <button className={mobileSection === "notes" ? "active" : ""} onClick={() => setMobileSection("notes")}><span>✎</span>Заметки</button>
+          <button className={mobileSection === "photos" ? "active" : ""} onClick={() => setMobileSection("photos")}><span>▧</span>Фото</button>
         </nav>
 
         <div className="sidebar-bottom">
-          <button className="ghost-button">⚙ Настройки</button>
+          <button className="ghost-button" onClick={() => setSettingsOpen(true)}>⚙ Настройки</button>
         </div>
       </aside>
 
       <main className="tasks-page">
         <header className="mobile-topbar mobile-appbar">
-          <div className="mobile-profile-mark">S</div>
+          <button className="mobile-profile-mark mobile-home-mark" onClick={() => setMobileSection("home")} aria-label="На главную">S</button>
           <div className="mobile-app-title">
             <strong>СФЕРА</strong>
-            <span>{mobileSection === "projects" ? "Проекты" : mobileSection === "tasks" ? "Задачи" : mobileSection === "notes" ? "Заметки" : "Фото"}</span>
+            <span>{mobileSection === "home" ? "Сегодня" : mobileSection === "projects" ? "Проекты" : mobileSection === "tasks" ? "Задачи" : mobileSection === "notes" ? "Заметки" : "Фото"}</span>
           </div>
           <div className="mobile-app-actions">
             {mobileSection === "tasks" && (
@@ -593,6 +613,151 @@ export function App() {
             <button className="mobile-icon-action" aria-label="Настройки" onClick={() => setSettingsOpen(true)}>⚙</button>
           </div>
         </header>
+
+        <section className={`home-dashboard ${mobileSection === "home" ? "active" : ""}`} aria-hidden={mobileSection !== "home"}>
+          <header className="dashboard-hero">
+            <div>
+              <p className="dashboard-date">{dashboardDate}</p>
+              <h1>{greeting}, Лаура</h1>
+              <p className="dashboard-lead">
+                {todayTasks.length
+                  ? `На сегодня ${todayTasks.length} ${todayTasks.length === 1 ? "задача" : todayTasks.length < 5 ? "задачи" : "задач"}.`
+                  : "На сегодня задач нет. Можно спокойно выбрать, чем заняться дальше."}
+              </p>
+            </div>
+            <button className="dashboard-add" onClick={() => { setQuickProjectId(null); setMobileQuickOpen(true); }}>＋ Новая задача</button>
+          </header>
+
+          <div className="dashboard-layout">
+            <section className="dashboard-card dashboard-today">
+              <div className="dashboard-card-head">
+                <div>
+                  <span className="dashboard-kicker">Фокус</span>
+                  <h2>Сегодня</h2>
+                </div>
+                <button onClick={() => { setFilter("today"); setMobileSection("tasks"); }}>Все задачи ›</button>
+              </div>
+
+              <div className="dashboard-task-list">
+                {todayTasks.length === 0 ? (
+                  <div className="dashboard-empty">
+                    <span>✓</span>
+                    <div>
+                      <strong>На сегодня всё свободно</strong>
+                      <small>Добавь задачу или выбери один из проектов.</small>
+                    </div>
+                  </div>
+                ) : (
+                  todayTasks.slice(0, 6).map((task) => (
+                    <div className="dashboard-task-row" key={task.id}>
+                      {task.uncompletable ? (
+                        <span className="dashboard-task-dot">◆</span>
+                      ) : (
+                        <button
+                          className={`check-button priority-ring p${task.priority}`}
+                          onClick={() => completeTask(task)}
+                          aria-label="Выполнить задачу"
+                        />
+                      )}
+                      <button className="dashboard-task-main" onClick={() => openDetail(task.id)}>
+                        <strong>{task.title}</strong>
+                        <small>
+                          {task.time ? task.time : "Сегодня"}
+                          {task.projectId ? ` · ${projectPath(projects, task.projectId)}` : " · Без проекта"}
+                        </small>
+                      </button>
+                      <button className="dashboard-row-arrow" onClick={() => openDetail(task.id)}>›</button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </section>
+
+            <aside className="dashboard-side">
+              <section className={`dashboard-card dashboard-alert ${overdueTasks.length ? "has-overdue" : ""}`}>
+                <span className="dashboard-kicker">Контроль</span>
+                <div className="dashboard-stat-line">
+                  <strong>{overdueTasks.length}</strong>
+                  <span>{overdueTasks.length === 1 ? "просроченная задача" : "просроченных задач"}</span>
+                </div>
+                <button onClick={() => { setFilter("all"); setMobileSection("tasks"); }}>Открыть задачи ›</button>
+              </section>
+
+              <section className="dashboard-card dashboard-summary">
+                <span className="dashboard-kicker">В пространстве</span>
+                <div className="dashboard-summary-grid">
+                  <div><strong>{activeCount}</strong><span>задач</span></div>
+                  <div><strong>{projects.length}</strong><span>проектов</span></div>
+                  <div><strong>0</strong><span>заметок</span></div>
+                  <div><strong>0</strong><span>фото</span></div>
+                </div>
+              </section>
+            </aside>
+          </div>
+
+          <section className="dashboard-section">
+            <div className="dashboard-section-head">
+              <div>
+                <span className="dashboard-kicker">Моя жизнь</span>
+                <h2>Сферы</h2>
+              </div>
+              <button onClick={() => { setSelectedProjectId(null); setMobileSection("projects"); }}>Все проекты ›</button>
+            </div>
+
+            <div className="sphere-card-grid">
+              {rootSpheres.slice(0, 6).map((sphere, index) => (
+                <button
+                  className={`sphere-card sphere-tone-${index % 5}`}
+                  key={sphere.id}
+                  onClick={() => { setSelectedProjectId(sphere.id); setMobileSection("projects"); }}
+                >
+                  <span className="sphere-symbol">{["◇","◐","✦","♢","✈"][index % 5]}</span>
+                  <span className="sphere-info">
+                    <strong>{sphere.title}</strong>
+                    <small>{projectTaskCount(sphere.id)} активных задач</small>
+                  </span>
+                  <b>›</b>
+                </button>
+              ))}
+              <button className="sphere-card sphere-create" onClick={() => { setProjectParentId(""); setProjectCreateOpen(true); }}>
+                <span className="sphere-symbol">＋</span>
+                <span className="sphere-info">
+                  <strong>Новая сфера</strong>
+                  <small>Добавить область жизни</small>
+                </span>
+              </button>
+            </div>
+          </section>
+
+          <div className="dashboard-bottom-grid">
+            <section className="dashboard-card dashboard-preview">
+              <div className="dashboard-card-head">
+                <div>
+                  <span className="dashboard-kicker">Мысли</span>
+                  <h2>Заметки</h2>
+                </div>
+                <button onClick={() => setMobileSection("notes")}>Открыть ›</button>
+              </div>
+              <div className="dashboard-placeholder">
+                <span>✎</span>
+                <p>Здесь появятся последние заметки и идеи.</p>
+              </div>
+            </section>
+
+            <section className="dashboard-card dashboard-preview">
+              <div className="dashboard-card-head">
+                <div>
+                  <span className="dashboard-kicker">Визуальное</span>
+                  <h2>Фото</h2>
+                </div>
+                <button onClick={() => setMobileSection("photos")}>Открыть ›</button>
+              </div>
+              <div className="dashboard-photo-preview">
+                <div /><div /><div />
+              </div>
+            </section>
+          </div>
+        </section>
 
         <div className={`tasks-module-content ${mobileSection === "tasks" ? "mobile-section-active" : "mobile-section-hidden"}`}>
         <div className="page-header">
