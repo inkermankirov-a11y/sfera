@@ -152,6 +152,7 @@ export function App() {
   const [noteTitle, setNoteTitle] = useState("");
   const [noteBody, setNoteBody] = useState("");
   const [noteKind, setNoteKind] = useState<NoteKind>("note");
+  const [noteProjectId, setNoteProjectId] = useState<string | null>(null);
   const [projectTab, setProjectTab] = useState<ProjectTab>("overview");
   const [goalTitle, setGoalTitle] = useState("");
   const [calendarMode, setCalendarMode] = useState<CalendarMode>("month");
@@ -174,7 +175,7 @@ export function App() {
   }, [goals]);
 
   useEffect(() => {
-    setProjectTab("overview");
+    if (!selectedProjectId) setProjectTab("overview");
   }, [selectedProjectId]);
 
   useEffect(() => {
@@ -356,13 +357,14 @@ export function App() {
       title,
       body: noteBody.trim(),
       kind: noteKind,
-      projectId: selectedProject?.id ?? null,
+      projectId: noteProjectId,
       date: noteKind === "diary" ? isoToday() : null
     });
     setNotes((current) => [note, ...current]);
     setNoteTitle("");
     setNoteBody("");
     setNoteKind("note");
+    setNoteProjectId(null);
     setNoteCreateOpen(false);
     setNoteView(note.kind === "idea" ? "ideas" : note.kind === "diary" ? "diary" : note.kind === "collection" ? "collections" : note.kind === "list" ? "lists" : "all");
     setMobileSection("notes");
@@ -1194,7 +1196,7 @@ export function App() {
                       <div><strong>{note.title}</strong><small>{noteKindLabels[note.kind]}</small></div>
                     </div>
                   ))}
-                  <button className="project-add-task" onClick={() => { setNoteKind("note"); setNoteCreateOpen(true); }}>＋ Добавить заметку</button>
+                  <button className="project-add-task" onClick={() => { setNoteKind("note"); setNoteProjectId(selectedProject.id); setNoteCreateOpen(true); }}>＋ Добавить заметку</button>
                 </section>
               )}
 
@@ -1245,7 +1247,7 @@ export function App() {
         <section className={`mobile-module-screen notes-screen ${mobileSection === "notes" ? "active" : ""}`} aria-hidden={mobileSection !== "notes"}>
           <header className="module-page-header">
             <div><span>Личная база знаний</span><h2>Заметки</h2></div>
-            <button onClick={() => { setNoteKind("note"); setNoteCreateOpen(true); }}>＋</button>
+            <button onClick={() => { setNoteKind("note"); setNoteProjectId(null); setNoteCreateOpen(true); }}>＋</button>
           </header>
 
           <div className="section-tabs notes-tabs" role="tablist" aria-label="Типы заметок">
@@ -1264,7 +1266,7 @@ export function App() {
           {noteView === "collections" && (
             <div className="collection-presets">
               {["Рецепты", "Книги", "Фильмы", "Клиенты"].map((name, index) => (
-                <button key={name} onClick={() => { setNoteKind("collection"); setNoteTitle(name); setNoteCreateOpen(true); }}>
+                <button key={name} onClick={() => { setNoteKind("collection"); setNoteTitle(name); setNoteProjectId(null); setNoteCreateOpen(true); }}>
                   <span>{["⌑","▤","▷","◎"][index]}</span><strong>{name}</strong><small>Коллекция</small>
                 </button>
               ))}
@@ -1415,8 +1417,8 @@ export function App() {
                   setQuickProjectId(mobileSection === "projects" && selectedProject ? selectedProject.id : null);
                   setMobileQuickOpen(true);
                 }}><span>✓</span><strong>Задачу</strong><small>Дело, дата, приоритет</small></button>
-                <button onClick={() => { setQuickMenuOpen(false); setNoteKind("note"); setNoteCreateOpen(true); }}><span>✎</span><strong>Заметку</strong><small>Мысль или запись</small></button>
-                <button onClick={() => { setQuickMenuOpen(false); setNoteKind("diary"); setNoteCreateOpen(true); }}><span>☼</span><strong>Дневник</strong><small>Запись сегодняшнего дня</small></button>
+                <button onClick={() => { setQuickMenuOpen(false); setNoteKind("note"); setNoteProjectId(mobileSection === "projects" && selectedProject ? selectedProject.id : null); setNoteCreateOpen(true); }}><span>✎</span><strong>Заметку</strong><small>Мысль или запись</small></button>
+                <button onClick={() => { setQuickMenuOpen(false); setNoteKind("diary"); setNoteProjectId(mobileSection === "projects" && selectedProject ? selectedProject.id : null); setNoteCreateOpen(true); }}><span>☼</span><strong>Дневник</strong><small>Запись сегодняшнего дня</small></button>
                 <button onClick={() => { setQuickMenuOpen(false); setMobileSection("photos"); setToast("Открыт раздел фото"); }}><span>▧</span><strong>Фото</strong><small>Визуальные материалы</small></button>
                 <button onClick={() => { setQuickMenuOpen(false); setProjectParentId(selectedProject?.id ?? ""); setProjectCreateOpen(true); }}><span>◇</span><strong>Проект</strong><small>Сфера или подпроект</small></button>
               </div>
@@ -1445,7 +1447,7 @@ export function App() {
               </div>
               <input className="project-title-input" autoFocus value={noteTitle} onChange={(event) => setNoteTitle(event.target.value)} placeholder="Название" />
               <textarea value={noteBody} onChange={(event) => setNoteBody(event.target.value)} placeholder="Текст, мысль, список..." rows={5} />
-              {selectedProject && <div className="note-project-hint">◇ {projectPath(projects, selectedProject.id)}</div>}
+              {noteProjectId && <div className="note-project-hint">◇ {projectPath(projects, noteProjectId)}</div>}
               <button className="mobile-add-submit" disabled={!noteTitle.trim()}>Сохранить</button>
             </form>
           </div>
