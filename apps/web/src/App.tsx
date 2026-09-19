@@ -529,6 +529,7 @@ export function App() {
                 {task.deadline && <span>◷ до {formatDate(task.deadline)}</span>}
                 {task.durationMinutes && <span>{formatDuration(task.durationMinutes)}</span>}
                 {task.priority < 4 && <span className={`priority-text p${task.priority}`}>{priorityLabels[task.priority]}</span>}
+                {task.projectId && <span className="task-project-path">◇ {projectPath(projects, task.projectId)}</span>}
                 {task.labels.map((label) => <span key={label}>%{label}</span>)}
                 {activeChildren.length > 0 && <span>▤ {activeChildren.length}</span>}
                 {completedChildren > 0 && <span>✓ {completedChildren}</span>}
@@ -577,7 +578,7 @@ export function App() {
           <div className="mobile-profile-mark">S</div>
           <div className="mobile-app-title">
             <strong>СФЕРА</strong>
-            <span>{mobileSection === "tasks" ? "Задачи" : mobileSection === "notes" ? "Заметки" : "Фото"}</span>
+            <span>{mobileSection === "projects" ? "Проекты" : mobileSection === "tasks" ? "Задачи" : mobileSection === "notes" ? "Заметки" : "Фото"}</span>
           </div>
           <div className="mobile-app-actions">
             {mobileSection === "tasks" && (
@@ -665,6 +666,93 @@ export function App() {
 
         </div>
 
+        <section className={`mobile-module-screen projects-screen ${mobileSection === "projects" ? "active" : ""}`} aria-hidden={mobileSection !== "projects"}>
+          {!selectedProject ? (
+            <>
+              <header className="projects-header">
+                <div>
+                  <span>Сферы жизни</span>
+                  <h2>Проекты</h2>
+                </div>
+                <button
+                  aria-label="Создать сферу жизни"
+                  onClick={() => { setProjectParentId(""); setProjectCreateOpen(true); }}
+                >＋</button>
+              </header>
+              <div className="project-tree-card">
+                {renderProjectTree(null)}
+              </div>
+            </>
+          ) : (
+            <>
+              <header className="project-detail-header">
+                <button
+                  className="project-back"
+                  onClick={() => setSelectedProjectId(selectedProject.parentId)}
+                  aria-label="Назад"
+                >←</button>
+                <div>
+                  <span>{projectPath(projects, selectedProject.parentId) || "Проекты"}</span>
+                  <h2>{selectedProject.title}</h2>
+                </div>
+                <button
+                  className="project-add-folder"
+                  aria-label="Добавить подпроект"
+                  onClick={() => { setProjectParentId(selectedProject.id); setProjectCreateOpen(true); }}
+                >＋</button>
+              </header>
+
+              <div className="project-summary-grid">
+                <div><strong>{projectTaskCount(selectedProject.id, false)}</strong><span>задач</span></div>
+                <div><strong>{projectChildren(projects, selectedProject.id).length}</strong><span>подпроектов</span></div>
+                <div><strong>0</strong><span>заметок</span></div>
+                <div><strong>0</strong><span>фото</span></div>
+              </div>
+
+              {projectChildren(projects, selectedProject.id).length > 0 && (
+                <section className="project-section-card">
+                  <div className="project-section-title">Подпроекты</div>
+                  {projectChildren(projects, selectedProject.id).map((project) => (
+                    <button className="project-child-row" key={project.id} onClick={() => setSelectedProjectId(project.id)}>
+                      <span className="project-folder-icon">▰</span>
+                      <span>
+                        <strong>{project.title}</strong>
+                        <small>{projectTaskCount(project.id)} активных задач</small>
+                      </span>
+                      <b>›</b>
+                    </button>
+                  ))}
+                </section>
+              )}
+
+              <section className="project-section-card">
+                <div className="project-section-title">Задачи</div>
+                {tasks.filter((task) => task.projectId === selectedProject.id && task.status === "active").length === 0 ? (
+                  <div className="project-empty-row">В этом проекте пока нет задач.</div>
+                ) : (
+                  tasks
+                    .filter((task) => task.projectId === selectedProject.id && task.status === "active")
+                    .sort((a, b) => a.order - b.order)
+                    .map((task) => (
+                      <button className="project-task-row" key={task.id} onClick={() => openDetail(task.id)}>
+                        <span className={`project-task-check p${task.priority}`} />
+                        <span>
+                          <strong>{task.title}</strong>
+                          <small>{task.date ? formatDate(task.date) : "Без даты"}</small>
+                        </span>
+                        <b>›</b>
+                      </button>
+                    ))
+                )}
+                <button
+                  className="project-add-task"
+                  onClick={() => { setQuickProjectId(selectedProject.id); setMobileQuickOpen(true); }}
+                >＋ Добавить задачу</button>
+              </section>
+            </>
+          )}
+        </section>
+
         <section className={`mobile-module-screen ${mobileSection === "notes" ? "active" : ""}`} aria-hidden={mobileSection !== "notes"}>
           <div className="module-intro-card">
             <div className="module-intro-icon">✎</div>
@@ -689,23 +777,72 @@ export function App() {
         </section>
 
         {mobileSection === "tasks" && (
-          <button className="fab" aria-label="Добавить задачу" onClick={() => setMobileQuickOpen(true)}>＋</button>
+          <button className="fab" aria-label="Добавить задачу" onClick={() => { setQuickProjectId(null); setMobileQuickOpen(true); }}>＋</button>
+        )}
+        {mobileSection === "projects" && (
+          <button
+            className="fab"
+            aria-label={selectedProject ? "Добавить задачу в проект" : "Создать сферу жизни"}
+            onClick={() => {
+              if (selectedProject) {
+                setQuickProjectId(selectedProject.id);
+                setMobileQuickOpen(true);
+              } else {
+                setProjectParentId("");
+                setProjectCreateOpen(true);
+              }
+            }}
+          >＋</button>
         )}
 
         <nav className="bottom-nav mobile-tabbar" aria-label="Основная навигация">
+          <button className={mobileSection === "projects" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("projects"); setSettingsOpen(false); }}><span>◇</span>Проекты</button>
           <button className={mobileSection === "tasks" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("tasks"); setSettingsOpen(false); }}><span>✓</span>Задачи</button>
           <button className={mobileSection === "notes" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("notes"); setSettingsOpen(false); }}><span>✎</span>Заметки</button>
           <button className={mobileSection === "photos" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("photos"); setSettingsOpen(false); }}><span>▧</span>Фото</button>
-          <button className={settingsOpen ? "active" : ""} onClick={() => setSettingsOpen(true)}><span>☰</span>Настройки</button>
         </nav>
+
+        {projectCreateOpen && (
+          <div className="mobile-quick-backdrop" onClick={() => setProjectCreateOpen(false)}>
+            <form className="mobile-quick-sheet project-create-sheet" onSubmit={addProject} onClick={(event) => event.stopPropagation()}>
+              <div className="mobile-sheet-handle" />
+              <div className="mobile-quick-head">
+                <strong>{projectParentId ? "Новый подпроект" : "Новая сфера жизни"}</strong>
+                <button type="button" onClick={() => setProjectCreateOpen(false)}>Отмена</button>
+              </div>
+              <input
+                className="project-title-input"
+                autoFocus
+                value={projectTitle}
+                onChange={(event) => setProjectTitle(event.target.value)}
+                placeholder={projectParentId ? "Название проекта" : "Например: Семья"}
+              />
+              <label className="project-parent-select">
+                <span>Расположение</span>
+                <select value={projectParentId} onChange={(event) => setProjectParentId(event.target.value)}>
+                  <option value="">Корень · новая сфера жизни</option>
+                  {flattenedProjects.map(({ project, depth, path }) => (
+                    <option key={project.id} value={project.id}>{"— ".repeat(depth)}{path}</option>
+                  ))}
+                </select>
+              </label>
+              <button className="mobile-add-submit" disabled={!projectTitle.trim()}>
+                {projectParentId ? "Создать проект" : "Создать сферу"}
+              </button>
+            </form>
+          </div>
+        )}
 
         {mobileQuickOpen && (
           <div className="mobile-quick-backdrop" onClick={() => setMobileQuickOpen(false)}>
             <form className="mobile-quick-sheet" onSubmit={addTask} onClick={(event) => event.stopPropagation()}>
               <div className="mobile-sheet-handle" />
               <div className="mobile-quick-head">
-                <strong>Новая задача</strong>
-                <button type="button" onClick={() => setMobileQuickOpen(false)}>Отмена</button>
+                <div>
+                  <strong>Новая задача</strong>
+                  {quickProjectId && <small>{projectPath(projects, quickProjectId)}</small>}
+                </div>
+                <button type="button" onClick={() => { setMobileQuickOpen(false); setQuickProjectId(null); }}>Отмена</button>
               </div>
               <textarea
                 autoFocus
@@ -855,6 +992,28 @@ export function App() {
                   </select>
                 </label>
               </div>
+
+              <section className="detail-section property-section project-property">
+                <label>
+                  <span>Проект</span>
+                  <select
+                    value={selected.projectId ?? ""}
+                    onChange={(event) => setTaskProject(selected, event.target.value || null)}
+                  >
+                    <option value="">Без проекта</option>
+                    {flattenedProjects.map(({ project, depth, path }) => (
+                      <option key={project.id} value={project.id}>
+                        {"— ".repeat(depth)}{path}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {selected.projectId && (
+                  <button className="open-project-button" onClick={() => { setSelectedProjectId(selected.projectId); setMobileSection("projects"); closeDetail(); }}>
+                    ◇ {projectPath(projects, selected.projectId)}
+                  </button>
+                )}
+              </section>
 
               <section className="detail-section property-section">
                 <label>
