@@ -342,6 +342,62 @@ export function App() {
     setToast(parentId ? "Проект создан" : "Сфера жизни создана");
   }
 
+  function chooseTaskView(view: TaskView) {
+    setTaskView(view);
+    if (view === "week") return;
+    setFilter(view);
+  }
+
+  function addNote(event?: FormEvent) {
+    event?.preventDefault();
+    const title = noteTitle.trim();
+    if (!title) return;
+    const note = createNote({
+      title,
+      body: noteBody.trim(),
+      kind: noteKind,
+      projectId: selectedProject?.id ?? null,
+      date: noteKind === "diary" ? isoToday() : null
+    });
+    setNotes((current) => [note, ...current]);
+    setNoteTitle("");
+    setNoteBody("");
+    setNoteKind("note");
+    setNoteCreateOpen(false);
+    setNoteView(note.kind === "idea" ? "ideas" : note.kind === "diary" ? "diary" : note.kind === "collection" ? "collections" : note.kind === "list" ? "lists" : "all");
+    setMobileSection("notes");
+    setToast("Запись сохранена");
+  }
+
+  function addGoal(event?: FormEvent) {
+    event?.preventDefault();
+    const title = goalTitle.trim();
+    if (!title || !selectedProject) return;
+    const goal = createGoal({
+      title,
+      projectId: selectedProject.id,
+      progress: 0
+    });
+    setGoals((current) => [goal, ...current]);
+    setGoalTitle("");
+    setToast("Цель добавлена");
+  }
+
+  function patchGoal(id: string, patch: Partial<Goal>) {
+    setGoals((current) => current.map((goal) =>
+      goal.id === id ? { ...goal, ...patch, updatedAt: nowIso() } : goal
+    ));
+  }
+
+  function openCalendar(mode: CalendarMode = "month") {
+    setCalendarMode(mode);
+    setMobileSection("calendar");
+  }
+
+  function setMonthOffset(delta: number) {
+    setCalendarCursor((current) => new Date(current.getFullYear(), current.getMonth() + delta, 1));
+  }
+
   function setTaskProject(task: Task, projectId: string | null) {
     const ids = new Set([task.id, ...descendantsOf(tasks, task.id).map((item) => item.id)]);
     setTasks((current) =>
