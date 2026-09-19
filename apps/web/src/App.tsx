@@ -18,6 +18,17 @@ import {
   parseQuickAdd,
   readTasks
 } from "./tasks-model";
+import {
+  PROJECTS_STORAGE_KEY,
+  ProjectNode,
+  createProject,
+  flattenProjects,
+  nextProjectOrder,
+  projectChildren,
+  projectDescendants,
+  projectPath,
+  readProjects
+} from "./projects-model";
 
 const filterLabels: Record<Filter, string> = {
   all: "Все",
@@ -66,6 +77,10 @@ export function App() {
   }, [tasks]);
 
   useEffect(() => {
+    localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects));
+  }, [projects]);
+
+  useEffect(() => {
     if (!toast) return;
     const timer = window.setTimeout(() => setToast(""), 2600);
     return () => window.clearTimeout(timer);
@@ -100,6 +115,10 @@ export function App() {
     : null;
 
   const activeCount = tasks.filter((task) => task.status === "active").length;
+  const selectedProject = selectedProjectId
+    ? projects.find((project) => project.id === selectedProjectId) ?? null
+    : null;
+  const flattenedProjects = useMemo(() => flattenProjects(projects), [projects]);
 
   function matchesFilter(task: Task) {
     const normalized = query.trim().toLowerCase();
@@ -134,6 +153,86 @@ export function App() {
     );
   }
 
+  function patchProject(id: string, patch: Partial<ProjectNode>) {
+    setProjects((current) =>
+      current.map((project) =>
+        project.id === id
+          ? { ...project, ...patch, updatedAt: nowIso() }
+          : project
+      )
+    );
+  }
+
+  function addProject(event?: FormEvent) {
+    event?.preventDefault();
+    const title = projectTitle.trim();
+    if (!title) return;
+    const parentId = projectParentId || null;
+    const project = createProject({
+      title,
+      parentId,
+      kind: parentId ? "project" : "sphere",
+      order: nextProjectOrder(projects, parentId)
+    });
+    setProjects((current) => [...current, project]);
+    setProjectTitle("");
+    setProjectCreateOpen(false);
+    setProjectParentId("");
+    setSelectedProjectId(project.id);
+    setToast(parentId ? "Проект создан" : "Сфера жизни создана");
+  }
+
+  function setTaskProject(task: Task, projectId: string | null) {
+    const ids = new Set([task.id, ...descendantsOf(tasks, task.id).map((item) => item.id)]);
+    setTasks((current) =>
+      current.map((item) =>
+        ids.has(item.id)
+          ? { ...item, projectId, updatedAt: nowIso() }
+          : item
+      )
+    );
+    setToast(projectId ? "Проект назначен" : "Задача без проекта");
+  }
+
+  function projectTaskCount(projectId: string, includeChildren = true) {
+    const ids = new Set([projectId]);
+    if (includeChildren) {
+      projectDescendants(projects, projectId).forEach((project) => ids.add(project.id));
+    }
+    return tasks.filter((task) => task.status === "active" && task.projectId && ids.has(task.projectId)).length;
+  }
+
+  function renderProjectTree(parentId: string | null, depth = 0): React.ReactNode {
+    return projectChildren(projects, parentId).map((project) => {
+      const children = projectChildren(projects, project.id);
+      return (
+        <div className="project-tree-node" key={project.id}>
+          <div className={`project-tree-row project-depth-${Math.min(depth, 4)}`}>
+            <button
+              className="project-toggle"
+              disabled={children.length === 0}
+              onClick={() => patchProject(project.id, { collapsed: !project.collapsed })}
+              aria-label={project.collapsed ? "Развернуть" : "Свернуть"}
+            >
+              {children.length ? (project.collapsed ? "›" : "⌄") : ""}
+            </button>
+            <button className="project-main" onClick={() => setSelectedProjectId(project.id)}>
+              <span className="project-folder-icon">{project.kind === "sphere" ? "◇" : "▰"}</span>
+              <span>
+                <strong>{project.title}</strong>
+                <small>{projectTaskCount(project.id)} активных задач</small>
+              </span>
+            </button>
+            <button className="project-open" onClick={() => setSelectedProjectId(project.id)}>›</button>
+          </div>
+          {!project.collapsed && children.length > 0 && (
+            <div className="project-subtree">{renderProjectTree(project.id, depth + 1)}</div>
+          )}
+        </div>
+      );
+    });
+  }
+
   function openDetail(id: string, replace = false) {
     const hash = "#task=" + encodeURIComponent(id);
     if (replace) history.replaceState(null, "", hash);
@@ -156,6 +255,7 @@ export function App() {
     const task = createTask({
       title: parsed.title,
       parentId: null,
+      projectId: null,
       order: nextOrder(tasks, null),
       date: filter === "today" && !parsed.date ? isoToday() : parsed.date,
       time: parsed.time,
@@ -183,6 +283,7 @@ export function App() {
     const task = createTask({
       title: parsed.title,
       parentId: parent.id,
+      projectId: parent.projectId,
       order: nextOrder(tasks, parent.id),
       date: parsed.date,
       time: parsed.time,
@@ -311,6 +412,7 @@ export function App() {
     if (depthOf(tasks, newParent) >= 7) return;
     patchTask(task.id, {
       parentId: newParent.id,
+      projectId: newParent.projectId,
       order: nextOrder(tasks, newParent.id)
     });
     patchTask(newParent.id, { collapsed: false });
