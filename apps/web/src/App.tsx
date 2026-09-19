@@ -1600,7 +1600,7 @@ export function App() {
           <div className="settings-card">
             <button><span className="settings-icon">◎</span><span>Аккаунт</span><b>›</b></button>
             <button><span className="settings-icon">⚙</span><span>Основное</span><b>›</b></button>
-            <button><span className="settings-icon">▦</span><span>Календарь</span><b>›</b></button>
+            <button onClick={() => { setSettingsOpen(false); openCalendar("month"); }}><span className="settings-icon">▦</span><span>Календарь</span><b>›</b></button>
           </div>
 
           <p className="settings-section-label">ПОЛЬЗОВАТЕЛЬСКИЕ НАСТРОЙКИ</p>
