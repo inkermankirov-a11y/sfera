@@ -167,6 +167,8 @@ export function App() {
   const [quickDate, setQuickDate] = useState("");
   const [quickTime, setQuickTime] = useState("");
   const [quickDeadline, setQuickDeadline] = useState("");
+  const [calendarComposerOpen, setCalendarComposerOpen] = useState(false);
+  const [calendarComposerPosition, setCalendarComposerPosition] = useState({ left: 360, top: 120 });
   const [quickRelationType, setQuickRelationType] = useState<EntityType>("project");
   const [quickRelationTargetId, setQuickRelationTargetId] = useState("");
   const [projectView, setProjectView] = useState<"grid" | "list">(() => {
@@ -972,20 +974,46 @@ export function App() {
     setQuickOptionsOpen(false);
     setQuickProjectId(null);
     setMobileQuickOpen(false);
+    setCalendarComposerOpen(false);
     setToast("Задача добавлена");
   }
 
-  function openCalendarTaskCreator(date: string, time: string | null) {
+  function resetQuickTaskDraft() {
     setQuickTitle("");
     setQuickProjectId(null);
     setQuickPriority(4);
-    setQuickDate(date);
-    setQuickTime(time ?? "");
+    setQuickDate("");
+    setQuickTime("");
     setQuickDeadline("");
     setQuickRelationType("project");
     setQuickRelationTargetId("");
     setQuickOptionsOpen(false);
-    setMobileQuickOpen(true);
+  }
+
+  function closeCalendarTaskComposer() {
+    setCalendarComposerOpen(false);
+    resetQuickTaskDraft();
+  }
+
+  function openCalendarTaskCreator(date: string, time: string | null, position: { x: number; y: number }) {
+    resetQuickTaskDraft();
+    setQuickDate(date);
+    setQuickTime(time ?? "");
+
+    const width = 448;
+    const height = 470;
+    const left = Math.max(286, Math.min(window.innerWidth - width - 16, position.x - 38));
+    const top = Math.max(72, Math.min(window.innerHeight - height - 16, position.y - 70));
+
+    setCalendarComposerPosition({ left, top });
+    setCalendarComposerOpen(true);
+  }
+
+  function calendarEndTime() {
+    if (!quickTime) return "";
+    const [hours, minutes] = quickTime.split(":").map(Number);
+    const total = (hours * 60 + minutes + 60) % (24 * 60);
+    return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
   }
 
   function addSubtask(parent: Task) {
@@ -2186,6 +2214,116 @@ export function App() {
               </div>
               <button className="mobile-add-submit" disabled={!editProjectTitle.trim()}>Сохранить</button>
               <button type="button" className="danger-sheet-button" onClick={() => deleteProjectNode(selectedProject)}>Удалить проект</button>
+            </form>
+          </div>
+        )}
+
+        {calendarComposerOpen && (
+          <div className="calendar-popover-layer" onClick={closeCalendarTaskComposer}>
+            <form
+              className="calendar-task-popover"
+              style={{ left: calendarComposerPosition.left, top: calendarComposerPosition.top }}
+              onSubmit={addTask}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="calendar-popover-top">
+                <span className="calendar-drag-mark">≡</span>
+                <button type="button" className="calendar-popover-close" onClick={closeCalendarTaskComposer} aria-label="Закрыть">×</button>
+              </div>
+
+              <input
+                className="calendar-popover-title"
+                autoFocus
+                value={quickTitle}
+                onChange={(event) => setQuickTitle(event.target.value)}
+                placeholder="Добавьте название"
+              />
+
+              <div className="calendar-popover-tabs">
+                <button type="button" className="active">Задача</button>
+                <button type="button" onClick={() => setToast("События добавим отдельным типом объекта")}>Событие</button>
+                <button type="button" onClick={() => setToast("Расписание встреч — следующий слой календаря")}>Расписание встреч</button>
+              </div>
+
+              <div className="calendar-popover-rows">
+                <div className="calendar-popover-row calendar-date-row">
+                  <span className="calendar-row-icon">◷</span>
+                  <div className="calendar-date-controls">
+                    <input type="date" value={quickDate} onChange={(event) => setQuickDate(event.target.value)} />
+                    {quickTime ? (
+                      <div className="calendar-time-range">
+                        <input type="time" value={quickTime} onChange={(event) => setQuickTime(event.target.value)} />
+                        <span>–</span>
+                        <strong>{calendarEndTime()}</strong>
+                      </div>
+                    ) : (
+                      <button type="button" className="calendar-all-day-pill">Весь день</button>
+                    )}
+                    <small>{timezoneLabel} · не повторять</small>
+                  </div>
+                </div>
+
+                <div className="calendar-popover-row">
+                  <span className="calendar-row-icon">◇</span>
+                  <div className="calendar-row-content">
+                    <span className="calendar-row-label">Проект</span>
+                    {renderProjectLocationPicker(quickProjectId ?? "", (value) => setQuickProjectId(value || null), "Без проекта")}
+                  </div>
+                </div>
+
+                <div className="calendar-popover-row">
+                  <span className="calendar-row-icon">⚑</span>
+                  <div className="calendar-row-content">
+                    <span className="calendar-row-label">Приоритет</span>
+                    <div className="quick-priority-picker calendar-priority-picker" role="group" aria-label="Приоритет">
+                      {([1, 2, 3, 4] as Priority[]).map((priority) => (
+                        <button
+                          type="button"
+                          key={priority}
+                          className={`quick-priority-choice p${priority} ${quickPriority === priority ? "active" : ""}`}
+                          onClick={() => setQuickPriority(priority)}
+                          title={priorityLabels[priority]}
+                        >⚑</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="calendar-popover-row">
+                  <span className="calendar-row-icon">↔</span>
+                  <div className="calendar-row-content calendar-link-inline">
+                    <span className="calendar-row-label">Связь</span>
+                    <select value={quickRelationType} onChange={(event) => { setQuickRelationType(event.target.value as EntityType); setQuickRelationTargetId(""); }}>
+                      <option value="project">Проект</option>
+                      <option value="task">Задача</option>
+                      <option value="note">Заметка</option>
+                    </select>
+                    <select value={quickRelationTargetId} onChange={(event) => setQuickRelationTargetId(event.target.value)}>
+                      <option value="">Не выбрана</option>
+                      {relationTargetOptions(quickRelationType, { type: "task", id: "__new__" }).map((option) => (
+                        <option key={option.id} value={option.id}>{option.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {quickOptionsOpen && (
+                  <div className="calendar-popover-row">
+                    <span className="calendar-row-icon">▦</span>
+                    <div className="calendar-row-content">
+                      <span className="calendar-row-label">Дедлайн</span>
+                      <input className="calendar-deadline-input" type="date" value={quickDeadline} onChange={(event) => setQuickDeadline(event.target.value)} />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <footer className="calendar-popover-footer">
+                <button type="button" className="calendar-more-settings" onClick={() => setQuickOptionsOpen((value) => !value)}>
+                  {quickOptionsOpen ? "Скрыть параметры" : "Другие параметры"}
+                </button>
+                <button type="submit" className="calendar-save-button" disabled={!quickTitle.trim()}>Сохранить</button>
+              </footer>
             </form>
           </div>
         )}
