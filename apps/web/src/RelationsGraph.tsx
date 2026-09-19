@@ -27,6 +27,22 @@ type Props = {
 
 const WIDTH = 1000;
 const HEIGHT = 610;
+const MIN_ZOOM = 0.45;
+const MAX_ZOOM = 3.2;
+
+type GraphViewBox = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+const INITIAL_VIEWBOX: GraphViewBox = {
+  x: 0,
+  y: 0,
+  width: WIDTH,
+  height: HEIGHT
+};
 
 const PROJECTS_GRAPH_ROOT_ID = "__projects_root__";
 
@@ -54,7 +70,8 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
   const dragRef = useRef<{ key: string; moved: boolean } | null>(null);
   const [nodes, setNodes] = useState<GraphNode[]>([]);
   const [hovered, setHovered] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(1);
+  const [viewBox, setViewBox] = useState<GraphViewBox>(INITIAL_VIEWBOX);
+  const viewBoxRef = useRef<GraphViewBox>(INITIAL_VIEWBOX);
   const [live, setLive] = useState(true);
 
   const nodeRefs = useMemo(() => {
@@ -203,12 +220,78 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
     };
   }, [edgeKeys, live]);
 
+  useEffect(() => {
+    viewBoxRef.current = viewBox;
+  }, [viewBox]);
+
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+
+      const rect = svg.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+
+      const current = viewBoxRef.current;
+      const px = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+      const py = Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height));
+      const worldX = current.x + px * current.width;
+      const worldY = current.y + py * current.height;
+
+      const delta = event.deltaMode === 1
+        ? event.deltaY * 16
+        : event.deltaMode === 2
+          ? event.deltaY * 420
+          : event.deltaY;
+
+      const factor = Math.exp(delta * 0.00125);
+      const minWidth = WIDTH / MAX_ZOOM;
+      const maxWidth = WIDTH / MIN_ZOOM;
+      const nextWidth = Math.min(maxWidth, Math.max(minWidth, current.width * factor));
+      const nextHeight = nextWidth * (HEIGHT / WIDTH);
+
+      const next = {
+        x: worldX - px * nextWidth,
+        y: worldY - py * nextHeight,
+        width: nextWidth,
+        height: nextHeight
+      };
+
+      viewBoxRef.current = next;
+      setViewBox(next);
+    };
+
+    svg.addEventListener("wheel", onWheel, { passive: false });
+    return () => svg.removeEventListener("wheel", onWheel);
+  }, []);
+
+  function zoomFromCenter(multiplier: number) {
+    const current = viewBoxRef.current;
+    const centerX = current.x + current.width / 2;
+    const centerY = current.y + current.height / 2;
+    const minWidth = WIDTH / MAX_ZOOM;
+    const maxWidth = WIDTH / MIN_ZOOM;
+    const nextWidth = Math.min(maxWidth, Math.max(minWidth, current.width * multiplier));
+    const nextHeight = nextWidth * (HEIGHT / WIDTH);
+    const next = {
+      x: centerX - nextWidth / 2,
+      y: centerY - nextHeight / 2,
+      width: nextWidth,
+      height: nextHeight
+    };
+    viewBoxRef.current = next;
+    setViewBox(next);
+  }
+
   function toGraphPoint(clientX: number, clientY: number) {
     const rect = svgRef.current?.getBoundingClientRect();
     if (!rect) return { x: WIDTH / 2, y: HEIGHT / 2 };
+    const current = viewBoxRef.current;
     return {
-      x: ((clientX - rect.left) / rect.width - .5) * (WIDTH / zoom) + WIDTH / 2,
-      y: ((clientY - rect.top) / rect.height - .5) * (HEIGHT / zoom) + HEIGHT / 2
+      x: current.x + ((clientX - rect.left) / rect.width) * current.width,
+      y: current.y + ((clientY - rect.top) / rect.height) * current.height
     };
   }
 
@@ -229,7 +312,8 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
       node.vx = 0;
       node.vy = 0;
     });
-    setZoom(1);
+    viewBoxRef.current = INITIAL_VIEWBOX;
+    setViewBox(INITIAL_VIEWBOX);
     setLive(true);
   }
 
@@ -250,21 +334,26 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
         </div>
         <div className="relations-graph-actions">
           <button onClick={() => setLive((value) => !value)} className={live ? "active" : ""} title="Живая физика">{live ? "◉" : "○"}</button>
-          <button onClick={() => setZoom((value) => Math.max(.65, value - .15))} aria-label="Уменьшить">−</button>
-          <button onClick={() => setZoom((value) => Math.min(1.8, value + .15))} aria-label="Увеличить">＋</button>
+          <button onClick={() => zoomFromCenter(1.18)} aria-label="Уменьшить">−</button>
+          <button onClick={() => zoomFromCenter(0.84)} aria-label="Увеличить">＋</button>
           <button onClick={resetGraph}>Центр</button>
         </div>
       </header>
 
       <div className="relations-graph-stage">
-        <svg ref={svgRef} viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label="Интерактивная карта связей">
+        <svg
+          ref={svgRef}
+          viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
+          role="img"
+          aria-label="Интерактивная карта связей"
+        >
           <defs>
             <filter id="nodeGlow" x="-80%" y="-80%" width="260%" height="260%">
               <feGaussianBlur stdDeviation="5" result="blur" />
               <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
             </filter>
           </defs>
-          <g transform={`translate(${WIDTH / 2} ${HEIGHT / 2}) scale(${zoom}) translate(${-WIDTH / 2} ${-HEIGHT / 2})`}>
+          <g>
             <g className="relations-graph-edges">
               {edgeKeys.map((edge) => {
                 const a = byKey.get(edge.a);
