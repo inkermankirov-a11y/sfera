@@ -887,7 +887,7 @@ export function App() {
               </button>
               <button className="stat-tile stat-notes" onClick={() => setMobileSection("notes")}>
                 <span className="stat-icon">▤</span><b>›</b>
-                <strong>0</strong>
+                <strong>{notes.length}</strong>
                 <small>Заметки</small>
               </button>
               <button className="stat-tile stat-photos" onClick={() => setMobileSection("photos")}>
@@ -930,6 +930,18 @@ export function App() {
               </button>
             </div>
           </section>
+
+          <div className="home-function-strip">
+            <button onClick={() => { chooseTaskView("week"); setMobileSection("tasks"); }}>
+              <span>▦</span><strong>Неделя</strong><small>{weekTaskCount} задач</small>
+            </button>
+            <button onClick={() => { setSelectedProjectId(rootSpheres[0]?.id ?? null); setProjectTab("goals"); setMobileSection("projects"); }}>
+              <span>◎</span><strong>Цели</strong><small>{goals.length} активных</small>
+            </button>
+            <button onClick={() => openCalendar("month")}>
+              <span>◫</span><strong>Календарь</strong><small>Даты и история</small>
+            </button>
+          </div>
 
         </section>
 
