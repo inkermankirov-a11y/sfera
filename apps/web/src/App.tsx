@@ -1121,50 +1121,123 @@ export function App() {
               <div className="project-summary-grid">
                 <div><strong>{projectTaskCount(selectedProject.id, false)}</strong><span>задач</span></div>
                 <div><strong>{projectChildren(projects, selectedProject.id).length}</strong><span>подпроектов</span></div>
-                <div><strong>0</strong><span>заметок</span></div>
+                <div><strong>{notes.filter((note) => note.projectId === selectedProject.id).length}</strong><span>заметок</span></div>
                 <div><strong>0</strong><span>фото</span></div>
               </div>
 
-              {projectChildren(projects, selectedProject.id).length > 0 && (
-                <section className="project-section-card">
-                  <div className="project-section-title">Подпроекты</div>
-                  {projectChildren(projects, selectedProject.id).map((project) => (
-                    <button className="project-child-row" key={project.id} onClick={() => setSelectedProjectId(project.id)}>
-                      <span className="project-folder-icon">▰</span>
-                      <span>
-                        <strong>{project.title}</strong>
-                        <small>{projectTaskCount(project.id)} активных задач</small>
-                      </span>
-                      <b>›</b>
-                    </button>
-                  ))}
-                </section>
+              <div className="project-detail-tabs" role="tablist" aria-label="Раздел проекта">
+                {([
+                  ["overview", "Обзор"],
+                  ["tasks", "Задачи"],
+                  ["notes", "Заметки"],
+                  ["photos", "Фото"],
+                  ["goals", "Цели"],
+                  ["history", "История"]
+                ] as Array<[ProjectTab, string]>).map(([value, label]) => (
+                  <button key={value} className={projectTab === value ? "active" : ""} onClick={() => setProjectTab(value)}>{label}</button>
+                ))}
+              </div>
+
+              {projectTab === "overview" && (
+                <>
+                  {projectChildren(projects, selectedProject.id).length > 0 && (
+                    <section className="project-section-card">
+                      <div className="project-section-title">Подпроекты</div>
+                      {projectChildren(projects, selectedProject.id).map((project) => (
+                        <button className="project-child-row" key={project.id} onClick={() => setSelectedProjectId(project.id)}>
+                          <span className="project-folder-icon">▰</span>
+                          <span>
+                            <strong>{project.title}</strong>
+                            <small>{projectTaskCount(project.id)} активных задач</small>
+                          </span>
+                          <b>›</b>
+                        </button>
+                      ))}
+                    </section>
+                  )}
+                  <section className="project-overview-cards">
+                    <button onClick={() => setProjectTab("tasks")}><span>✓</span><strong>Задачи</strong><small>{projectTaskCount(selectedProject.id, false)} активных</small></button>
+                    <button onClick={() => setProjectTab("notes")}><span>✎</span><strong>Заметки</strong><small>{notes.filter((note) => note.projectId === selectedProject.id).length} записей</small></button>
+                    <button onClick={() => setProjectTab("goals")}><span>◎</span><strong>Цели</strong><small>{goals.filter((goal) => goal.projectId === selectedProject.id).length} целей</small></button>
+                    <button onClick={() => setProjectTab("history")}><span>◴</span><strong>История</strong><small>Хронология проекта</small></button>
+                  </section>
+                </>
               )}
 
-              <section className="project-section-card">
-                <div className="project-section-title">Задачи</div>
-                {tasks.filter((task) => task.projectId === selectedProject.id && task.status === "active").length === 0 ? (
-                  <div className="project-empty-row">В этом проекте пока нет задач.</div>
-                ) : (
-                  tasks
+              {projectTab === "tasks" && (
+                <section className="project-section-card">
+                  <div className="project-section-title">Задачи</div>
+                  {tasks.filter((task) => task.projectId === selectedProject.id && task.status === "active").length === 0 ? (
+                    <div className="project-empty-row">В этом проекте пока нет задач.</div>
+                  ) : tasks
                     .filter((task) => task.projectId === selectedProject.id && task.status === "active")
                     .sort((a, b) => a.order - b.order)
                     .map((task) => (
                       <button className="project-task-row" key={task.id} onClick={() => openDetail(task.id)}>
                         <span className={`project-task-check p${task.priority}`} />
-                        <span>
-                          <strong>{task.title}</strong>
-                          <small>{task.date ? formatDate(task.date) : "Без даты"}</small>
-                        </span>
+                        <span><strong>{task.title}</strong><small>{task.date ? formatDate(task.date) : "Без даты"}</small></span>
                         <b>›</b>
                       </button>
-                    ))
-                )}
-                <button
-                  className="project-add-task"
-                  onClick={() => { setQuickProjectId(selectedProject.id); setMobileQuickOpen(true); }}
-                >＋ Добавить задачу</button>
-              </section>
+                    ))}
+                  <button className="project-add-task" onClick={() => { setQuickProjectId(selectedProject.id); setMobileQuickOpen(true); }}>＋ Добавить задачу</button>
+                </section>
+              )}
+
+              {projectTab === "notes" && (
+                <section className="project-section-card">
+                  <div className="project-section-title">Заметки</div>
+                  {notes.filter((note) => note.projectId === selectedProject.id).length === 0 ? (
+                    <div className="project-empty-row">У проекта пока нет заметок.</div>
+                  ) : notes.filter((note) => note.projectId === selectedProject.id).map((note) => (
+                    <div className="project-note-row" key={note.id}>
+                      <span>{note.kind === "diary" ? "☼" : note.kind === "idea" ? "✦" : "✎"}</span>
+                      <div><strong>{note.title}</strong><small>{noteKindLabels[note.kind]}</small></div>
+                    </div>
+                  ))}
+                  <button className="project-add-task" onClick={() => { setNoteKind("note"); setNoteCreateOpen(true); }}>＋ Добавить заметку</button>
+                </section>
+              )}
+
+              {projectTab === "photos" && (
+                <section className="project-section-card project-placeholder">
+                  <div className="project-section-title">Фото</div>
+                  <div className="project-empty-row">Фото проекта будут отображаться здесь и одновременно в общем разделе «Фото».</div>
+                </section>
+              )}
+
+              {projectTab === "goals" && (
+                <section className="project-section-card">
+                  <div className="project-section-title">Цели проекта</div>
+                  {goals.filter((goal) => goal.projectId === selectedProject.id).map((goal) => (
+                    <div className="goal-row" key={goal.id}>
+                      <div><strong>{goal.title}</strong><small>{goal.progress}% выполнено</small></div>
+                      <div className="goal-progress"><span style={{ width: goal.progress + "%" }} /></div>
+                      <input aria-label="Прогресс цели" type="range" min="0" max="100" value={goal.progress} onChange={(event) => patchGoal(goal.id, { progress: Number(event.target.value) })} />
+                    </div>
+                  ))}
+                  <form className="goal-add-form" onSubmit={addGoal}>
+                    <input value={goalTitle} onChange={(event) => setGoalTitle(event.target.value)} placeholder="Новая цель проекта" />
+                    <button disabled={!goalTitle.trim()}>Добавить</button>
+                  </form>
+                </section>
+              )}
+
+              {projectTab === "history" && (
+                <section className="project-section-card">
+                  <div className="project-section-title">История проекта</div>
+                  {[
+                    ...tasks.filter((task) => task.projectId === selectedProject.id).map((task) => ({ id: "t-" + task.id, at: task.updatedAt, icon: "✓", title: task.title, meta: task.status === "done" ? "Задача выполнена" : "Задача изменена" })),
+                    ...notes.filter((note) => note.projectId === selectedProject.id).map((note) => ({ id: "n-" + note.id, at: note.updatedAt, icon: "✎", title: note.title, meta: noteKindLabels[note.kind] })),
+                    ...goals.filter((goal) => goal.projectId === selectedProject.id).map((goal) => ({ id: "g-" + goal.id, at: goal.updatedAt, icon: "◎", title: goal.title, meta: "Цель · " + goal.progress + "%" }))
+                  ].sort((a, b) => b.at.localeCompare(a.at)).map((event) => (
+                    <div className="history-row" key={event.id}>
+                      <span>{event.icon}</span>
+                      <div><strong>{event.title}</strong><small>{event.meta}</small></div>
+                      <time>{new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short" }).format(new Date(event.at))}</time>
+                    </div>
+                  ))}
+                </section>
+              )}
             </>
           )}
         </section>
