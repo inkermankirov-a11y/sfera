@@ -22,6 +22,7 @@ const HOUR_HEIGHT = 56;
 const TOP_OFFSET = 14;
 const DAY_MIN_WIDTH_COMPACT = 72;
 const DAY_MIN_WIDTH_NORMAL = 118;
+const TIME_AXIS_WIDTH = 82;
 
 export function DesktopCalendar({
   tasks,
@@ -38,8 +39,8 @@ export function DesktopCalendar({
   onSetPeriod
 }: DesktopCalendarProps) {
   const dayMinWidth = dayCount > 7 ? DAY_MIN_WIDTH_COMPACT : DAY_MIN_WIDTH_NORMAL;
-  const minGridWidth = dayCount > 7 ? 64 + dayCount * dayMinWidth : 760;
-  const gridTemplateColumns = `64px repeat(${dayCount}, minmax(${dayMinWidth}px, 1fr))`;
+  const minGridWidth = dayCount > 7 ? TIME_AXIS_WIDTH + dayCount * dayMinWidth : 760;
+  const gridTemplateColumns = `${TIME_AXIS_WIDTH}px repeat(${dayCount}, minmax(${dayMinWidth}px, 1fr))`;
 
   return (
     <div className="desktop-calendar-view">
