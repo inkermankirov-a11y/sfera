@@ -19,6 +19,7 @@ export type Task = {
   description: string;
   status: TaskStatus;
   parentId: string | null;
+  projectId: string | null;
   order: number;
   date: string | null;
   time: string | null;
@@ -60,11 +61,12 @@ export function nowIso() {
 export function createTask(partial: Partial<Task> & Pick<Task, "title">): Task {
   const now = nowIso();
   return {
-    id: crypto.randomUUID(),
+    id: partial.id ?? crypto.randomUUID(),
     title: partial.title,
     description: partial.description ?? "",
     status: partial.status ?? "active",
     parentId: partial.parentId ?? null,
+    projectId: partial.projectId ?? null,
     order: partial.order ?? 0,
     date: partial.date ?? null,
     time: partial.time ?? null,
@@ -93,11 +95,13 @@ export function seedTasks(): Task[] {
     priority: 1,
     labels: ["личное"],
     order: 10,
-    description: "Главная задача с подзадачами. Можно сворачивать дерево и открывать каждую подзадачу отдельно."
+    description: "Главная задача с подзадачами. Можно сворачивать дерево и открывать каждую подзадачу отдельно.",
+    projectId: "sphere-family"
   });
   const dates = createTask({
     title: "Согласовать даты",
     parentId: parent.id,
+    projectId: "sphere-family",
     priority: 2,
     order: 10
   });
@@ -107,17 +111,20 @@ export function seedTasks(): Task[] {
     priority: 2,
     order: 20,
     labels: ["покупки"],
-    description: "Посмотреть варианты после 18:00."
+    description: "Посмотреть варианты после 18:00.",
+    projectId: "sphere-family"
   });
   const hotel = createTask({
     title: "Забронировать гостиницу",
     parentId: parent.id,
+    projectId: "sphere-family",
     priority: 3,
     order: 30
   });
   const docs = createTask({
     title: "Проверить документы",
     parentId: tickets.id,
+    projectId: "sphere-family",
     priority: 4,
     order: 10
   });
@@ -131,7 +138,8 @@ export function seedTasks(): Task[] {
       priority: 1,
       labels: ["работа", "звонок"],
       order: 0,
-      description: "Обсудить следующую встречу."
+      description: "Обсудить следующую встречу.",
+      projectId: "project-practice"
     }),
     parent,
     dates,
@@ -167,6 +175,7 @@ function migrateOldTask(raw: any, index: number): Task {
     description: raw.description ?? "",
     status: raw.status === "done" ? "done" : "active",
     parentId: null,
+    projectId: raw.projectId ?? null,
     order: index * 10,
     date: raw.date ?? null,
     priority: priorityMap[raw.priority] ?? 4,
@@ -180,7 +189,7 @@ export function readTasks(): Task[] {
     const current = localStorage.getItem(STORAGE_KEY);
     if (current) {
       const parsed = JSON.parse(current);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed)) return parsed.map((task) => ({ ...task, projectId: task.projectId ?? null })) as Task[];
     }
 
     const old = localStorage.getItem(OLD_STORAGE_KEY);
