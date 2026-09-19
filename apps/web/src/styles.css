@@ -8725,3 +8725,281 @@ html,
     font-size: .54rem;
   }
 }
+
+
+/* Animated Obsidian-style relations graph */
+.relations-screen {
+  max-width: 1120px;
+}
+
+.relations-graph-shell {
+  overflow: hidden;
+  border: 1px solid #dfe7eb;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 50% 46%, rgba(29, 126, 130, .06), transparent 34%),
+    linear-gradient(180deg, #fbfdfe 0%, #f5f9fb 100%);
+  box-shadow: 0 12px 34px rgba(35, 52, 64, .07);
+}
+
+.relations-graph-toolbar {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 12px 10px 16px;
+  border-bottom: 1px solid #e5ecef;
+  background: rgba(255,255,255,.78);
+  backdrop-filter: blur(8px);
+}
+
+.relations-graph-toolbar > div:first-child {
+  display: grid;
+  gap: 2px;
+}
+
+.relations-graph-toolbar strong {
+  color: #183549;
+  font-size: .95rem;
+  font-weight: 820;
+}
+
+.relations-graph-toolbar small {
+  color: #71828e;
+  font-size: .65rem;
+}
+
+.relations-graph-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.relations-graph-actions button {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid #dce5e9;
+  border-radius: 10px;
+  background: #fff;
+  color: #5c7180;
+  cursor: pointer;
+  font-size: .78rem;
+  font-weight: 760;
+}
+
+.relations-graph-actions button.active {
+  border-color: #a9d6d4;
+  background: #e9f5f4;
+  color: #167579;
+}
+
+.relations-graph-stage {
+  position: relative;
+  min-height: 560px;
+  background:
+    radial-gradient(circle, rgba(74, 102, 119, .12) 1px, transparent 1.2px);
+  background-size: 24px 24px;
+}
+
+.relations-graph-stage svg {
+  width: 100%;
+  height: 560px;
+  display: block;
+  touch-action: none;
+  user-select: none;
+}
+
+.relations-graph-edges line {
+  stroke: rgba(89, 116, 132, .34);
+  stroke-width: 1.5;
+  transition: opacity 160ms ease, stroke 160ms ease, stroke-width 160ms ease;
+}
+
+.relations-graph-edges line.active {
+  opacity: .95;
+}
+
+.relations-graph-edges line.dimmed {
+  opacity: .09;
+}
+
+.graph-node {
+  cursor: grab;
+  transition: opacity 160ms ease;
+}
+
+.graph-node:active {
+  cursor: grabbing;
+}
+
+.graph-node.dimmed {
+  opacity: .16;
+}
+
+.graph-node-halo {
+  fill: transparent;
+  stroke: transparent;
+  stroke-width: 1;
+}
+
+.graph-node-core {
+  transition: r 140ms ease, opacity 140ms ease;
+  stroke: #fff;
+  stroke-width: 3;
+}
+
+.graph-node.node-project .graph-node-core {
+  fill: #16888b;
+}
+
+.graph-node.node-task .graph-node-core {
+  fill: #3f7edc;
+}
+
+.graph-node.node-note .graph-node-core {
+  fill: #8b62d4;
+}
+
+.graph-node.hovered .graph-node-halo {
+  fill: rgba(42, 134, 138, .08);
+  stroke: rgba(42, 134, 138, .16);
+}
+
+.graph-node-label {
+  fill: #263f50;
+  font-size: 12px;
+  font-weight: 760;
+  paint-order: stroke;
+  stroke: rgba(255,255,255,.92);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.graph-node-type {
+  fill: #7a8a95;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  paint-order: stroke;
+  stroke: rgba(255,255,255,.94);
+  stroke-width: 3px;
+}
+
+.relations-graph-legend {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 10px;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 7px 10px;
+  border: 1px solid rgba(220,229,233,.92);
+  border-radius: 12px;
+  background: rgba(255,255,255,.86);
+  backdrop-filter: blur(8px);
+  color: #617583;
+  font-size: .66rem;
+}
+
+.relations-graph-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.relations-graph-legend i {
+  width: 9px;
+  height: 9px;
+  display: inline-block;
+  border-radius: 50%;
+}
+
+.relations-graph-legend i.project { background: #16888b; }
+.relations-graph-legend i.task { background: #3f7edc; }
+.relations-graph-legend i.note { background: #8b62d4; }
+
+.relations-graph-legend small {
+  margin-left: auto;
+  color: #81909a;
+  font-size: .62rem;
+}
+
+.relations-list-disclosure {
+  margin-top: 12px;
+  border: 1px solid #dfe7eb;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.relations-list-disclosure > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 13px;
+  color: #506a7a;
+  cursor: pointer;
+  font-size: .76rem;
+  font-weight: 760;
+}
+
+.relations-list-disclosure .relations-page-list {
+  padding: 0 10px 10px;
+}
+
+@media (max-width: 720px) {
+  .relations-graph-toolbar {
+    align-items: flex-start;
+    padding: 9px 10px;
+  }
+
+  .relations-graph-actions {
+    gap: 3px;
+  }
+
+  .relations-graph-actions button {
+    min-width: 30px;
+    height: 30px;
+    padding: 0 7px;
+    font-size: .68rem;
+  }
+
+  .relations-graph-stage {
+    min-height: 470px;
+  }
+
+  .relations-graph-stage svg {
+    height: 470px;
+  }
+
+  .relations-graph-legend {
+    flex-wrap: wrap;
+    gap: 7px 10px;
+    padding: 7px 9px;
+  }
+
+  .relations-graph-legend small {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .graph-node-label {
+    font-size: 10.5px;
+  }
+
+  .graph-node-type {
+    font-size: 8.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .relations-graph-edges line,
+  .graph-node,
+  .graph-node-core {
+    transition: none;
+  }
+}
