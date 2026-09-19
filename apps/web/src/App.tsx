@@ -836,7 +836,7 @@ export function App() {
                   <span className="dashboard-kicker">Фокус</span>
                   <h2>Сегодня</h2>
                 </div>
-                <button onClick={() => { setFilter("today"); setMobileSection("tasks"); }}>Все задачи ›</button>
+                <button onClick={() => { chooseTaskView("today"); setMobileSection("tasks"); }}>Все задачи ›</button>
               </div>
 
               <div className="dashboard-task-list">
@@ -875,7 +875,7 @@ export function App() {
             </section>
 
             <aside className="dashboard-side dashboard-stat-tiles">
-              <button className="stat-tile stat-overdue" onClick={() => { setFilter("all"); setMobileSection("tasks"); }}>
+              <button className="stat-tile stat-overdue" onClick={() => { chooseTaskView("overdue"); setMobileSection("tasks"); }}>
                 <span className="stat-icon">!</span><b>›</b>
                 <strong>{overdueTasks.length}</strong>
                 <small>Просрочено</small>
@@ -974,18 +974,13 @@ export function App() {
           </div>
         )}
 
-        <div className="filter-strip" role="tablist" aria-label="Фильтр задач">
-          {(Object.keys(filterLabels) as Filter[]).map((value) => (
-            <button
-              key={value}
-              role="tab"
-              aria-selected={filter === value}
-              className={filter === value ? "active" : ""}
-              onClick={() => setFilter(value)}
-            >
-              {filterLabels[value]}
-            </button>
-          ))}
+        <div className="filter-strip task-view-strip" role="tablist" aria-label="Режим задач">
+          <button className={taskView === "today" ? "active" : ""} onClick={() => chooseTaskView("today")}>Сегодня</button>
+          <button className={taskView === "week" ? "active" : ""} onClick={() => chooseTaskView("week")}>Неделя</button>
+          <button className={taskView === "all" ? "active" : ""} onClick={() => chooseTaskView("all")}>Все</button>
+          <button className={taskView === "inbox" ? "active" : ""} onClick={() => chooseTaskView("inbox")}>Без даты</button>
+          <button className={taskView === "overdue" ? "active" : ""} onClick={() => chooseTaskView("overdue")}>Просрочено</button>
+          <button className={taskView === "done" ? "active" : ""} onClick={() => chooseTaskView("done")}>Выполнено</button>
         </div>
 
         <form className="quick-add advanced" onSubmit={addTask}>
@@ -1008,18 +1003,82 @@ export function App() {
           <span><b>* Заголовок</b> незавершаемая</span>
         </div>
 
-        <section className="task-list todo-tree" aria-live="polite">
-          {visibleCount === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">✓</div>
-              <h2>{query ? "Ничего не найдено" : "Здесь пока нет задач"}</h2>
-              <p>{query ? "Измени запрос или сбрось фильтр." : "Добавь первую задачу. Внутри неё можно создавать подзадачи любого уровня."}</p>
-              {query && <button className="secondary-button" onClick={() => setQuery("")}>Сбросить поиск</button>}
+        {taskView === "week" ? (
+          <section className="week-planner" aria-label="Недельное планирование">
+            <div className="week-board">
+              {weekDates.map((day) => {
+                const dayTasks = tasks
+                  .filter((task) => task.status === "active" && task.date === day.iso)
+                  .sort((a, b) => (a.time ?? "99:99").localeCompare(b.time ?? "99:99") || a.order - b.order);
+                return (
+                  <div
+                    className={`week-day ${day.iso === isoToday() ? "today" : ""}`}
+                    key={day.iso}
+                    onDragOver={(event) => event.preventDefault()}
+                    onDrop={() => {
+                      if (!draggedId) return;
+                      patchTask(draggedId, { date: day.iso });
+                      setDraggedId(null);
+                      setToast("Задача перенесена");
+                    }}
+                  >
+                    <header><span>{day.short}</span><strong>{day.day}</strong></header>
+                    <div className="week-day-tasks">
+                      {dayTasks.length === 0 ? (
+                        <span className="week-empty">Свободно</span>
+                      ) : dayTasks.map((task) => (
+                        <button
+                          className={`week-task p${task.priority}`}
+                          key={task.id}
+                          draggable
+                          onDragStart={() => setDraggedId(task.id)}
+                          onDragEnd={() => setDraggedId(null)}
+                          onClick={() => openDetail(task.id)}
+                        >
+                          <strong>{task.time ?? "Без времени"}</strong>
+                          <span>{task.title}</span>
+                          {task.projectId && <small>{projectPath(projects, task.projectId)}</small>}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          ) : (
-            <div className="task-rows tree-rows">{renderTree(null)}</div>
-          )}
-        </section>
+            <div
+              className="week-inbox"
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={() => {
+                if (!draggedId) return;
+                patchTask(draggedId, { date: null });
+                setDraggedId(null);
+                setToast("Задача перенесена в «Без даты»");
+              }}
+            >
+              <div className="week-inbox-head"><strong>Без даты</strong><span>Перетащи сюда задачу, если день ещё не выбран</span></div>
+              <div className="week-inbox-items">
+                {tasks.filter((task) => task.status === "active" && !task.date).slice(0, 8).map((task) => (
+                  <button key={task.id} draggable onDragStart={() => setDraggedId(task.id)} onDragEnd={() => setDraggedId(null)} onClick={() => openDetail(task.id)}>
+                    <span>○</span><strong>{task.title}</strong>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : (
+          <section className="task-list todo-tree" aria-live="polite">
+            {visibleCount === 0 ? (
+              <div className="empty-state">
+                <div className="empty-icon">✓</div>
+                <h2>{query ? "Ничего не найдено" : "Здесь пока нет задач"}</h2>
+                <p>{query ? "Измени запрос или сбрось фильтр." : "Добавь первую задачу. Внутри неё можно создавать подзадачи любого уровня."}</p>
+                {query && <button className="secondary-button" onClick={() => setQuery("")}>Сбросить поиск</button>}
+              </div>
+            ) : (
+              <div className="task-rows tree-rows">{renderTree(null)}</div>
+            )}
+          </section>
+        )}
 
         </div>
 
