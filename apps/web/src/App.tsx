@@ -581,8 +581,8 @@ export function App() {
         <button className="brand brand-button" onClick={() => setMobileSection("home")} aria-label="Главная SFERA">
           <div className="brand-mark">S</div>
           <div>
-            <strong>СФЕРА</strong>
-            <span>личное пространство</span>
+            <strong>SFERA</strong>
+            <span>Гармония в каждом дне</span>
           </div>
         </button>
 
@@ -599,7 +599,20 @@ export function App() {
         </div>
       </aside>
 
-      <main className="tasks-page">
+      <main className={`tasks-page section-${mobileSection}`}>
+        <header className="desktop-topbar">
+          <button className="desktop-search" onClick={() => { setMobileSection("tasks"); setSearchOpen(true); }}>
+            <span>⌕</span>
+            <span>Поиск по задачам, проектам, заметкам...</span>
+          </button>
+          <div className="desktop-user">
+            <button className="desktop-bell" aria-label="Уведомления">♢</button>
+            <span className="desktop-avatar">Л</span>
+            <strong>Лаура</strong>
+            <span>⌄</span>
+          </div>
+        </header>
+
         <header className="mobile-topbar mobile-appbar">
           <button className="mobile-profile-mark mobile-home-mark" onClick={() => setMobileSection("home")} aria-label="На главную">S</button>
           <div className="mobile-app-title">
@@ -616,16 +629,13 @@ export function App() {
 
         <section className={`home-dashboard ${mobileSection === "home" ? "active" : ""}`} aria-hidden={mobileSection !== "home"}>
           <header className="dashboard-hero">
-            <div>
+            <div className="dashboard-hero-copy">
+              <div className="dashboard-wordmark">SFERA</div>
               <p className="dashboard-date">{dashboardDate}</p>
-              <h1>{greeting}, Лаура</h1>
-              <p className="dashboard-lead">
-                {todayTasks.length
-                  ? `На сегодня ${todayTasks.length} ${todayTasks.length === 1 ? "задача" : todayTasks.length < 5 ? "задачи" : "задач"}.`
-                  : "На сегодня задач нет. Можно спокойно выбрать, чем заняться дальше."}
-              </p>
+              <h1>{greeting}, Лаура!</h1>
+              <p className="dashboard-lead">Большие перемены начинаются<br />с маленьких шагов ✨</p>
             </div>
-            <button className="dashboard-add" onClick={() => { setQuickProjectId(null); setMobileQuickOpen(true); }}>＋ Новая задача</button>
+            <div className="dashboard-hero-motto">Гармония<br />в каждом дне<span /></div>
           </header>
 
           <div className="dashboard-layout">
@@ -648,7 +658,7 @@ export function App() {
                     </div>
                   </div>
                 ) : (
-                  todayTasks.slice(0, 6).map((task) => (
+                  todayTasks.slice(0, 4).map((task) => (
                     <div className="dashboard-task-row" key={task.id}>
                       {task.uncompletable ? (
                         <span className="dashboard-task-dot">◆</span>
@@ -673,33 +683,34 @@ export function App() {
               </div>
             </section>
 
-            <aside className="dashboard-side">
-              <section className={`dashboard-card dashboard-alert ${overdueTasks.length ? "has-overdue" : ""}`}>
-                <span className="dashboard-kicker">Контроль</span>
-                <div className="dashboard-stat-line">
-                  <strong>{overdueTasks.length}</strong>
-                  <span>{overdueTasks.length === 1 ? "просроченная задача" : "просроченных задач"}</span>
-                </div>
-                <button onClick={() => { setFilter("all"); setMobileSection("tasks"); }}>Открыть задачи ›</button>
-              </section>
-
-              <section className="dashboard-card dashboard-summary">
-                <span className="dashboard-kicker">В пространстве</span>
-                <div className="dashboard-summary-grid">
-                  <div><strong>{activeCount}</strong><span>задач</span></div>
-                  <div><strong>{projects.length}</strong><span>проектов</span></div>
-                  <div><strong>0</strong><span>заметок</span></div>
-                  <div><strong>0</strong><span>фото</span></div>
-                </div>
-              </section>
+            <aside className="dashboard-side dashboard-stat-tiles">
+              <button className="stat-tile stat-overdue" onClick={() => { setFilter("all"); setMobileSection("tasks"); }}>
+                <span className="stat-icon">!</span><b>›</b>
+                <strong>{overdueTasks.length}</strong>
+                <small>Просрочено</small>
+              </button>
+              <button className="stat-tile stat-projects" onClick={() => { setSelectedProjectId(null); setMobileSection("projects"); }}>
+                <span className="stat-icon">▰</span><b>›</b>
+                <strong>{rootSpheres.length}</strong>
+                <small>Проекты</small>
+              </button>
+              <button className="stat-tile stat-notes" onClick={() => setMobileSection("notes")}>
+                <span className="stat-icon">▤</span><b>›</b>
+                <strong>0</strong>
+                <small>Заметки</small>
+              </button>
+              <button className="stat-tile stat-photos" onClick={() => setMobileSection("photos")}>
+                <span className="stat-icon">▧</span><b>›</b>
+                <strong>0</strong>
+                <small>Фото</small>
+              </button>
             </aside>
           </div>
 
           <section className="dashboard-section">
             <div className="dashboard-section-head">
               <div>
-                <span className="dashboard-kicker">Моя жизнь</span>
-                <h2>Сферы</h2>
+                <h2>Мои сферы жизни</h2>
               </div>
               <button onClick={() => { setSelectedProjectId(null); setMobileSection("projects"); }}>Все проекты ›</button>
             </div>
@@ -707,14 +718,14 @@ export function App() {
             <div className="sphere-card-grid">
               {rootSpheres.slice(0, 6).map((sphere, index) => (
                 <button
-                  className={`sphere-card sphere-tone-${index % 5}`}
+                  className={`sphere-card sphere-tone-${index % 6}`}
                   key={sphere.id}
                   onClick={() => { setSelectedProjectId(sphere.id); setMobileSection("projects"); }}
                 >
-                  <span className="sphere-symbol">{["◇","◐","✦","♢","✈"][index % 5]}</span>
+                  <span className="sphere-symbol">{["⌂","☾","✦","▣","✈","♡"][index % 6]}</span>
                   <span className="sphere-info">
                     <strong>{sphere.title}</strong>
-                    <small>{projectTaskCount(sphere.id)} активных задач</small>
+                    <small>{projectTaskCount(sphere.id)} задач · 0 заметок</small>
                   </span>
                   <b>›</b>
                 </button>
@@ -729,34 +740,6 @@ export function App() {
             </div>
           </section>
 
-          <div className="dashboard-bottom-grid">
-            <section className="dashboard-card dashboard-preview">
-              <div className="dashboard-card-head">
-                <div>
-                  <span className="dashboard-kicker">Мысли</span>
-                  <h2>Заметки</h2>
-                </div>
-                <button onClick={() => setMobileSection("notes")}>Открыть ›</button>
-              </div>
-              <div className="dashboard-placeholder">
-                <span>✎</span>
-                <p>Здесь появятся последние заметки и идеи.</p>
-              </div>
-            </section>
-
-            <section className="dashboard-card dashboard-preview">
-              <div className="dashboard-card-head">
-                <div>
-                  <span className="dashboard-kicker">Визуальное</span>
-                  <h2>Фото</h2>
-                </div>
-                <button onClick={() => setMobileSection("photos")}>Открыть ›</button>
-              </div>
-              <div className="dashboard-photo-preview">
-                <div /><div /><div />
-              </div>
-            </section>
-          </div>
         </section>
 
         <div className={`tasks-module-content ${mobileSection === "tasks" ? "mobile-section-active" : "mobile-section-hidden"}`}>
@@ -947,24 +930,19 @@ export function App() {
           </div>
         </section>
 
-        {mobileSection === "tasks" && (
-          <button className="fab" aria-label="Добавить задачу" onClick={() => { setQuickProjectId(null); setMobileQuickOpen(true); }}>＋</button>
-        )}
-        {mobileSection === "projects" && (
-          <button
-            className="fab"
-            aria-label={selectedProject ? "Добавить задачу в проект" : "Создать сферу жизни"}
-            onClick={() => {
-              if (selectedProject) {
-                setQuickProjectId(selectedProject.id);
-                setMobileQuickOpen(true);
-              } else {
-                setProjectParentId("");
-                setProjectCreateOpen(true);
-              }
-            }}
-          >＋</button>
-        )}
+        <button
+          className="fab"
+          aria-label="Быстрое добавление"
+          onClick={() => {
+            if (mobileSection === "projects" && !selectedProject) {
+              setProjectParentId("");
+              setProjectCreateOpen(true);
+              return;
+            }
+            setQuickProjectId(mobileSection === "projects" && selectedProject ? selectedProject.id : null);
+            setMobileQuickOpen(true);
+          }}
+        >＋</button>
 
         <nav className="bottom-nav mobile-tabbar" aria-label="Основная навигация">
           <button className={mobileSection === "projects" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("projects"); setSettingsOpen(false); }}><span>◇</span>Проекты</button>
