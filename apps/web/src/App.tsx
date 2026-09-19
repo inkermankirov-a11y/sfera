@@ -80,7 +80,7 @@ const filterLabels: Record<Filter, string> = {
   done: "Выполнено"
 };
 
-type Section = "home" | "projects" | "tasks" | "notes" | "photos" | "calendar";
+type Section = "home" | "projects" | "tasks" | "notes" | "photos" | "calendar" | "relations";
 type TaskView = Filter | "week";
 type NoteView = "all" | "ideas" | "diary" | "collections" | "lists" | "favorites";
 type ProjectTab = "overview" | "tasks" | "notes" | "photos" | "goals" | "history";
@@ -1275,6 +1275,7 @@ export function App() {
               />
             )}
           </div>
+          <button className={mobileSection === "relations" ? "active" : ""} onClick={() => setMobileSection("relations")}><span>↔</span>Связи</button>
         </nav>
 
         <div className="sidebar-bottom">
@@ -1300,7 +1301,7 @@ export function App() {
           <button className="mobile-profile-mark mobile-home-mark" onClick={() => setMobileSection("home")} aria-label="На главную">S</button>
           <div className="mobile-app-title">
             <strong>СФЕРА</strong>
-            <span>{mobileSection === "home" ? "Сегодня" : mobileSection === "projects" ? "Проекты" : mobileSection === "tasks" ? "Задачи" : mobileSection === "notes" ? "Заметки" : mobileSection === "photos" ? "Фото" : "Календарь"}</span>
+            <span>{mobileSection === "home" ? "Сегодня" : mobileSection === "projects" ? "Проекты" : mobileSection === "tasks" ? "Задачи" : mobileSection === "notes" ? "Заметки" : mobileSection === "photos" ? "Фото" : mobileSection === "relations" ? "Связи" : "Календарь"}</span>
           </div>
           <div className="mobile-app-actions">
             {mobileSection === "tasks" && (
@@ -1969,6 +1970,42 @@ export function App() {
           )}
 
           </div>
+        </section>
+
+        <section className={`mobile-module-screen relations-screen ${mobileSection === "relations" ? "active" : ""}`} aria-hidden={mobileSection !== "relations"}>
+          <header className="module-page-header">
+            <button className="module-back-button" onClick={() => setMobileSection("home")} aria-label="Назад">←</button>
+            <div><span>Связанные объекты</span><h2>Связи</h2></div>
+            <span className="relations-count">{relations.length}</span>
+          </header>
+
+          {relations.length === 0 ? (
+            <div className="module-empty-card">
+              <strong>Связей пока нет</strong>
+              <span>Свяжи проект, задачу или заметку внутри карточки объекта — связь появится здесь.</span>
+            </div>
+          ) : (
+            <div className="relations-page-list">
+              {relations.map((relation) => (
+                <article className="relations-page-card" key={relation.id}>
+                  <button onClick={() => openLinkedObject(relation.a)}>
+                    <small>{entityTypeLabel(relation.a.type)}</small>
+                    <strong>{entityTitle(relation.a)}</strong>
+                  </button>
+                  <span className="relation-arrow">↔</span>
+                  <button onClick={() => openLinkedObject(relation.b)}>
+                    <small>{entityTypeLabel(relation.b.type)}</small>
+                    <strong>{entityTitle(relation.b)}</strong>
+                  </button>
+                  <button
+                    className="relation-delete"
+                    aria-label="Удалить связь"
+                    onClick={() => setRelations((current) => current.filter((item) => item.id !== relation.id))}
+                  >×</button>
+                </article>
+              ))}
+            </div>
+          )}
         </section>
 
         <button className="fab" aria-label="Быстрое добавление" onClick={() => setQuickMenuOpen(true)}>＋</button>
