@@ -8621,3 +8621,107 @@ html,
     grid-column: auto;
   }
 }
+
+
+/* Relations overview */
+.relations-screen {
+  max-width: 980px;
+}
+
+.relations-count {
+  min-width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #e8f3f2;
+  color: #176f73;
+  font-size: .8rem;
+  font-weight: 800;
+}
+
+.relations-page-list {
+  display: grid;
+  gap: 10px;
+}
+
+.relations-page-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 36px minmax(0, 1fr) 34px;
+  align-items: center;
+  gap: 8px;
+  padding: 9px;
+  border: 1px solid #dfe7eb;
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 5px 16px rgba(38,55,67,.05);
+}
+
+.relations-page-card > button:not(.relation-delete) {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 11px;
+  background: #f7fafb;
+  color: #21394a;
+  text-align: left;
+  cursor: pointer;
+}
+
+.relations-page-card small {
+  color: #73838e;
+  font-size: .62rem;
+  font-weight: 760;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.relations-page-card strong {
+  overflow: hidden;
+  font-size: .84rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.relation-arrow {
+  display: grid;
+  place-items: center;
+  color: #188083;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.relation-delete {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 9px;
+  background: #fff2f2;
+  color: #b34e4e;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+@media (max-width: 720px) {
+  .relations-page-card {
+    grid-template-columns: 1fr 28px 1fr 30px;
+    gap: 5px;
+    padding: 7px;
+  }
+
+  .relations-page-card > button:not(.relation-delete) {
+    padding: 8px;
+  }
+
+  .relations-page-card strong {
+    font-size: .72rem;
+  }
+
+  .relations-page-card small {
+    font-size: .54rem;
+  }
+}
