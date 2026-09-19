@@ -42,6 +42,25 @@ import {
   createGoal,
   readGoals
 } from "./goals-model";
+import {
+  RELATIONS_STORAGE_KEY,
+  EntityType,
+  ObjectRef,
+  Relation,
+  areLinked,
+  createRelation,
+  otherRef,
+  readRelations,
+  relationsFor,
+  removeRelationsFor
+} from "./relations-model";
+import {
+  ATTACHMENTS_STORAGE_KEY,
+  Attachment,
+  attachmentsFor,
+  readAttachments,
+  removeAttachmentLink
+} from "./attachments-model";
 import { CalendarMiniMonth } from "./calendar/CalendarMiniMonth";
 import { DesktopCalendar } from "./calendar/DesktopCalendar";
 import {
@@ -146,6 +165,14 @@ export function App() {
   const [projectView, setProjectView] = useState<"grid" | "list">(() => {
     try { return localStorage.getItem("sfera.projectView") === "list" ? "list" : "grid"; } catch { return "grid"; }
   });
+  const [relations, setRelations] = useState<Relation[]>(() => readRelations());
+  const [attachments, setAttachments] = useState<Attachment[]>(() => readAttachments());
+  const [linkType, setLinkType] = useState<EntityType>("project");
+  const [linkTargetId, setLinkTargetId] = useState("");
+  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
+  const [projectEditOpen, setProjectEditOpen] = useState(false);
+  const [editProjectTitle, setEditProjectTitle] = useState("");
+  const [editProjectParentId, setEditProjectParentId] = useState("");
   const [subtaskTitle, setSubtaskTitle] = useState("");
   const [commentBody, setCommentBody] = useState("");
   const [query, setQuery] = useState("");
@@ -195,6 +222,18 @@ export function App() {
   }, [goals]);
 
   useEffect(() => {
+    localStorage.setItem(RELATIONS_STORAGE_KEY, JSON.stringify(relations));
+  }, [relations]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(ATTACHMENTS_STORAGE_KEY, JSON.stringify(attachments));
+    } catch {
+      setToast("Не удалось сохранить вложение: локальное хранилище заполнено");
+    }
+  }, [attachments]);
+
+  useEffect(() => {
     if (!selectedProjectId) setProjectTab("overview");
   }, [selectedProjectId]);
 
@@ -235,6 +274,9 @@ export function App() {
   const activeCount = tasks.filter((task) => task.status === "active").length;
   const selectedProject = selectedProjectId
     ? projects.find((project) => project.id === selectedProjectId) ?? null
+    : null;
+  const selectedNote = selectedNoteId
+    ? notes.find((note) => note.id === selectedNoteId) ?? null
     : null;
   const flattenedProjects = useMemo(() => flattenProjects(projects), [projects]);
   const todayTasks = useMemo(
@@ -483,6 +525,264 @@ export function App() {
       projectDescendants(projects, projectId).forEach((project) => ids.add(project.id));
     }
     return tasks.filter((task) => task.status === "active" && task.projectId && ids.has(task.projectId)).length;
+  }
+
+  function projectScopeIds(projectId: string) {
+    return new Set([projectId, ...projectDescendants(projects, projectId).map((project) => project.id)]);
+  }
+
+  function taskInProjectScope(task: Task, projectId: string) {
+    const ids = projectScopeIds(projectId);
+    if (task.projectId && ids.has(task.projectId)) return true;
+    return Array.from(ids).some((id) => areLinked(relations, { type: "task", id: task.id }, { type: "project", id }));
+  }
+
+  function noteInProjectScope(note: Note, projectId: string) {
+    const ids = projectScopeIds(projectId);
+    if (note.projectId && ids.has(note.projectId)) return true;
+    return Array.from(ids).some((id) => areLinked(relations, { type: "note", id: note.id }, { type: "project", id }));
+  }
+
+  function projectNoteCount(projectId: string) {
+    return notes.filter((note) => noteInProjectScope(note, projectId)).length;
+  }
+
+  function entityTitle(ref: ObjectRef) {
+    if (ref.type === "project") {
+      const project = projects.find((item) => item.id === ref.id);
+      return project ? projectPath(projects, project.id) : "Удалённый проект";
+    }
+    if (ref.type === "task") return tasks.find((item) => item.id === ref.id)?.title ?? "Удалённая задача";
+    return notes.find((item) => item.id === ref.id)?.title ?? "Удалённая заметка";
+  }
+
+  function entityTypeLabel(type: EntityType) {
+    return type === "project" ? "Проект" : type === "task" ? "Задача" : "Заметка";
+  }
+
+  function relationTargetOptions(type: EntityType, source: ObjectRef) {
+    if (type === "project") {
+      return flattenedProjects
+        .filter(({ project }) => !(source.type === "project" && source.id === project.id))
+        .map(({ project, path }) => ({ id: project.id, label: path }));
+    }
+    if (type === "task") {
+      return tasks
+        .filter((task) => !(source.type === "task" && source.id === task.id))
+        .map((task) => ({ id: task.id, label: task.title }));
+    }
+    return notes
+      .filter((note) => !(source.type === "note" && source.id === note.id))
+      .map((note) => ({ id: note.id, label: note.title }));
+  }
+
+  function addObjectRelation(source: ObjectRef) {
+    if (!linkTargetId) return;
+    const target: ObjectRef = { type: linkType, id: linkTargetId };
+    if (source.type === target.type && source.id === target.id) return;
+    if (areLinked(relations, source, target)) {
+      setToast("Эта связь уже существует");
+      return;
+    }
+    setRelations((current) => [...current, createRelation(source, target)]);
+    setLinkTargetId("");
+    setToast("Связь добавлена");
+  }
+
+  function openLinkedObject(ref: ObjectRef) {
+    if (ref.type === "project") {
+      setSelectedProjectId(ref.id);
+      setMobileSection("projects");
+      setSelectedNoteId(null);
+      if (selectedId) closeDetail();
+      return;
+    }
+    if (ref.type === "task") {
+      setSelectedNoteId(null);
+      openDetail(ref.id);
+      return;
+    }
+    setSelectedNoteId(ref.id);
+    if (selectedId) closeDetail();
+  }
+
+  function renderRelationsPanel(source: ObjectRef) {
+    const linked = relationsFor(relations, source);
+    const options = relationTargetOptions(linkType, source);
+    return (
+      <section className="detail-section linked-objects-section">
+        <div className="section-heading">
+          <h3>Связи</h3>
+          <span>{linked.length}</span>
+        </div>
+        {linked.length > 0 && (
+          <div className="linked-object-list">
+            {linked.map((relation) => {
+              const ref = otherRef(relation, source);
+              return (
+                <div className="linked-object-chip" key={relation.id}>
+                  <button onClick={() => openLinkedObject(ref)}>
+                    <small>{entityTypeLabel(ref.type)}</small>
+                    <strong>{entityTitle(ref)}</strong>
+                  </button>
+                  <button
+                    className="linked-remove"
+                    aria-label="Удалить связь"
+                    onClick={() => setRelations((current) => current.filter((item) => item.id !== relation.id))}
+                  >×</button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        <div className="link-object-form">
+          <select value={linkType} onChange={(event) => { setLinkType(event.target.value as EntityType); setLinkTargetId(""); }}>
+            <option value="project">Проект / сфера</option>
+            <option value="task">Задача</option>
+            <option value="note">Заметка</option>
+          </select>
+          <select value={linkTargetId} onChange={(event) => setLinkTargetId(event.target.value)}>
+            <option value="">Выбрать объект…</option>
+            {options.map((option) => <option value={option.id} key={option.id}>{option.label}</option>)}
+          </select>
+          <button disabled={!linkTargetId} onClick={() => addObjectRelation(source)}>Связать</button>
+        </div>
+      </section>
+    );
+  }
+
+  async function attachFiles(ref: ObjectRef, fileList: FileList | null) {
+    if (!fileList?.length) return;
+    const files = Array.from(fileList);
+    const accepted: Attachment[] = [];
+    for (const file of files) {
+      if (file.size > 1_200_000) {
+        setToast("Файл слишком большой для локального прототипа — максимум 1,2 МБ");
+        continue;
+      }
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result ?? ""));
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+      accepted.push({
+        id: crypto.randomUUID(),
+        name: file.name,
+        mime: file.type || "application/octet-stream",
+        size: file.size,
+        dataUrl,
+        links: [ref],
+        createdAt: new Date().toISOString()
+      });
+    }
+    if (accepted.length) {
+      setAttachments((current) => [...accepted, ...current]);
+      setToast(accepted.length === 1 ? "Файл прикреплён" : "Файлы прикреплены");
+    }
+  }
+
+  function removeAttachmentFrom(ref: ObjectRef, attachmentId: string) {
+    setAttachments((current) => current
+      .map((attachment) => attachment.id === attachmentId ? removeAttachmentLink(attachment, ref) : attachment)
+      .filter((attachment) => attachment.links.length > 0));
+  }
+
+  function renderAttachmentsPanel(ref: ObjectRef) {
+    const items = attachmentsFor(attachments, ref);
+    return (
+      <section className="detail-section object-attachments-section">
+        <div className="section-heading">
+          <h3>Файлы и фото</h3>
+          <span>{items.length}</span>
+        </div>
+        {items.length > 0 && (
+          <div className="object-attachment-grid">
+            {items.map((attachment) => (
+              <article className="object-attachment" key={attachment.id}>
+                {attachment.mime.startsWith("image/") ? (
+                  <img src={attachment.dataUrl} alt={attachment.name} />
+                ) : (
+                  <span className="attachment-file-icon">▤</span>
+                )}
+                <div>
+                  <strong>{attachment.name}</strong>
+                  <small>{Math.max(1, Math.round(attachment.size / 1024))} КБ</small>
+                </div>
+                <a href={attachment.dataUrl} download={attachment.name} aria-label="Открыть файл">↗</a>
+                <button onClick={() => removeAttachmentFrom(ref, attachment.id)} aria-label="Открепить файл">×</button>
+              </article>
+            ))}
+          </div>
+        )}
+        <label className="attachment-upload">
+          <span>＋ Прикрепить фото или файл</span>
+          <input
+            type="file"
+            multiple
+            accept="image/*,.pdf,.txt,.doc,.docx,.xls,.xlsx,.zip"
+            onChange={(event) => { void attachFiles(ref, event.currentTarget.files); event.currentTarget.value = ""; }}
+          />
+        </label>
+        <small className="attachment-limit">Сейчас локально: до 1,2 МБ на файл. Голосовые с расшифровкой — следующий слой этой модели.</small>
+      </section>
+    );
+  }
+
+  function patchNote(id: string, patch: Partial<Note>) {
+    setNotes((current) => current.map((note) => note.id === id ? { ...note, ...patch, updatedAt: nowIso() } : note));
+  }
+
+  function deleteNote(note: Note) {
+    if (!window.confirm(`Удалить заметку «${note.title}»?`)) return;
+    const ref: ObjectRef = { type: "note", id: note.id };
+    setNotes((current) => current.filter((item) => item.id !== note.id));
+    setRelations((current) => removeRelationsFor(current, ref));
+    setAttachments((current) => current
+      .map((attachment) => removeAttachmentLink(attachment, ref))
+      .filter((attachment) => attachment.links.length > 0));
+    setSelectedNoteId(null);
+    setToast("Заметка удалена");
+  }
+
+  function openProjectEditor(project: ProjectNode) {
+    setEditProjectTitle(project.title);
+    setEditProjectParentId(project.parentId ?? "");
+    setProjectEditOpen(true);
+  }
+
+  function saveProjectEdit(event?: FormEvent) {
+    event?.preventDefault();
+    if (!selectedProject) return;
+    const title = editProjectTitle.trim();
+    if (!title) return;
+    const invalidParents = new Set([selectedProject.id, ...projectDescendants(projects, selectedProject.id).map((item) => item.id)]);
+    const parentId = editProjectParentId && !invalidParents.has(editProjectParentId) ? editProjectParentId : null;
+    patchProject(selectedProject.id, {
+      title,
+      parentId,
+      kind: parentId ? "project" : "sphere"
+    });
+    setProjectEditOpen(false);
+    setToast("Проект обновлён");
+  }
+
+  function deleteProjectNode(project: ProjectNode) {
+    if (!window.confirm(`Удалить «${project.title}»? Подпроекты будут подняты на уровень выше.`)) return;
+    const ref: ObjectRef = { type: "project", id: project.id };
+    const parentId = project.parentId;
+    setProjects((current) => current
+      .filter((item) => item.id !== project.id)
+      .map((item) => item.parentId === project.id ? { ...item, parentId, updatedAt: nowIso() } : item));
+    setTasks((current) => current.map((task) => task.projectId === project.id ? { ...task, projectId: parentId, updatedAt: nowIso() } : task));
+    setNotes((current) => current.map((note) => note.projectId === project.id ? { ...note, projectId: parentId, updatedAt: nowIso() } : note));
+    setRelations((current) => removeRelationsFor(current, ref));
+    setAttachments((current) => current
+      .map((attachment) => removeAttachmentLink(attachment, ref))
+      .filter((attachment) => attachment.links.length > 0));
+    setSelectedProjectId(parentId);
+    setProjectEditOpen(false);
+    setToast("Проект удалён");
   }
 
   function setProjectViewMode(mode: "grid" | "list") {
@@ -1232,18 +1532,25 @@ export function App() {
                   <span>{projectPath(projects, selectedProject.parentId) || "Проекты"}</span>
                   <h2>{selectedProject.title}</h2>
                 </div>
-                <button
-                  className="project-add-folder"
-                  aria-label="Добавить подпроект"
-                  onClick={() => { setProjectParentId(selectedProject.id); setProjectCreateOpen(true); }}
-                >＋</button>
+                <div className="project-detail-actions">
+                  <button
+                    className="project-edit-button"
+                    aria-label="Редактировать проект"
+                    onClick={() => openProjectEditor(selectedProject)}
+                  >✎</button>
+                  <button
+                    className="project-add-folder"
+                    aria-label="Добавить подпроект"
+                    onClick={() => { setProjectParentId(selectedProject.id); setProjectCreateOpen(true); }}
+                  >＋</button>
+                </div>
               </header>
 
               <div className="project-summary-grid">
                 <div><strong>{projectTaskCount(selectedProject.id, false)}</strong><span>задач</span></div>
                 <div><strong>{projectChildren(projects, selectedProject.id).length}</strong><span>подпроектов</span></div>
-                <div><strong>{notes.filter((note) => note.projectId === selectedProject.id).length}</strong><span>заметок</span></div>
-                <div><strong>0</strong><span>фото</span></div>
+                <div><strong>{projectNoteCount(selectedProject.id)}</strong><span>заметок</span></div>
+                <div><strong>{attachmentsFor(attachments, { type: "project", id: selectedProject.id }).filter((item) => item.mime.startsWith("image/")).length}</strong><span>фото</span></div>
               </div>
 
               <div className="project-detail-tabs" role="tablist" aria-label="Раздел проекта">
@@ -1261,37 +1568,41 @@ export function App() {
 
               {projectTab === "overview" && (
                 <>
+                  <section className="project-overview-actions">
+                    <button onClick={() => { setProjectParentId(selectedProject.id); setProjectCreateOpen(true); }}>＋ Подпроект</button>
+                    <button onClick={() => { setQuickProjectId(selectedProject.id); setMobileQuickOpen(true); }}>＋ Задача</button>
+                    <button onClick={() => { setNoteKind("note"); setNoteProjectId(selectedProject.id); setNoteCreateOpen(true); }}>＋ Заметка</button>
+                  </section>
                   {projectChildren(projects, selectedProject.id).length > 0 && (
-                    <section className="project-section-card">
-                      <div className="project-section-title">Подпроекты</div>
-                      {projectChildren(projects, selectedProject.id).map((project) => (
-                        <button className="project-child-row" key={project.id} onClick={() => setSelectedProjectId(project.id)}>
-                          <span className="project-folder-icon">▰</span>
-                          <span>
-                            <strong>{project.title}</strong>
-                            <small>{projectTaskCount(project.id)} активных задач</small>
-                          </span>
-                          <b>›</b>
-                        </button>
-                      ))}
+                    <section className="project-section-card project-children-section">
+                      <div className="project-section-title-row">
+                        <div className="project-section-title">Подпроекты</div>
+                        <div className="project-view-toggle compact" role="group" aria-label="Вид подпроектов">
+                          <button className={projectView === "grid" ? "active" : ""} onClick={() => setProjectViewMode("grid")}>▦</button>
+                          <button className={projectView === "list" ? "active" : ""} onClick={() => setProjectViewMode("list")}>☷</button>
+                        </div>
+                      </div>
+                      {projectView === "grid" ? renderProjectGrid(selectedProject.id) : <div className="project-subtree-list">{renderProjectTree(selectedProject.id)}</div>}
                     </section>
                   )}
                   <section className="project-overview-cards">
-                    <button onClick={() => setProjectTab("tasks")}><span>✓</span><strong>Задачи</strong><small>{projectTaskCount(selectedProject.id, false)} активных</small></button>
-                    <button onClick={() => setProjectTab("notes")}><span>✎</span><strong>Заметки</strong><small>{notes.filter((note) => note.projectId === selectedProject.id).length} записей</small></button>
+                    <button onClick={() => setProjectTab("tasks")}><span>✓</span><strong>Задачи</strong><small>{tasks.filter((task) => task.status === "active" && taskInProjectScope(task, selectedProject.id)).length} активных</small></button>
+                    <button onClick={() => setProjectTab("notes")}><span>✎</span><strong>Заметки</strong><small>{projectNoteCount(selectedProject.id)} записей</small></button>
                     <button onClick={() => setProjectTab("goals")}><span>◎</span><strong>Цели</strong><small>{goals.filter((goal) => goal.projectId === selectedProject.id).length} целей</small></button>
                     <button onClick={() => setProjectTab("history")}><span>◴</span><strong>История</strong><small>Хронология проекта</small></button>
                   </section>
+                  {renderRelationsPanel({ type: "project", id: selectedProject.id })}
+                  {renderAttachmentsPanel({ type: "project", id: selectedProject.id })}
                 </>
               )}
 
               {projectTab === "tasks" && (
                 <section className="project-section-card">
                   <div className="project-section-title">Задачи</div>
-                  {tasks.filter((task) => task.projectId === selectedProject.id && task.status === "active").length === 0 ? (
-                    <div className="project-empty-row">В этом проекте пока нет задач.</div>
+                  {tasks.filter((task) => task.status === "active" && taskInProjectScope(task, selectedProject.id)).length === 0 ? (
+                    <div className="project-empty-row">В этом проекте и его подпроектах пока нет задач.</div>
                   ) : tasks
-                    .filter((task) => task.projectId === selectedProject.id && task.status === "active")
+                    .filter((task) => task.status === "active" && taskInProjectScope(task, selectedProject.id))
                     .sort((a, b) => a.order - b.order)
                     .map((task) => (
                       <button className="project-task-row" key={task.id} onClick={() => openDetail(task.id)}>
@@ -1307,22 +1618,22 @@ export function App() {
               {projectTab === "notes" && (
                 <section className="project-section-card">
                   <div className="project-section-title">Заметки</div>
-                  {notes.filter((note) => note.projectId === selectedProject.id).length === 0 ? (
+                  {notes.filter((note) => noteInProjectScope(note, selectedProject.id)).length === 0 ? (
                     <div className="project-empty-row">У проекта пока нет заметок.</div>
-                  ) : notes.filter((note) => note.projectId === selectedProject.id).map((note) => (
-                    <div className="project-note-row" key={note.id}>
+                  ) : notes.filter((note) => noteInProjectScope(note, selectedProject.id)).map((note) => (
+                    <button className="project-note-row" key={note.id} onClick={() => setSelectedNoteId(note.id)}>
                       <span>{note.kind === "diary" ? "☼" : note.kind === "idea" ? "✦" : "✎"}</span>
-                      <div><strong>{note.title}</strong><small>{noteKindLabels[note.kind]}</small></div>
-                    </div>
+                      <div><strong>{note.title}</strong><small>{noteKindLabels[note.kind]}{note.projectId ? " · " + projectPath(projects, note.projectId) : ""}</small></div>
+                    </button>
                   ))}
                   <button className="project-add-task" onClick={() => { setNoteKind("note"); setNoteProjectId(selectedProject.id); setNoteCreateOpen(true); }}>＋ Добавить заметку</button>
                 </section>
               )}
 
               {projectTab === "photos" && (
-                <section className="project-section-card project-placeholder">
-                  <div className="project-section-title">Фото</div>
-                  <div className="project-empty-row">Фото проекта будут отображаться здесь и одновременно в общем разделе «Фото».</div>
+                <section className="project-section-card">
+                  <div className="project-section-title">Фото и файлы</div>
+                  {renderAttachmentsPanel({ type: "project", id: selectedProject.id })}
                 </section>
               )}
 
@@ -1396,11 +1707,11 @@ export function App() {
             {visibleNotes.length === 0 ? (
               <div className="module-empty-card"><strong>Здесь пока пусто</strong><span>Создай первую запись через кнопку «+».</span></div>
             ) : visibleNotes.map((note) => (
-              <article className={`note-card note-kind-${note.kind}`} key={note.id}>
+              <article className={`note-card note-kind-${note.kind}`} key={note.id} onClick={() => setSelectedNoteId(note.id)}>
                 <div className="note-card-top">
                   <span>{note.kind === "diary" ? "☼" : note.kind === "idea" ? "✦" : note.kind === "collection" ? "▦" : note.kind === "list" ? "☷" : "✎"}</span>
                   <small>{noteKindLabels[note.kind]}</small>
-                  <button className={note.favorite ? "favorite active" : "favorite"} onClick={() => setNotes((current) => current.map((item) => item.id === note.id ? { ...item, favorite: !item.favorite, updatedAt: nowIso() } : item))}>☆</button>
+                  <button className={note.favorite ? "favorite active" : "favorite"} onClick={(event) => { event.stopPropagation(); setNotes((current) => current.map((item) => item.id === note.id ? { ...item, favorite: !item.favorite, updatedAt: nowIso() } : item)); }}>☆</button>
                 </div>
                 <h3>{note.title}</h3>
                 {note.body && <p>{note.body}</p>}
@@ -1428,14 +1739,21 @@ export function App() {
             <div className="photo-architecture-icon">▧</div>
             <div>
               <strong>Единая фотогалерея</strong>
-              <p>Фото будет храниться один раз и показываться здесь, внутри проекта и внутри сферы жизни.</p>
+              <p>Фото хранится один раз и может быть прикреплено к проекту, задаче или заметке.</p>
             </div>
           </div>
-          <div className="photo-placeholder-grid photo-structure-grid">
-            {["Последние", "Семья", "Таро", "Путешествия", "Альбомы", "Без проекта"].map((label) => (
-              <button key={label}><span>▧</span><strong>{label}</strong><small>0 фото</small></button>
-            ))}
-          </div>
+          {attachments.filter((item) => item.mime.startsWith("image/")).length === 0 ? (
+            <div className="module-empty-card"><strong>Фото пока нет</strong><span>Прикрепи фото внутри проекта, задачи или заметки — оно появится здесь автоматически.</span></div>
+          ) : (
+            <div className="global-photo-grid">
+              {attachments.filter((item) => item.mime.startsWith("image/")).map((item) => (
+                <article key={item.id}>
+                  <img src={item.dataUrl} alt={item.name} />
+                  <div><strong>{item.name}</strong><small>{item.links.map((ref) => entityTitle(ref)).join(" · ")}</small></div>
+                </article>
+              ))}
+            </div>
+          )}
         </section>
 
         <section className={`mobile-module-screen calendar-screen ${mobileSection === "calendar" ? "active" : ""}`} aria-hidden={mobileSection !== "calendar"}>
@@ -1585,7 +1903,15 @@ export function App() {
               </div>
               <input className="project-title-input" autoFocus value={noteTitle} onChange={(event) => setNoteTitle(event.target.value)} placeholder="Название" />
               <textarea value={noteBody} onChange={(event) => setNoteBody(event.target.value)} placeholder="Текст, мысль, список..." rows={5} />
-              {noteProjectId && <div className="note-project-hint">◇ {projectPath(projects, noteProjectId)}</div>}
+              <label className="project-parent-select">
+                <span>Основное расположение</span>
+                <select value={noteProjectId ?? ""} onChange={(event) => setNoteProjectId(event.target.value || null)}>
+                  <option value="">Без проекта</option>
+                  {flattenedProjects.map(({ project, depth, path }) => (
+                    <option key={project.id} value={project.id}>{"— ".repeat(depth)}{path}</option>
+                  ))}
+                </select>
+              </label>
               <button className="mobile-add-submit" disabled={!noteTitle.trim()}>Сохранить</button>
             </form>
           </div>
@@ -1618,6 +1944,30 @@ export function App() {
               <button className="mobile-add-submit" disabled={!projectTitle.trim()}>
                 {projectParentId ? "Создать проект" : "Создать сферу"}
               </button>
+            </form>
+          </div>
+        )}
+
+        {projectEditOpen && selectedProject && (
+          <div className="mobile-quick-backdrop" onClick={() => setProjectEditOpen(false)}>
+            <form className="mobile-quick-sheet project-create-sheet" onSubmit={saveProjectEdit} onClick={(event) => event.stopPropagation()}>
+              <div className="mobile-sheet-handle" />
+              <div className="mobile-quick-head">
+                <strong>Редактировать проект</strong>
+                <button type="button" onClick={() => setProjectEditOpen(false)}>Отмена</button>
+              </div>
+              <input className="project-title-input" autoFocus value={editProjectTitle} onChange={(event) => setEditProjectTitle(event.target.value)} placeholder="Название" />
+              <label className="project-parent-select">
+                <span>Расположение</span>
+                <select value={editProjectParentId} onChange={(event) => setEditProjectParentId(event.target.value)}>
+                  <option value="">Корень · сфера жизни</option>
+                  {flattenedProjects
+                    .filter(({ project }) => project.id !== selectedProject.id && !projectDescendants(projects, selectedProject.id).some((item) => item.id === project.id))
+                    .map(({ project, depth, path }) => <option key={project.id} value={project.id}>{"— ".repeat(depth)}{path}</option>)}
+                </select>
+              </label>
+              <button className="mobile-add-submit" disabled={!editProjectTitle.trim()}>Сохранить</button>
+              <button type="button" className="danger-sheet-button" onClick={() => deleteProjectNode(selectedProject)}>Удалить проект</button>
             </form>
           </div>
         )}
@@ -1697,6 +2047,50 @@ export function App() {
           </div>
         </div>
       </section>
+
+      <aside className={`detail-pane note-detail ${selectedNote ? "open" : ""}`} aria-hidden={!selectedNote}>
+        {selectedNote && (
+          <>
+            <header className="detail-header">
+              <button className="back-button" onClick={() => setSelectedNoteId(null)} aria-label="Назад">←</button>
+              <div className="detail-breadcrumb"><span>Заметка</span></div>
+              <button className="icon-button danger-text" onClick={() => deleteNote(selectedNote)} aria-label="Удалить заметку">⌫</button>
+            </header>
+            <div className="detail-content">
+              <input
+                className="note-detail-title"
+                value={selectedNote.title}
+                onChange={(event) => patchNote(selectedNote.id, { title: event.target.value })}
+              />
+              <textarea
+                className="note-detail-body"
+                value={selectedNote.body}
+                onChange={(event) => patchNote(selectedNote.id, { body: event.target.value })}
+                placeholder="Текст заметки..."
+                rows={8}
+              />
+              <div className="note-detail-properties">
+                <label>
+                  <span>Тип</span>
+                  <select value={selectedNote.kind} onChange={(event) => patchNote(selectedNote.id, { kind: event.target.value as NoteKind })}>
+                    {Object.entries(noteKindLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                  </select>
+                </label>
+                <label>
+                  <span>Основное расположение</span>
+                  <select value={selectedNote.projectId ?? ""} onChange={(event) => patchNote(selectedNote.id, { projectId: event.target.value || null })}>
+                    <option value="">Без проекта</option>
+                    {flattenedProjects.map(({ project, depth, path }) => <option key={project.id} value={project.id}>{"— ".repeat(depth)}{path}</option>)}
+                  </select>
+                </label>
+              </div>
+              {renderRelationsPanel({ type: "note", id: selectedNote.id })}
+              {renderAttachmentsPanel({ type: "note", id: selectedNote.id })}
+            </div>
+          </>
+        )}
+      </aside>
+      {selectedNote && <button className="detail-backdrop note-backdrop" aria-label="Закрыть заметку" onClick={() => setSelectedNoteId(null)} />}
 
       <aside className={`detail-pane todo-detail ${selected ? "open" : ""}`} aria-hidden={!selected}>
         {selected && (
@@ -1823,6 +2217,9 @@ export function App() {
                   </button>
                 )}
               </section>
+
+              {renderRelationsPanel({ type: "task", id: selected.id })}
+              {renderAttachmentsPanel({ type: "task", id: selected.id })}
 
               <section className="detail-section property-section">
                 <label>
