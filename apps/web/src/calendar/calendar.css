@@ -557,3 +557,37 @@
 .calendar-all-day-task {
   cursor: pointer;
 }
+
+
+/* Keep calendar column lines perfectly aligned with the vertical scrollbar. */
+@media (min-width: 721px) {
+  .desktop-calendar-view {
+    --calendar-scrollbar-width: 10px;
+  }
+
+  .desktop-calendar-days-head,
+  .desktop-calendar-all-day {
+    box-sizing: border-box;
+    padding-right: var(--calendar-scrollbar-width);
+  }
+
+  .desktop-calendar-time-scroll {
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+  }
+
+  .desktop-calendar-time-scroll::-webkit-scrollbar {
+    width: var(--calendar-scrollbar-width);
+  }
+
+  .desktop-calendar-time-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .desktop-calendar-time-scroll::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: #8f9295;
+    background-clip: padding-box;
+  }
+}
