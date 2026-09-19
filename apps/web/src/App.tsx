@@ -1455,6 +1455,116 @@ export function App() {
         </section>
 
         <section className={`mobile-module-screen calendar-screen ${mobileSection === "calendar" ? "active" : ""}`} aria-hidden={mobileSection !== "calendar"}>
+          <div className="desktop-calendar-view">
+            <header className="desktop-calendar-toolbar">
+              <div className="desktop-calendar-nav">
+                <button className="calendar-today-button" onClick={chooseTodayPeriod}>Сегодня</button>
+                <button className="calendar-arrow-button" onClick={() => moveDesktopCalendarPeriod(-1)} aria-label="Предыдущий период">‹</button>
+                <button className="calendar-arrow-button" onClick={() => moveDesktopCalendarPeriod(1)} aria-label="Следующий период">›</button>
+                <div className="desktop-calendar-title">
+                  <h2>{desktopCalendarTitle}</h2>
+                  <span>{desktopCalendarDayCount === 1 ? "День" : desktopCalendarDayCount + " дней"}</span>
+                </div>
+              </div>
+              <div className="desktop-period-buttons" aria-label="Быстрый выбор периода">
+                {[1, 7, 14].map((days) => (
+                  <button key={days} className={desktopCalendarDayCount === days ? "active" : ""} onClick={() => setDesktopCalendarPeriod(calendarRangeStart, days)}>
+                    {days === 1 ? "1 день" : days + " дней"}
+                  </button>
+                ))}
+              </div>
+            </header>
+
+            <section className="desktop-calendar-surface">
+              <div
+                className="desktop-calendar-days-head"
+                style={{ gridTemplateColumns: `64px repeat(${desktopCalendarDayCount}, minmax(118px, 1fr))` }}
+              >
+                <div className="calendar-timezone">{timezoneLabel}</div>
+                {desktopCalendarDates.map((iso) => {
+                  const date = isoDate(iso);
+                  const weekday = new Intl.DateTimeFormat("ru-RU", { weekday: "short" }).format(date).replace(".", "");
+                  return (
+                    <button
+                      className={`desktop-day-head ${iso === isoToday() ? "today" : ""}`}
+                      key={iso}
+                      onClick={() => setDesktopCalendarPeriod(iso, 1)}
+                    >
+                      <span>{weekday}</span>
+                      <strong>{date.getDate()}</strong>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div
+                className="desktop-calendar-all-day"
+                style={{ gridTemplateColumns: `64px repeat(${desktopCalendarDayCount}, minmax(118px, 1fr))` }}
+              >
+                <div className="all-day-label">весь день</div>
+                {desktopCalendarDates.map((iso) => {
+                  const allDayTasks = tasks.filter((task) => task.status === "active" && task.date === iso && !task.time);
+                  return (
+                    <div className="all-day-cell" key={iso}>
+                      {allDayTasks.slice(0, 3).map((task) => (
+                        <button className={`calendar-all-day-task p${task.priority}`} key={task.id} onClick={() => openDetail(task.id)}>
+                          {task.title}
+                        </button>
+                      ))}
+                      {allDayTasks.length > 3 && <span className="calendar-more">+{allDayTasks.length - 3}</span>}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="desktop-calendar-time-scroll">
+                <div
+                  className="desktop-calendar-time-grid"
+                  style={{ gridTemplateColumns: `64px repeat(${desktopCalendarDayCount}, minmax(118px, 1fr))` }}
+                >
+                  <div className="desktop-time-axis">
+                    {Array.from({ length: 24 }, (_, hour) => (
+                      <span key={hour} style={{ top: hour * 56 - 7 }}>{String(hour).padStart(2, "0")}:00</span>
+                    ))}
+                  </div>
+
+                  {desktopCalendarDates.map((iso) => {
+                    const timedTasks = tasks
+                      .filter((task) => task.status === "active" && task.date === iso && !!task.time)
+                      .sort((a, b) => (a.time ?? "").localeCompare(b.time ?? ""));
+                    return (
+                      <div className={`desktop-time-day ${iso === isoToday() ? "today" : ""}`} key={iso}>
+                        {timedTasks.map((task) => {
+                          const [hours, minutes] = (task.time ?? "00:00").split(":").map(Number);
+                          const top = (hours * 60 + minutes) * (56 / 60);
+                          const height = Math.max(30, (task.durationMinutes ?? 45) * (56 / 60));
+                          return (
+                            <button
+                              className={`calendar-timed-task p${task.priority}`}
+                              key={task.id}
+                              style={{ top, height }}
+                              onClick={() => openDetail(task.id)}
+                            >
+                              <strong>{task.time}</strong>
+                              <span>{task.title}</span>
+                              {desktopCalendarDayCount <= 7 && task.projectId && <small>{projectPath(projects, task.projectId)}</small>}
+                            </button>
+                          );
+                        })}
+                        {iso === isoToday() && (() => {
+                          const now = new Date();
+                          const top = (now.getHours() * 60 + now.getMinutes()) * (56 / 60);
+                          return <span className="calendar-now-line" style={{ top }} />;
+                        })()}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div className="mobile-calendar-view">
           <header className="module-page-header calendar-page-header">
             <div><span>Время и хронология</span><h2>Календарь</h2></div>
             <button onClick={() => setCalendarCursor(new Date())}>Сегодня</button>
@@ -1531,6 +1641,8 @@ export function App() {
               ))}
             </section>
           )}
+
+          </div>
         </section>
 
         <button className="fab" aria-label="Быстрое добавление" onClick={() => setQuickMenuOpen(true)}>＋</button>
