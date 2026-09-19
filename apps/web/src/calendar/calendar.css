@@ -619,3 +619,67 @@
 .all-day-cell:hover {
   background: rgba(23, 125, 125, .075) !important;
 }
+
+
+/* Slightly larger calendar typography for desktop readability */
+@media (min-width: 721px) {
+  .calendar-today-button {
+    font-size: .78rem;
+  }
+
+  .desktop-period-buttons button {
+    font-size: .73rem;
+  }
+
+  .desktop-calendar-title span {
+    font-size: .67rem;
+  }
+
+  .calendar-timezone {
+    font-size: .62rem;
+  }
+
+  .desktop-day-head span {
+    font-size: .68rem;
+  }
+
+  .desktop-day-head strong {
+    font-size: 1rem;
+  }
+
+  .all-day-label {
+    font-size: .64rem !important;
+  }
+
+  .desktop-time-axis span {
+    font-size: .63rem;
+  }
+
+  .calendar-all-day-task {
+    font-size: .62rem;
+  }
+
+  .calendar-timed-task strong {
+    font-size: .62rem;
+  }
+
+  .calendar-timed-task span {
+    font-size: .70rem;
+  }
+
+  .calendar-timed-task small {
+    font-size: .55rem;
+  }
+
+  .sidebar-mini-head strong {
+    font-size: .83rem;
+  }
+
+  .sidebar-mini-weekdays {
+    font-size: .62rem;
+  }
+
+  .side-nav .sidebar-mini-grid button {
+    font-size: .70rem;
+  }
+}
