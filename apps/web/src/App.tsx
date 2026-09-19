@@ -1739,14 +1739,21 @@ export function App() {
             <div className="photo-architecture-icon">▧</div>
             <div>
               <strong>Единая фотогалерея</strong>
-              <p>Фото будет храниться один раз и показываться здесь, внутри проекта и внутри сферы жизни.</p>
+              <p>Фото хранится один раз и может быть прикреплено к проекту, задаче или заметке.</p>
             </div>
           </div>
-          <div className="photo-placeholder-grid photo-structure-grid">
-            {["Последние", "Семья", "Таро", "Путешествия", "Альбомы", "Без проекта"].map((label) => (
-              <button key={label}><span>▧</span><strong>{label}</strong><small>0 фото</small></button>
-            ))}
-          </div>
+          {attachments.filter((item) => item.mime.startsWith("image/")).length === 0 ? (
+            <div className="module-empty-card"><strong>Фото пока нет</strong><span>Прикрепи фото внутри проекта, задачи или заметки — оно появится здесь автоматически.</span></div>
+          ) : (
+            <div className="global-photo-grid">
+              {attachments.filter((item) => item.mime.startsWith("image/")).map((item) => (
+                <article key={item.id}>
+                  <img src={item.dataUrl} alt={item.name} />
+                  <div><strong>{item.name}</strong><small>{item.links.map((ref) => entityTitle(ref)).join(" · ")}</small></div>
+                </article>
+              ))}
+            </div>
+          )}
         </section>
 
         <section className={`mobile-module-screen calendar-screen ${mobileSection === "calendar" ? "active" : ""}`} aria-hidden={mobileSection !== "calendar"}>
@@ -1896,7 +1903,15 @@ export function App() {
               </div>
               <input className="project-title-input" autoFocus value={noteTitle} onChange={(event) => setNoteTitle(event.target.value)} placeholder="Название" />
               <textarea value={noteBody} onChange={(event) => setNoteBody(event.target.value)} placeholder="Текст, мысль, список..." rows={5} />
-              {noteProjectId && <div className="note-project-hint">◇ {projectPath(projects, noteProjectId)}</div>}
+              <label className="project-parent-select">
+                <span>Основное расположение</span>
+                <select value={noteProjectId ?? ""} onChange={(event) => setNoteProjectId(event.target.value || null)}>
+                  <option value="">Без проекта</option>
+                  {flattenedProjects.map(({ project, depth, path }) => (
+                    <option key={project.id} value={project.id}>{"— ".repeat(depth)}{path}</option>
+                  ))}
+                </select>
+              </label>
               <button className="mobile-add-submit" disabled={!noteTitle.trim()}>Сохранить</button>
             </form>
           </div>
@@ -1929,6 +1944,30 @@ export function App() {
               <button className="mobile-add-submit" disabled={!projectTitle.trim()}>
                 {projectParentId ? "Создать проект" : "Создать сферу"}
               </button>
+            </form>
+          </div>
+        )}
+
+        {projectEditOpen && selectedProject && (
+          <div className="mobile-quick-backdrop" onClick={() => setProjectEditOpen(false)}>
+            <form className="mobile-quick-sheet project-create-sheet" onSubmit={saveProjectEdit} onClick={(event) => event.stopPropagation()}>
+              <div className="mobile-sheet-handle" />
+              <div className="mobile-quick-head">
+                <strong>Редактировать проект</strong>
+                <button type="button" onClick={() => setProjectEditOpen(false)}>Отмена</button>
+              </div>
+              <input className="project-title-input" autoFocus value={editProjectTitle} onChange={(event) => setEditProjectTitle(event.target.value)} placeholder="Название" />
+              <label className="project-parent-select">
+                <span>Расположение</span>
+                <select value={editProjectParentId} onChange={(event) => setEditProjectParentId(event.target.value)}>
+                  <option value="">Корень · сфера жизни</option>
+                  {flattenedProjects
+                    .filter(({ project }) => project.id !== selectedProject.id && !projectDescendants(projects, selectedProject.id).some((item) => item.id === project.id))
+                    .map(({ project, depth, path }) => <option key={project.id} value={project.id}>{"— ".repeat(depth)}{path}</option>)}
+                </select>
+              </label>
+              <button className="mobile-add-submit" disabled={!editProjectTitle.trim()}>Сохранить</button>
+              <button type="button" className="danger-sheet-button" onClick={() => deleteProjectNode(selectedProject)}>Удалить проект</button>
             </form>
           </div>
         )}
@@ -2008,6 +2047,50 @@ export function App() {
           </div>
         </div>
       </section>
+
+      <aside className={`detail-pane note-detail ${selectedNote ? "open" : ""}`} aria-hidden={!selectedNote}>
+        {selectedNote && (
+          <>
+            <header className="detail-header">
+              <button className="back-button" onClick={() => setSelectedNoteId(null)} aria-label="Назад">←</button>
+              <div className="detail-breadcrumb"><span>Заметка</span></div>
+              <button className="icon-button danger-text" onClick={() => deleteNote(selectedNote)} aria-label="Удалить заметку">⌫</button>
+            </header>
+            <div className="detail-content">
+              <input
+                className="note-detail-title"
+                value={selectedNote.title}
+                onChange={(event) => patchNote(selectedNote.id, { title: event.target.value })}
+              />
+              <textarea
+                className="note-detail-body"
+                value={selectedNote.body}
+                onChange={(event) => patchNote(selectedNote.id, { body: event.target.value })}
+                placeholder="Текст заметки..."
+                rows={8}
+              />
+              <div className="note-detail-properties">
+                <label>
+                  <span>Тип</span>
+                  <select value={selectedNote.kind} onChange={(event) => patchNote(selectedNote.id, { kind: event.target.value as NoteKind })}>
+                    {Object.entries(noteKindLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                  </select>
+                </label>
+                <label>
+                  <span>Основное расположение</span>
+                  <select value={selectedNote.projectId ?? ""} onChange={(event) => patchNote(selectedNote.id, { projectId: event.target.value || null })}>
+                    <option value="">Без проекта</option>
+                    {flattenedProjects.map(({ project, depth, path }) => <option key={project.id} value={project.id}>{"— ".repeat(depth)}{path}</option>)}
+                  </select>
+                </label>
+              </div>
+              {renderRelationsPanel({ type: "note", id: selectedNote.id })}
+              {renderAttachmentsPanel({ type: "note", id: selectedNote.id })}
+            </div>
+          </>
+        )}
+      </aside>
+      {selectedNote && <button className="detail-backdrop note-backdrop" aria-label="Закрыть заметку" onClick={() => setSelectedNoteId(null)} />}
 
       <aside className={`detail-pane todo-detail ${selected ? "open" : ""}`} aria-hidden={!selected}>
         {selected && (
@@ -2134,6 +2217,9 @@ export function App() {
                   </button>
                 )}
               </section>
+
+              {renderRelationsPanel({ type: "task", id: selected.id })}
+              {renderAttachmentsPanel({ type: "task", id: selected.id })}
 
               <section className="detail-section property-section">
                 <label>
