@@ -1532,18 +1532,25 @@ export function App() {
                   <span>{projectPath(projects, selectedProject.parentId) || "Проекты"}</span>
                   <h2>{selectedProject.title}</h2>
                 </div>
-                <button
-                  className="project-add-folder"
-                  aria-label="Добавить подпроект"
-                  onClick={() => { setProjectParentId(selectedProject.id); setProjectCreateOpen(true); }}
-                >＋</button>
+                <div className="project-detail-actions">
+                  <button
+                    className="project-edit-button"
+                    aria-label="Редактировать проект"
+                    onClick={() => openProjectEditor(selectedProject)}
+                  >✎</button>
+                  <button
+                    className="project-add-folder"
+                    aria-label="Добавить подпроект"
+                    onClick={() => { setProjectParentId(selectedProject.id); setProjectCreateOpen(true); }}
+                  >＋</button>
+                </div>
               </header>
 
               <div className="project-summary-grid">
                 <div><strong>{projectTaskCount(selectedProject.id, false)}</strong><span>задач</span></div>
                 <div><strong>{projectChildren(projects, selectedProject.id).length}</strong><span>подпроектов</span></div>
-                <div><strong>{notes.filter((note) => note.projectId === selectedProject.id).length}</strong><span>заметок</span></div>
-                <div><strong>0</strong><span>фото</span></div>
+                <div><strong>{projectNoteCount(selectedProject.id)}</strong><span>заметок</span></div>
+                <div><strong>{attachmentsFor(attachments, { type: "project", id: selectedProject.id }).filter((item) => item.mime.startsWith("image/")).length}</strong><span>фото</span></div>
               </div>
 
               <div className="project-detail-tabs" role="tablist" aria-label="Раздел проекта">
@@ -1561,37 +1568,41 @@ export function App() {
 
               {projectTab === "overview" && (
                 <>
+                  <section className="project-overview-actions">
+                    <button onClick={() => { setProjectParentId(selectedProject.id); setProjectCreateOpen(true); }}>＋ Подпроект</button>
+                    <button onClick={() => { setQuickProjectId(selectedProject.id); setMobileQuickOpen(true); }}>＋ Задача</button>
+                    <button onClick={() => { setNoteKind("note"); setNoteProjectId(selectedProject.id); setNoteCreateOpen(true); }}>＋ Заметка</button>
+                  </section>
                   {projectChildren(projects, selectedProject.id).length > 0 && (
-                    <section className="project-section-card">
-                      <div className="project-section-title">Подпроекты</div>
-                      {projectChildren(projects, selectedProject.id).map((project) => (
-                        <button className="project-child-row" key={project.id} onClick={() => setSelectedProjectId(project.id)}>
-                          <span className="project-folder-icon">▰</span>
-                          <span>
-                            <strong>{project.title}</strong>
-                            <small>{projectTaskCount(project.id)} активных задач</small>
-                          </span>
-                          <b>›</b>
-                        </button>
-                      ))}
+                    <section className="project-section-card project-children-section">
+                      <div className="project-section-title-row">
+                        <div className="project-section-title">Подпроекты</div>
+                        <div className="project-view-toggle compact" role="group" aria-label="Вид подпроектов">
+                          <button className={projectView === "grid" ? "active" : ""} onClick={() => setProjectViewMode("grid")}>▦</button>
+                          <button className={projectView === "list" ? "active" : ""} onClick={() => setProjectViewMode("list")}>☷</button>
+                        </div>
+                      </div>
+                      {projectView === "grid" ? renderProjectGrid(selectedProject.id) : <div className="project-subtree-list">{renderProjectTree(selectedProject.id)}</div>}
                     </section>
                   )}
                   <section className="project-overview-cards">
-                    <button onClick={() => setProjectTab("tasks")}><span>✓</span><strong>Задачи</strong><small>{projectTaskCount(selectedProject.id, false)} активных</small></button>
-                    <button onClick={() => setProjectTab("notes")}><span>✎</span><strong>Заметки</strong><small>{notes.filter((note) => note.projectId === selectedProject.id).length} записей</small></button>
+                    <button onClick={() => setProjectTab("tasks")}><span>✓</span><strong>Задачи</strong><small>{tasks.filter((task) => task.status === "active" && taskInProjectScope(task, selectedProject.id)).length} активных</small></button>
+                    <button onClick={() => setProjectTab("notes")}><span>✎</span><strong>Заметки</strong><small>{projectNoteCount(selectedProject.id)} записей</small></button>
                     <button onClick={() => setProjectTab("goals")}><span>◎</span><strong>Цели</strong><small>{goals.filter((goal) => goal.projectId === selectedProject.id).length} целей</small></button>
                     <button onClick={() => setProjectTab("history")}><span>◴</span><strong>История</strong><small>Хронология проекта</small></button>
                   </section>
+                  {renderRelationsPanel({ type: "project", id: selectedProject.id })}
+                  {renderAttachmentsPanel({ type: "project", id: selectedProject.id })}
                 </>
               )}
 
               {projectTab === "tasks" && (
                 <section className="project-section-card">
                   <div className="project-section-title">Задачи</div>
-                  {tasks.filter((task) => task.projectId === selectedProject.id && task.status === "active").length === 0 ? (
-                    <div className="project-empty-row">В этом проекте пока нет задач.</div>
+                  {tasks.filter((task) => task.status === "active" && taskInProjectScope(task, selectedProject.id)).length === 0 ? (
+                    <div className="project-empty-row">В этом проекте и его подпроектах пока нет задач.</div>
                   ) : tasks
-                    .filter((task) => task.projectId === selectedProject.id && task.status === "active")
+                    .filter((task) => task.status === "active" && taskInProjectScope(task, selectedProject.id))
                     .sort((a, b) => a.order - b.order)
                     .map((task) => (
                       <button className="project-task-row" key={task.id} onClick={() => openDetail(task.id)}>
@@ -1607,22 +1618,22 @@ export function App() {
               {projectTab === "notes" && (
                 <section className="project-section-card">
                   <div className="project-section-title">Заметки</div>
-                  {notes.filter((note) => note.projectId === selectedProject.id).length === 0 ? (
+                  {notes.filter((note) => noteInProjectScope(note, selectedProject.id)).length === 0 ? (
                     <div className="project-empty-row">У проекта пока нет заметок.</div>
-                  ) : notes.filter((note) => note.projectId === selectedProject.id).map((note) => (
-                    <div className="project-note-row" key={note.id}>
+                  ) : notes.filter((note) => noteInProjectScope(note, selectedProject.id)).map((note) => (
+                    <button className="project-note-row" key={note.id} onClick={() => setSelectedNoteId(note.id)}>
                       <span>{note.kind === "diary" ? "☼" : note.kind === "idea" ? "✦" : "✎"}</span>
-                      <div><strong>{note.title}</strong><small>{noteKindLabels[note.kind]}</small></div>
-                    </div>
+                      <div><strong>{note.title}</strong><small>{noteKindLabels[note.kind]}{note.projectId ? " · " + projectPath(projects, note.projectId) : ""}</small></div>
+                    </button>
                   ))}
                   <button className="project-add-task" onClick={() => { setNoteKind("note"); setNoteProjectId(selectedProject.id); setNoteCreateOpen(true); }}>＋ Добавить заметку</button>
                 </section>
               )}
 
               {projectTab === "photos" && (
-                <section className="project-section-card project-placeholder">
-                  <div className="project-section-title">Фото</div>
-                  <div className="project-empty-row">Фото проекта будут отображаться здесь и одновременно в общем разделе «Фото».</div>
+                <section className="project-section-card">
+                  <div className="project-section-title">Фото и файлы</div>
+                  {renderAttachmentsPanel({ type: "project", id: selectedProject.id })}
                 </section>
               )}
 
@@ -1696,11 +1707,11 @@ export function App() {
             {visibleNotes.length === 0 ? (
               <div className="module-empty-card"><strong>Здесь пока пусто</strong><span>Создай первую запись через кнопку «+».</span></div>
             ) : visibleNotes.map((note) => (
-              <article className={`note-card note-kind-${note.kind}`} key={note.id}>
+              <article className={`note-card note-kind-${note.kind}`} key={note.id} onClick={() => setSelectedNoteId(note.id)}>
                 <div className="note-card-top">
                   <span>{note.kind === "diary" ? "☼" : note.kind === "idea" ? "✦" : note.kind === "collection" ? "▦" : note.kind === "list" ? "☷" : "✎"}</span>
                   <small>{noteKindLabels[note.kind]}</small>
-                  <button className={note.favorite ? "favorite active" : "favorite"} onClick={() => setNotes((current) => current.map((item) => item.id === note.id ? { ...item, favorite: !item.favorite, updatedAt: nowIso() } : item))}>☆</button>
+                  <button className={note.favorite ? "favorite active" : "favorite"} onClick={(event) => { event.stopPropagation(); setNotes((current) => current.map((item) => item.id === note.id ? { ...item, favorite: !item.favorite, updatedAt: nowIso() } : item)); }}>☆</button>
                 </div>
                 <h3>{note.title}</h3>
                 {note.body && <p>{note.body}</p>}
