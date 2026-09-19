@@ -4425,3 +4425,504 @@ html,
     font-size: .58rem;
   }
 }
+
+
+/* Mobile compact pass: keep the core dashboard inside one phone viewport */
+@media (max-width: 720px) {
+  html, body, #root {
+    min-height: 100%;
+    background: #f6f9fb;
+  }
+
+  body {
+    color: #183248;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .tasks-page {
+    padding: 0 10px calc(72px + env(safe-area-inset-bottom));
+    background: #f6f9fb;
+  }
+
+  /* HOME: compact hero */
+  .section-home .home-dashboard {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .section-home .dashboard-hero {
+    min-height: 136px;
+    margin: 0 -10px 0;
+    padding: 13px 16px 48px;
+    border-radius: 0 0 24px 24px;
+  }
+
+  .section-home .dashboard-wordmark {
+    margin-bottom: 2px;
+    font-size: 1.08rem;
+    letter-spacing: .26em;
+  }
+
+  .section-home .dashboard-date {
+    margin: 0 0 3px;
+    color: #486075;
+    font-size: .66rem;
+    font-weight: 700;
+  }
+
+  .section-home .dashboard-hero h1 {
+    max-width: 74%;
+    margin: 0;
+    color: #132f45;
+    font-size: 1.55rem;
+    line-height: 1.02;
+  }
+
+  .section-home .dashboard-lead {
+    max-width: 68%;
+    margin-top: 5px;
+    color: #4f6578;
+    font-size: .73rem;
+    line-height: 1.27;
+    font-weight: 550;
+  }
+
+  .section-home .dashboard-hero-motto {
+    top: 15px;
+    right: 12px;
+    color: #526a7d;
+    font-size: .57rem;
+    line-height: 1.35;
+  }
+
+  /* HOME: Today card overlays hero to save vertical space */
+  .section-home .dashboard-layout {
+    position: relative;
+    z-index: 5;
+    margin-top: -39px;
+  }
+
+  .section-home .dashboard-today {
+    min-height: 0;
+    overflow: hidden;
+    margin: 0;
+    border: 1px solid #e3e9ed;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(41, 64, 81, .10);
+  }
+
+  .section-home .dashboard-card-head {
+    min-height: 34px;
+    align-items: center;
+    padding: 8px 13px 6px;
+  }
+
+  .section-home .dashboard-card-head h2 {
+    margin: 0;
+    color: #17334a;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 1.02rem;
+    font-weight: 800;
+  }
+
+  .section-home .dashboard-card-head .dashboard-kicker {
+    display: none;
+  }
+
+  .section-home .dashboard-card-head button {
+    min-height: 26px;
+    color: #365a70;
+    font-size: .64rem;
+    font-weight: 800;
+  }
+
+  .section-home .dashboard-task-list {
+    border-top-color: #edf1f3;
+  }
+
+  .section-home .dashboard-task-row {
+    min-height: 34px;
+    grid-template-columns: 31px minmax(0, 1fr) 24px;
+    border-bottom-color: #edf1f3;
+  }
+
+  .section-home .dashboard-task-row:nth-child(n+4) {
+    display: none;
+  }
+
+  .section-home .dashboard-task-row .check-button {
+    width: 19px;
+    height: 19px;
+    margin-left: 8px;
+    border-width: 2px;
+  }
+
+  .section-home .dashboard-task-main {
+    padding: 3px 2px;
+  }
+
+  .section-home .dashboard-task-main strong {
+    color: #1d3347;
+    font-size: .74rem;
+    line-height: 1.12;
+    font-weight: 750;
+  }
+
+  .section-home .dashboard-task-main small {
+    margin-top: 1px;
+    color: #536b7d;
+    font-size: .58rem;
+    font-weight: 600;
+  }
+
+  .section-home .dashboard-row-arrow {
+    color: #6f8493;
+    font-size: 1rem;
+  }
+
+  .section-home .dashboard-empty {
+    min-height: 88px;
+    padding: 12px;
+  }
+
+  /* HOME: 2x2 compact stats instead of a long row */
+  .section-home .dashboard-stat-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    margin-top: 8px;
+  }
+
+  .section-home .stat-tile {
+    min-height: 48px;
+    display: grid;
+    grid-template-columns: 27px 1fr;
+    grid-template-rows: auto auto;
+    align-content: center;
+    gap: 0 7px;
+    padding: 7px 9px;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(55,72,86,.055);
+  }
+
+  .section-home .stat-tile .stat-icon {
+    grid-row: 1 / 3;
+    width: 25px;
+    height: 25px;
+    margin: 0;
+    align-self: center;
+    border-radius: 8px;
+    font-size: .68rem;
+  }
+
+  .section-home .stat-tile b {
+    display: none;
+  }
+
+  .section-home .stat-tile strong {
+    grid-column: 2;
+    margin: 0;
+    color: currentColor;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: .96rem;
+    font-weight: 850;
+    line-height: 1;
+  }
+
+  .section-home .stat-tile small {
+    grid-column: 2;
+    margin: 1px 0 0;
+    color: currentColor;
+    font-size: .6rem;
+    font-weight: 700;
+    line-height: 1.05;
+    opacity: .92;
+  }
+
+  /* HOME: only key 4 life spheres above the fold */
+  .section-home .dashboard-section {
+    margin-top: 9px;
+  }
+
+  .section-home .dashboard-section-head {
+    min-height: 22px;
+    align-items: center;
+    margin-bottom: 5px;
+    padding: 0 2px;
+  }
+
+  .section-home .dashboard-section-head h2 {
+    margin: 0;
+    color: #17334a;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: .9rem;
+    font-weight: 850;
+  }
+
+  .section-home .dashboard-section-head button {
+    min-height: 22px;
+    color: #365a70;
+    font-size: .61rem;
+    font-weight: 800;
+  }
+
+  .section-home .sphere-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .section-home .sphere-card {
+    min-height: 73px;
+    padding: 9px 10px;
+    border-radius: 15px;
+    box-shadow: 0 6px 15px rgba(48,65,78,.12);
+  }
+
+  .section-home .sphere-card:nth-child(n+5):not(.sphere-create),
+  .section-home .sphere-create {
+    display: none;
+  }
+
+  .section-home .sphere-symbol {
+    width: 23px;
+    height: 23px;
+    margin: 0 0 6px;
+    font-size: .95rem;
+  }
+
+  .section-home .sphere-info {
+    max-width: 94%;
+    gap: 1px;
+  }
+
+  .section-home .sphere-info strong {
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: .72rem;
+    line-height: 1.05;
+    font-weight: 800;
+  }
+
+  .section-home .sphere-info small {
+    margin-top: 2px;
+    color: rgba(255,255,255,.95);
+    font-size: .53rem;
+    font-weight: 650;
+  }
+
+  .section-home .sphere-card > b {
+    left: auto;
+    right: 8px;
+    bottom: 7px;
+    width: 20px;
+    height: 20px;
+    font-size: .7rem;
+  }
+
+  .section-home .sphere-card::after {
+    width: 62px;
+    height: 62px;
+    right: -9px;
+    bottom: -11px;
+  }
+
+  /* Keep nav compact and readable */
+  .bottom-nav.mobile-tabbar {
+    height: calc(65px + env(safe-area-inset-bottom));
+    padding: 4px 6px env(safe-area-inset-bottom);
+  }
+
+  .bottom-nav.mobile-tabbar button {
+    min-height: 52px;
+    color: #455f72;
+    font-size: .59rem;
+    font-weight: 700;
+  }
+
+  .bottom-nav.mobile-tabbar button span {
+    min-height: 20px;
+    color: #455f72;
+    font-size: 1.05rem;
+  }
+
+  .bottom-nav.mobile-tabbar button.active,
+  .bottom-nav.mobile-tabbar button.active span {
+    color: #127c7d;
+  }
+
+  .fab {
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    width: 54px;
+    height: 54px;
+    border-width: 3px;
+    font-size: 1.8rem;
+  }
+
+  /* TASKS: denser, darker and more card-like */
+  .section-tasks .mobile-topbar.mobile-appbar {
+    min-height: calc(58px + env(safe-area-inset-top));
+    padding: calc(7px + env(safe-area-inset-top)) 10px 5px;
+    margin-bottom: 6px;
+  }
+
+  .section-tasks .mobile-profile-mark {
+    width: 36px;
+    height: 36px;
+    color: #0f7172;
+    font-size: .92rem;
+  }
+
+  .section-tasks .mobile-app-title strong {
+    color: #17344a;
+    font-size: .94rem;
+  }
+
+  .section-tasks .mobile-app-title span {
+    color: #4f687a;
+    font-size: .66rem;
+    font-weight: 650;
+  }
+
+  .section-tasks .mobile-icon-action {
+    width: 36px;
+    height: 36px;
+    color: #1f6772;
+    font-size: 1.08rem;
+  }
+
+  .section-tasks .search-row {
+    margin: 0 0 6px;
+    padding: 5px;
+    border: 1px solid #dde7eb;
+    border-radius: 14px;
+  }
+
+  .section-tasks .search-row input {
+    min-height: 34px;
+    color: #193348;
+    font-size: .8rem;
+  }
+
+  .section-tasks .search-row input::placeholder {
+    color: #718699;
+    opacity: 1;
+  }
+
+  .section-tasks .search-row .ghost-button {
+    min-height: 34px;
+    color: #1b5369;
+    font-weight: 800;
+  }
+
+  .section-tasks .filter-strip {
+    gap: 5px;
+    margin: 0 -10px 7px;
+    padding: 0 10px;
+  }
+
+  .section-tasks .filter-strip button {
+    min-height: 30px;
+    padding: 0 10px;
+    border-radius: 999px;
+    color: #496174;
+    font-size: .68rem;
+    font-weight: 750;
+  }
+
+  .section-tasks .filter-strip button.active {
+    color: #0c6f72;
+    background: #dff1ef;
+  }
+
+  .section-tasks .todo-tree .tree-rows {
+    border: 1px solid #e2e8eb;
+    border-radius: 17px;
+    box-shadow: 0 6px 16px rgba(54,72,85,.055);
+  }
+
+  .section-tasks .tree-node .task-row {
+    min-height: 51px;
+    grid-template-columns: 23px 34px minmax(0, 1fr) 28px;
+    border-bottom-color: #e8edef;
+    background: #fff;
+  }
+
+  .section-tasks .task-depth-1 { padding-left: 8px; }
+  .section-tasks .task-depth-2 { padding-left: 16px; }
+  .section-tasks .task-depth-3 { padding-left: 24px; }
+  .section-tasks .task-depth-4 { padding-left: 32px; }
+
+  .section-tasks .task-main {
+    padding: 8px 2px;
+  }
+
+  .section-tasks .task-title {
+    color: #1d3347;
+    font-size: .83rem;
+    font-weight: 800;
+    line-height: 1.15;
+  }
+
+  .section-tasks .task-meta {
+    margin-top: 3px;
+    color: #50697b;
+    font-size: .62rem;
+    font-weight: 650;
+    gap: 5px;
+  }
+
+  .section-tasks .task-meta span {
+    color: #50697b;
+  }
+
+  .section-tasks .task-project-path {
+    color: #0e7476 !important;
+    font-weight: 800;
+  }
+
+  .section-tasks .tree-toggle,
+  .section-tasks .row-more {
+    color: #718592;
+  }
+
+  .section-tasks .check-button {
+    width: 22px;
+    height: 22px;
+    margin-left: 5px;
+    background: #fff;
+  }
+
+  /* Never use low-contrast gray-on-white on mobile */
+  .subtitle,
+  .task-meta,
+  .mobile-app-title span,
+  .module-intro-card p,
+  .module-empty-card span,
+  .project-main small,
+  .project-child-row small,
+  .project-task-row small {
+    color: #50697b;
+  }
+}
+
+@media (max-width: 390px) {
+  .section-home .dashboard-hero {
+    min-height: 128px;
+  }
+
+  .section-home .dashboard-hero h1 {
+    font-size: 1.42rem;
+  }
+
+  .section-home .dashboard-lead {
+    font-size: .69rem;
+  }
+
+  .section-home .stat-tile {
+    min-height: 45px;
+    padding: 6px 8px;
+  }
+
+  .section-home .sphere-card {
+    min-height: 68px;
+  }
+}
