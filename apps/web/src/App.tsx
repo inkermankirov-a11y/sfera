@@ -29,13 +29,79 @@ import {
   projectPath,
   readProjects
 } from "./projects-model";
+import {
+  NOTES_STORAGE_KEY,
+  Note,
+  NoteKind,
+  createNote,
+  readNotes
+} from "./notes-model";
+import {
+  GOALS_STORAGE_KEY,
+  Goal,
+  createGoal,
+  readGoals
+} from "./goals-model";
 
 const filterLabels: Record<Filter, string> = {
   all: "Все",
   today: "Сегодня",
   inbox: "Без даты",
-  done: "Готово"
+  overdue: "Просрочено",
+  done: "Выполнено"
 };
+
+type Section = "home" | "projects" | "tasks" | "notes" | "photos" | "calendar";
+type TaskView = Filter | "week";
+type NoteView = "all" | "ideas" | "diary" | "collections" | "lists" | "favorites";
+type ProjectTab = "overview" | "tasks" | "notes" | "photos" | "goals" | "history";
+type CalendarMode = "day" | "week" | "month" | "history";
+
+const noteKindLabels: Record<NoteKind, string> = {
+  note: "Заметка",
+  idea: "Идея",
+  diary: "Дневник",
+  collection: "Коллекция",
+  list: "Список"
+};
+
+function localIso(date: Date) {
+  const offset = date.getTimezoneOffset();
+  return new Date(date.getTime() - offset * 60_000).toISOString().slice(0, 10);
+}
+
+function currentWeekDates() {
+  const now = new Date();
+  const day = now.getDay() || 7;
+  const monday = new Date(now);
+  monday.setHours(12, 0, 0, 0);
+  monday.setDate(now.getDate() - day + 1);
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + index);
+    return {
+      iso: localIso(date),
+      short: new Intl.DateTimeFormat("ru-RU", { weekday: "short" }).format(date).replace(".", ""),
+      day: date.getDate()
+    };
+  });
+}
+
+function monthCells(cursor: Date) {
+  const first = new Date(cursor.getFullYear(), cursor.getMonth(), 1, 12);
+  const mondayIndex = (first.getDay() + 6) % 7;
+  const start = new Date(first);
+  start.setDate(first.getDate() - mondayIndex);
+  return Array.from({ length: 42 }, (_, index) => {
+    const date = new Date(start);
+    date.setDate(start.getDate() + index);
+    return {
+      iso: localIso(date),
+      day: date.getDate(),
+      inMonth: date.getMonth() === cursor.getMonth()
+    };
+  });
+}
 
 const priorityLabels: Record<Priority, string> = {
   1: "P1",
@@ -57,6 +123,7 @@ function dateTimeLocalToIso(value: string) {
 export function App() {
   const [tasks, setTasks] = useState<Task[]>(() => readTasks());
   const [filter, setFilter] = useState<Filter>("all");
+  const [taskView, setTaskView] = useState<TaskView>("all");
   const [selectedId, setSelectedId] = useState<string | null>(() => {
     const match = location.hash.match(/^#task=(.+)$/);
     return match ? decodeURIComponent(match[1]) : null;
@@ -69,14 +136,27 @@ export function App() {
   const [toast, setToast] = useState("");
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [mobileQuickOpen, setMobileQuickOpen] = useState(false);
+  const [quickMenuOpen, setQuickMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [mobileSection, setMobileSection] = useState<"home" | "projects" | "tasks" | "notes" | "photos">("home");
+  const [mobileSection, setMobileSection] = useState<Section>("home");
   const [projects, setProjects] = useState<ProjectNode[]>(() => readProjects());
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [projectCreateOpen, setProjectCreateOpen] = useState(false);
   const [projectTitle, setProjectTitle] = useState("");
   const [projectParentId, setProjectParentId] = useState("");
   const [quickProjectId, setQuickProjectId] = useState<string | null>(null);
+  const [notes, setNotes] = useState<Note[]>(() => readNotes());
+  const [goals, setGoals] = useState<Goal[]>(() => readGoals());
+  const [noteView, setNoteView] = useState<NoteView>("all");
+  const [noteCreateOpen, setNoteCreateOpen] = useState(false);
+  const [noteTitle, setNoteTitle] = useState("");
+  const [noteBody, setNoteBody] = useState("");
+  const [noteKind, setNoteKind] = useState<NoteKind>("note");
+  const [noteProjectId, setNoteProjectId] = useState<string | null>(null);
+  const [projectTab, setProjectTab] = useState<ProjectTab>("overview");
+  const [goalTitle, setGoalTitle] = useState("");
+  const [calendarMode, setCalendarMode] = useState<CalendarMode>("month");
+  const [calendarCursor, setCalendarCursor] = useState(() => new Date());
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
@@ -85,6 +165,18 @@ export function App() {
   useEffect(() => {
     localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects));
   }, [projects]);
+
+  useEffect(() => {
+    localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notes));
+  }, [notes]);
+
+  useEffect(() => {
+    localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify(goals));
+  }, [goals]);
+
+  useEffect(() => {
+    if (!selectedProjectId) setProjectTab("overview");
+  }, [selectedProjectId]);
 
   useEffect(() => {
     if (!toast) return;
@@ -145,6 +237,48 @@ export function App() {
   }).format(new Date());
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Доброе утро" : hour < 18 ? "Добрый день" : "Добрый вечер";
+  const weekDates = useMemo(() => currentWeekDates(), []);
+  const weekTaskCount = useMemo(
+    () => tasks.filter((task) => task.status === "active" && task.date && weekDates.some((day) => day.iso === task.date)).length,
+    [tasks, weekDates]
+  );
+  const visibleNotes = useMemo(() => {
+    if (noteView === "ideas") return notes.filter((note) => note.kind === "idea");
+    if (noteView === "diary") return notes.filter((note) => note.kind === "diary");
+    if (noteView === "collections") return notes.filter((note) => note.kind === "collection");
+    if (noteView === "lists") return notes.filter((note) => note.kind === "list");
+    if (noteView === "favorites") return notes.filter((note) => note.favorite);
+    return notes;
+  }, [notes, noteView]);
+  const calendarCells = useMemo(() => monthCells(calendarCursor), [calendarCursor]);
+  const calendarTitle = new Intl.DateTimeFormat("ru-RU", { month: "long", year: "numeric" }).format(calendarCursor);
+  const historyEvents = useMemo(() => {
+    const taskEvents = tasks.flatMap((task) => {
+      const events = [
+        { id: "task-created-" + task.id, at: task.createdAt, icon: "✓", title: task.title, meta: "Задача создана" }
+      ];
+      if (task.completedAt) events.push({ id: "task-done-" + task.id, at: task.completedAt, icon: "✓", title: task.title, meta: "Задача выполнена" });
+      return events;
+    });
+    const noteEvents = notes.map((note) => ({
+      id: "note-" + note.id,
+      at: note.createdAt,
+      icon: "✎",
+      title: note.title,
+      meta: noteKindLabels[note.kind]
+    }));
+    const goalEvents = goals.map((goal) => ({
+      id: "goal-" + goal.id,
+      at: goal.createdAt,
+      icon: "◎",
+      title: goal.title,
+      meta: "Цель"
+    }));
+    return [...taskEvents, ...noteEvents, ...goalEvents]
+      .filter((event) => !!event.at)
+      .sort((a, b) => b.at.localeCompare(a.at))
+      .slice(0, 40);
+  }, [tasks, notes, goals]);
 
   function matchesFilter(task: Task) {
     const normalized = query.trim().toLowerCase();
@@ -159,6 +293,7 @@ export function App() {
 
     if (filter === "today") return task.status === "active" && task.date === isoToday();
     if (filter === "inbox") return task.status === "active" && task.date === null;
+    if (filter === "overdue") return task.status === "active" && !!task.date && task.date < isoToday();
     if (filter === "done") return task.status === "done";
     return task.status === "active";
   }
@@ -206,6 +341,63 @@ export function App() {
     setProjectParentId("");
     setSelectedProjectId(project.id);
     setToast(parentId ? "Проект создан" : "Сфера жизни создана");
+  }
+
+  function chooseTaskView(view: TaskView) {
+    setTaskView(view);
+    if (view === "week") return;
+    setFilter(view);
+  }
+
+  function addNote(event?: FormEvent) {
+    event?.preventDefault();
+    const title = noteTitle.trim();
+    if (!title) return;
+    const note = createNote({
+      title,
+      body: noteBody.trim(),
+      kind: noteKind,
+      projectId: noteProjectId,
+      date: noteKind === "diary" ? isoToday() : null
+    });
+    setNotes((current) => [note, ...current]);
+    setNoteTitle("");
+    setNoteBody("");
+    setNoteKind("note");
+    setNoteProjectId(null);
+    setNoteCreateOpen(false);
+    setNoteView(note.kind === "idea" ? "ideas" : note.kind === "diary" ? "diary" : note.kind === "collection" ? "collections" : note.kind === "list" ? "lists" : "all");
+    setMobileSection("notes");
+    setToast("Запись сохранена");
+  }
+
+  function addGoal(event?: FormEvent) {
+    event?.preventDefault();
+    const title = goalTitle.trim();
+    if (!title || !selectedProject) return;
+    const goal = createGoal({
+      title,
+      projectId: selectedProject.id,
+      progress: 0
+    });
+    setGoals((current) => [goal, ...current]);
+    setGoalTitle("");
+    setToast("Цель добавлена");
+  }
+
+  function patchGoal(id: string, patch: Partial<Goal>) {
+    setGoals((current) => current.map((goal) =>
+      goal.id === id ? { ...goal, ...patch, updatedAt: nowIso() } : goal
+    ));
+  }
+
+  function openCalendar(mode: CalendarMode = "month") {
+    setCalendarMode(mode);
+    setMobileSection("calendar");
+  }
+
+  function setMonthOffset(delta: number) {
+    setCalendarCursor((current) => new Date(current.getFullYear(), current.getMonth() + delta, 1));
   }
 
   function setTaskProject(task: Task, projectId: string | null) {
@@ -592,6 +784,7 @@ export function App() {
           <button className={mobileSection === "tasks" ? "active" : ""} onClick={() => setMobileSection("tasks")}><span>✓</span>Задачи</button>
           <button className={mobileSection === "notes" ? "active" : ""} onClick={() => setMobileSection("notes")}><span>✎</span>Заметки</button>
           <button className={mobileSection === "photos" ? "active" : ""} onClick={() => setMobileSection("photos")}><span>▧</span>Фото</button>
+          <button className={mobileSection === "calendar" ? "active" : ""} onClick={() => openCalendar("month")}><span>▦</span>Календарь</button>
         </nav>
 
         <div className="sidebar-bottom">
@@ -617,7 +810,7 @@ export function App() {
           <button className="mobile-profile-mark mobile-home-mark" onClick={() => setMobileSection("home")} aria-label="На главную">S</button>
           <div className="mobile-app-title">
             <strong>СФЕРА</strong>
-            <span>{mobileSection === "home" ? "Сегодня" : mobileSection === "projects" ? "Проекты" : mobileSection === "tasks" ? "Задачи" : mobileSection === "notes" ? "Заметки" : "Фото"}</span>
+            <span>{mobileSection === "home" ? "Сегодня" : mobileSection === "projects" ? "Проекты" : mobileSection === "tasks" ? "Задачи" : mobileSection === "notes" ? "Заметки" : mobileSection === "photos" ? "Фото" : "Календарь"}</span>
           </div>
           <div className="mobile-app-actions">
             {mobileSection === "tasks" && (
@@ -645,7 +838,7 @@ export function App() {
                   <span className="dashboard-kicker">Фокус</span>
                   <h2>Сегодня</h2>
                 </div>
-                <button onClick={() => { setFilter("today"); setMobileSection("tasks"); }}>Все задачи ›</button>
+                <button onClick={() => { chooseTaskView("today"); setMobileSection("tasks"); }}>Все задачи ›</button>
               </div>
 
               <div className="dashboard-task-list">
@@ -684,7 +877,7 @@ export function App() {
             </section>
 
             <aside className="dashboard-side dashboard-stat-tiles">
-              <button className="stat-tile stat-overdue" onClick={() => { setFilter("all"); setMobileSection("tasks"); }}>
+              <button className="stat-tile stat-overdue" onClick={() => { chooseTaskView("overdue"); setMobileSection("tasks"); }}>
                 <span className="stat-icon">!</span><b>›</b>
                 <strong>{overdueTasks.length}</strong>
                 <small>Просрочено</small>
@@ -696,7 +889,7 @@ export function App() {
               </button>
               <button className="stat-tile stat-notes" onClick={() => setMobileSection("notes")}>
                 <span className="stat-icon">▤</span><b>›</b>
-                <strong>0</strong>
+                <strong>{notes.length}</strong>
                 <small>Заметки</small>
               </button>
               <button className="stat-tile stat-photos" onClick={() => setMobileSection("photos")}>
@@ -740,6 +933,18 @@ export function App() {
             </div>
           </section>
 
+          <div className="home-function-strip">
+            <button onClick={() => { chooseTaskView("week"); setMobileSection("tasks"); }}>
+              <span>▦</span><strong>Неделя</strong><small>{weekTaskCount} задач</small>
+            </button>
+            <button onClick={() => { setSelectedProjectId(rootSpheres[0]?.id ?? null); setProjectTab("goals"); setMobileSection("projects"); }}>
+              <span>◎</span><strong>Цели</strong><small>{goals.length} активных</small>
+            </button>
+            <button onClick={() => openCalendar("month")}>
+              <span>◫</span><strong>Календарь</strong><small>Даты и история</small>
+            </button>
+          </div>
+
         </section>
 
         <div className={`tasks-module-content ${mobileSection === "tasks" ? "mobile-section-active" : "mobile-section-hidden"}`}>
@@ -771,18 +976,13 @@ export function App() {
           </div>
         )}
 
-        <div className="filter-strip" role="tablist" aria-label="Фильтр задач">
-          {(Object.keys(filterLabels) as Filter[]).map((value) => (
-            <button
-              key={value}
-              role="tab"
-              aria-selected={filter === value}
-              className={filter === value ? "active" : ""}
-              onClick={() => setFilter(value)}
-            >
-              {filterLabels[value]}
-            </button>
-          ))}
+        <div className="filter-strip task-view-strip" role="tablist" aria-label="Режим задач">
+          <button className={taskView === "today" ? "active" : ""} onClick={() => chooseTaskView("today")}>Сегодня</button>
+          <button className={taskView === "week" ? "active" : ""} onClick={() => chooseTaskView("week")}>Неделя</button>
+          <button className={taskView === "all" ? "active" : ""} onClick={() => chooseTaskView("all")}>Все</button>
+          <button className={taskView === "inbox" ? "active" : ""} onClick={() => chooseTaskView("inbox")}>Без даты</button>
+          <button className={taskView === "overdue" ? "active" : ""} onClick={() => chooseTaskView("overdue")}>Просрочено</button>
+          <button className={taskView === "done" ? "active" : ""} onClick={() => chooseTaskView("done")}>Выполнено</button>
         </div>
 
         <form className="quick-add advanced" onSubmit={addTask}>
@@ -805,18 +1005,82 @@ export function App() {
           <span><b>* Заголовок</b> незавершаемая</span>
         </div>
 
-        <section className="task-list todo-tree" aria-live="polite">
-          {visibleCount === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">✓</div>
-              <h2>{query ? "Ничего не найдено" : "Здесь пока нет задач"}</h2>
-              <p>{query ? "Измени запрос или сбрось фильтр." : "Добавь первую задачу. Внутри неё можно создавать подзадачи любого уровня."}</p>
-              {query && <button className="secondary-button" onClick={() => setQuery("")}>Сбросить поиск</button>}
+        {taskView === "week" ? (
+          <section className="week-planner" aria-label="Недельное планирование">
+            <div className="week-board">
+              {weekDates.map((day) => {
+                const dayTasks = tasks
+                  .filter((task) => task.status === "active" && task.date === day.iso)
+                  .sort((a, b) => (a.time ?? "99:99").localeCompare(b.time ?? "99:99") || a.order - b.order);
+                return (
+                  <div
+                    className={`week-day ${day.iso === isoToday() ? "today" : ""}`}
+                    key={day.iso}
+                    onDragOver={(event) => event.preventDefault()}
+                    onDrop={() => {
+                      if (!draggedId) return;
+                      patchTask(draggedId, { date: day.iso });
+                      setDraggedId(null);
+                      setToast("Задача перенесена");
+                    }}
+                  >
+                    <header><span>{day.short}</span><strong>{day.day}</strong></header>
+                    <div className="week-day-tasks">
+                      {dayTasks.length === 0 ? (
+                        <span className="week-empty">Свободно</span>
+                      ) : dayTasks.map((task) => (
+                        <button
+                          className={`week-task p${task.priority}`}
+                          key={task.id}
+                          draggable
+                          onDragStart={() => setDraggedId(task.id)}
+                          onDragEnd={() => setDraggedId(null)}
+                          onClick={() => openDetail(task.id)}
+                        >
+                          <strong>{task.time ?? "Без времени"}</strong>
+                          <span>{task.title}</span>
+                          {task.projectId && <small>{projectPath(projects, task.projectId)}</small>}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          ) : (
-            <div className="task-rows tree-rows">{renderTree(null)}</div>
-          )}
-        </section>
+            <div
+              className="week-inbox"
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={() => {
+                if (!draggedId) return;
+                patchTask(draggedId, { date: null });
+                setDraggedId(null);
+                setToast("Задача перенесена в «Без даты»");
+              }}
+            >
+              <div className="week-inbox-head"><strong>Без даты</strong><span>Перетащи сюда задачу, если день ещё не выбран</span></div>
+              <div className="week-inbox-items">
+                {tasks.filter((task) => task.status === "active" && !task.date).slice(0, 8).map((task) => (
+                  <button key={task.id} draggable onDragStart={() => setDraggedId(task.id)} onDragEnd={() => setDraggedId(null)} onClick={() => openDetail(task.id)}>
+                    <span>○</span><strong>{task.title}</strong>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : (
+          <section className="task-list todo-tree" aria-live="polite">
+            {visibleCount === 0 ? (
+              <div className="empty-state">
+                <div className="empty-icon">✓</div>
+                <h2>{query ? "Ничего не найдено" : "Здесь пока нет задач"}</h2>
+                <p>{query ? "Измени запрос или сбрось фильтр." : "Добавь первую задачу. Внутри неё можно создавать подзадачи любого уровня."}</p>
+                {query && <button className="secondary-button" onClick={() => setQuery("")}>Сбросить поиск</button>}
+              </div>
+            ) : (
+              <div className="task-rows tree-rows">{renderTree(null)}</div>
+            )}
+          </section>
+        )}
 
         </div>
 
@@ -859,90 +1123,281 @@ export function App() {
               <div className="project-summary-grid">
                 <div><strong>{projectTaskCount(selectedProject.id, false)}</strong><span>задач</span></div>
                 <div><strong>{projectChildren(projects, selectedProject.id).length}</strong><span>подпроектов</span></div>
-                <div><strong>0</strong><span>заметок</span></div>
+                <div><strong>{notes.filter((note) => note.projectId === selectedProject.id).length}</strong><span>заметок</span></div>
                 <div><strong>0</strong><span>фото</span></div>
               </div>
 
-              {projectChildren(projects, selectedProject.id).length > 0 && (
-                <section className="project-section-card">
-                  <div className="project-section-title">Подпроекты</div>
-                  {projectChildren(projects, selectedProject.id).map((project) => (
-                    <button className="project-child-row" key={project.id} onClick={() => setSelectedProjectId(project.id)}>
-                      <span className="project-folder-icon">▰</span>
-                      <span>
-                        <strong>{project.title}</strong>
-                        <small>{projectTaskCount(project.id)} активных задач</small>
-                      </span>
-                      <b>›</b>
-                    </button>
-                  ))}
-                </section>
+              <div className="project-detail-tabs" role="tablist" aria-label="Раздел проекта">
+                {([
+                  ["overview", "Обзор"],
+                  ["tasks", "Задачи"],
+                  ["notes", "Заметки"],
+                  ["photos", "Фото"],
+                  ["goals", "Цели"],
+                  ["history", "История"]
+                ] as Array<[ProjectTab, string]>).map(([value, label]) => (
+                  <button key={value} className={projectTab === value ? "active" : ""} onClick={() => setProjectTab(value)}>{label}</button>
+                ))}
+              </div>
+
+              {projectTab === "overview" && (
+                <>
+                  {projectChildren(projects, selectedProject.id).length > 0 && (
+                    <section className="project-section-card">
+                      <div className="project-section-title">Подпроекты</div>
+                      {projectChildren(projects, selectedProject.id).map((project) => (
+                        <button className="project-child-row" key={project.id} onClick={() => setSelectedProjectId(project.id)}>
+                          <span className="project-folder-icon">▰</span>
+                          <span>
+                            <strong>{project.title}</strong>
+                            <small>{projectTaskCount(project.id)} активных задач</small>
+                          </span>
+                          <b>›</b>
+                        </button>
+                      ))}
+                    </section>
+                  )}
+                  <section className="project-overview-cards">
+                    <button onClick={() => setProjectTab("tasks")}><span>✓</span><strong>Задачи</strong><small>{projectTaskCount(selectedProject.id, false)} активных</small></button>
+                    <button onClick={() => setProjectTab("notes")}><span>✎</span><strong>Заметки</strong><small>{notes.filter((note) => note.projectId === selectedProject.id).length} записей</small></button>
+                    <button onClick={() => setProjectTab("goals")}><span>◎</span><strong>Цели</strong><small>{goals.filter((goal) => goal.projectId === selectedProject.id).length} целей</small></button>
+                    <button onClick={() => setProjectTab("history")}><span>◴</span><strong>История</strong><small>Хронология проекта</small></button>
+                  </section>
+                </>
               )}
 
-              <section className="project-section-card">
-                <div className="project-section-title">Задачи</div>
-                {tasks.filter((task) => task.projectId === selectedProject.id && task.status === "active").length === 0 ? (
-                  <div className="project-empty-row">В этом проекте пока нет задач.</div>
-                ) : (
-                  tasks
+              {projectTab === "tasks" && (
+                <section className="project-section-card">
+                  <div className="project-section-title">Задачи</div>
+                  {tasks.filter((task) => task.projectId === selectedProject.id && task.status === "active").length === 0 ? (
+                    <div className="project-empty-row">В этом проекте пока нет задач.</div>
+                  ) : tasks
                     .filter((task) => task.projectId === selectedProject.id && task.status === "active")
                     .sort((a, b) => a.order - b.order)
                     .map((task) => (
                       <button className="project-task-row" key={task.id} onClick={() => openDetail(task.id)}>
                         <span className={`project-task-check p${task.priority}`} />
-                        <span>
-                          <strong>{task.title}</strong>
-                          <small>{task.date ? formatDate(task.date) : "Без даты"}</small>
-                        </span>
+                        <span><strong>{task.title}</strong><small>{task.date ? formatDate(task.date) : "Без даты"}</small></span>
                         <b>›</b>
                       </button>
-                    ))
-                )}
-                <button
-                  className="project-add-task"
-                  onClick={() => { setQuickProjectId(selectedProject.id); setMobileQuickOpen(true); }}
-                >＋ Добавить задачу</button>
-              </section>
+                    ))}
+                  <button className="project-add-task" onClick={() => { setQuickProjectId(selectedProject.id); setMobileQuickOpen(true); }}>＋ Добавить задачу</button>
+                </section>
+              )}
+
+              {projectTab === "notes" && (
+                <section className="project-section-card">
+                  <div className="project-section-title">Заметки</div>
+                  {notes.filter((note) => note.projectId === selectedProject.id).length === 0 ? (
+                    <div className="project-empty-row">У проекта пока нет заметок.</div>
+                  ) : notes.filter((note) => note.projectId === selectedProject.id).map((note) => (
+                    <div className="project-note-row" key={note.id}>
+                      <span>{note.kind === "diary" ? "☼" : note.kind === "idea" ? "✦" : "✎"}</span>
+                      <div><strong>{note.title}</strong><small>{noteKindLabels[note.kind]}</small></div>
+                    </div>
+                  ))}
+                  <button className="project-add-task" onClick={() => { setNoteKind("note"); setNoteProjectId(selectedProject.id); setNoteCreateOpen(true); }}>＋ Добавить заметку</button>
+                </section>
+              )}
+
+              {projectTab === "photos" && (
+                <section className="project-section-card project-placeholder">
+                  <div className="project-section-title">Фото</div>
+                  <div className="project-empty-row">Фото проекта будут отображаться здесь и одновременно в общем разделе «Фото».</div>
+                </section>
+              )}
+
+              {projectTab === "goals" && (
+                <section className="project-section-card">
+                  <div className="project-section-title">Цели проекта</div>
+                  {goals.filter((goal) => goal.projectId === selectedProject.id).map((goal) => (
+                    <div className="goal-row" key={goal.id}>
+                      <div><strong>{goal.title}</strong><small>{goal.progress}% выполнено</small></div>
+                      <div className="goal-progress"><span style={{ width: goal.progress + "%" }} /></div>
+                      <input aria-label="Прогресс цели" type="range" min="0" max="100" value={goal.progress} onChange={(event) => patchGoal(goal.id, { progress: Number(event.target.value) })} />
+                    </div>
+                  ))}
+                  <form className="goal-add-form" onSubmit={addGoal}>
+                    <input value={goalTitle} onChange={(event) => setGoalTitle(event.target.value)} placeholder="Новая цель проекта" />
+                    <button disabled={!goalTitle.trim()}>Добавить</button>
+                  </form>
+                </section>
+              )}
+
+              {projectTab === "history" && (
+                <section className="project-section-card">
+                  <div className="project-section-title">История проекта</div>
+                  {[
+                    ...tasks.filter((task) => task.projectId === selectedProject.id).map((task) => ({ id: "t-" + task.id, at: task.updatedAt, icon: "✓", title: task.title, meta: task.status === "done" ? "Задача выполнена" : "Задача изменена" })),
+                    ...notes.filter((note) => note.projectId === selectedProject.id).map((note) => ({ id: "n-" + note.id, at: note.updatedAt, icon: "✎", title: note.title, meta: noteKindLabels[note.kind] })),
+                    ...goals.filter((goal) => goal.projectId === selectedProject.id).map((goal) => ({ id: "g-" + goal.id, at: goal.updatedAt, icon: "◎", title: goal.title, meta: "Цель · " + goal.progress + "%" }))
+                  ].sort((a, b) => b.at.localeCompare(a.at)).map((event) => (
+                    <div className="history-row" key={event.id}>
+                      <span>{event.icon}</span>
+                      <div><strong>{event.title}</strong><small>{event.meta}</small></div>
+                      <time>{new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short" }).format(new Date(event.at))}</time>
+                    </div>
+                  ))}
+                </section>
+              )}
             </>
           )}
         </section>
 
-        <section className={`mobile-module-screen ${mobileSection === "notes" ? "active" : ""}`} aria-hidden={mobileSection !== "notes"}>
-          <div className="module-intro-card">
-            <div className="module-intro-icon">✎</div>
-            <h2>Заметки</h2>
-            <p>Здесь будут быстрые записи, мысли, списки и связанные с ними материалы.</p>
+        <section className={`mobile-module-screen notes-screen ${mobileSection === "notes" ? "active" : ""}`} aria-hidden={mobileSection !== "notes"}>
+          <header className="module-page-header">
+            <div><span>Личная база знаний</span><h2>Заметки</h2></div>
+            <button onClick={() => { setNoteKind("note"); setNoteProjectId(null); setNoteCreateOpen(true); }}>＋</button>
+          </header>
+
+          <div className="section-tabs notes-tabs" role="tablist" aria-label="Типы заметок">
+            {([
+              ["all", "Все"],
+              ["ideas", "Идеи"],
+              ["diary", "Дневник"],
+              ["collections", "Коллекции"],
+              ["lists", "Списки"],
+              ["favorites", "Важное"]
+            ] as Array<[NoteView, string]>).map(([value, label]) => (
+              <button key={value} className={noteView === value ? "active" : ""} onClick={() => setNoteView(value)}>{label}</button>
+            ))}
           </div>
-          <div className="module-empty-card">
-            <strong>Пока пусто</strong>
-            <span>Следующим шагом добавим создание и хранение заметок.</span>
+
+          {noteView === "collections" && (
+            <div className="collection-presets">
+              {["Рецепты", "Книги", "Фильмы", "Клиенты"].map((name, index) => (
+                <button key={name} onClick={() => { setNoteKind("collection"); setNoteTitle(name); setNoteProjectId(null); setNoteCreateOpen(true); }}>
+                  <span>{["⌑","▤","▷","◎"][index]}</span><strong>{name}</strong><small>Коллекция</small>
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="notes-grid">
+            {visibleNotes.length === 0 ? (
+              <div className="module-empty-card"><strong>Здесь пока пусто</strong><span>Создай первую запись через кнопку «+».</span></div>
+            ) : visibleNotes.map((note) => (
+              <article className={`note-card note-kind-${note.kind}`} key={note.id}>
+                <div className="note-card-top">
+                  <span>{note.kind === "diary" ? "☼" : note.kind === "idea" ? "✦" : note.kind === "collection" ? "▦" : note.kind === "list" ? "☷" : "✎"}</span>
+                  <small>{noteKindLabels[note.kind]}</small>
+                  <button className={note.favorite ? "favorite active" : "favorite"} onClick={() => setNotes((current) => current.map((item) => item.id === note.id ? { ...item, favorite: !item.favorite, updatedAt: nowIso() } : item))}>☆</button>
+                </div>
+                <h3>{note.title}</h3>
+                {note.body && <p>{note.body}</p>}
+                <footer>
+                  <span>{note.date ? formatDate(note.date) : new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short" }).format(new Date(note.updatedAt))}</span>
+                  {note.projectId && <span>{projectPath(projects, note.projectId)}</span>}
+                </footer>
+              </article>
+            ))}
           </div>
         </section>
 
-        <section className={`mobile-module-screen ${mobileSection === "photos" ? "active" : ""}`} aria-hidden={mobileSection !== "photos"}>
-          <div className="module-intro-card">
-            <div className="module-intro-icon">▧</div>
-            <h2>Фото</h2>
-            <p>Отдельное место для фотографий и изображений внутри СФЕРЫ.</p>
+        <section className={`mobile-module-screen photos-screen ${mobileSection === "photos" ? "active" : ""}`} aria-hidden={mobileSection !== "photos"}>
+          <header className="module-page-header">
+            <div><span>Визуальная память</span><h2>Фото</h2></div>
+            <button onClick={() => setToast("Загрузка фото — следующий функциональный шаг")}>＋</button>
+          </header>
+          <div className="section-tabs photo-tabs">
+            {["Все", "Последние", "По проектам", "По сферам", "Альбомы", "Без проекта"].map((label, index) => (
+              <button key={label} className={index === 0 ? "active" : ""}>{label}</button>
+            ))}
           </div>
-          <div className="photo-placeholder-grid">
-            <div /><div /><div /><div /><div /><div />
+          <div className="photo-architecture-card">
+            <div className="photo-architecture-icon">▧</div>
+            <div>
+              <strong>Единая фотогалерея</strong>
+              <p>Фото будет храниться один раз и показываться здесь, внутри проекта и внутри сферы жизни.</p>
+            </div>
+          </div>
+          <div className="photo-placeholder-grid photo-structure-grid">
+            {["Последние", "Семья", "Таро", "Путешествия", "Альбомы", "Без проекта"].map((label) => (
+              <button key={label}><span>▧</span><strong>{label}</strong><small>0 фото</small></button>
+            ))}
           </div>
         </section>
 
-        <button
-          className="fab"
-          aria-label="Быстрое добавление"
-          onClick={() => {
-            if (mobileSection === "projects" && !selectedProject) {
-              setProjectParentId("");
-              setProjectCreateOpen(true);
-              return;
-            }
-            setQuickProjectId(mobileSection === "projects" && selectedProject ? selectedProject.id : null);
-            setMobileQuickOpen(true);
-          }}
-        >＋</button>
+        <section className={`mobile-module-screen calendar-screen ${mobileSection === "calendar" ? "active" : ""}`} aria-hidden={mobileSection !== "calendar"}>
+          <header className="module-page-header calendar-page-header">
+            <div><span>Время и хронология</span><h2>Календарь</h2></div>
+            <button onClick={() => setCalendarCursor(new Date())}>Сегодня</button>
+          </header>
+
+          <div className="section-tabs calendar-tabs">
+            {([
+              ["day", "День"],
+              ["week", "Неделя"],
+              ["month", "Месяц"],
+              ["history", "История"]
+            ] as Array<[CalendarMode, string]>).map(([value, label]) => (
+              <button key={value} className={calendarMode === value ? "active" : ""} onClick={() => setCalendarMode(value)}>{label}</button>
+            ))}
+          </div>
+
+          {calendarMode === "month" && (
+            <section className="calendar-month-card">
+              <header className="calendar-month-head">
+                <button onClick={() => setMonthOffset(-1)}>←</button>
+                <h3>{calendarTitle}</h3>
+                <button onClick={() => setMonthOffset(1)}>→</button>
+              </header>
+              <div className="calendar-weekdays">{["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map((day) => <span key={day}>{day}</span>)}</div>
+              <div className="calendar-grid">
+                {calendarCells.map((cell) => {
+                  const cellTasks = tasks.filter((task) => task.status === "active" && task.date === cell.iso);
+                  return (
+                    <button className={`calendar-cell ${cell.inMonth ? "" : "muted"} ${cell.iso === isoToday() ? "today" : ""}`} key={cell.iso}>
+                      <strong>{cell.day}</strong>
+                      {cellTasks.length > 0 && <span>{cellTasks.length}</span>}
+                      {cellTasks.slice(0, 1).map((task) => <small key={task.id}>{task.title}</small>)}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {calendarMode === "day" && (
+            <section className="calendar-list-card">
+              <div className="calendar-list-title"><strong>Сегодня</strong><span>{todayTasks.length} задач</span></div>
+              {todayTasks.length === 0 ? <p className="project-empty-row">На сегодня ничего не запланировано.</p> : todayTasks.map((task) => (
+                <button className="calendar-event-row" key={task.id} onClick={() => openDetail(task.id)}>
+                  <time>{task.time ?? "—"}</time><div><strong>{task.title}</strong><small>{task.projectId ? projectPath(projects, task.projectId) : "Без проекта"}</small></div><b>›</b>
+                </button>
+              ))}
+            </section>
+          )}
+
+          {calendarMode === "week" && (
+            <section className="calendar-week-list">
+              {weekDates.map((day) => {
+                const dayTasks = tasks.filter((task) => task.status === "active" && task.date === day.iso);
+                return (
+                  <div className="calendar-week-row" key={day.iso}>
+                    <div><strong>{day.short}</strong><span>{day.day}</span></div>
+                    <div>{dayTasks.length === 0 ? <small>Свободно</small> : dayTasks.map((task) => <button key={task.id} onClick={() => openDetail(task.id)}>{task.time ?? "—"} · {task.title}</button>)}</div>
+                  </div>
+                );
+              })}
+            </section>
+          )}
+
+          {calendarMode === "history" && (
+            <section className="calendar-list-card history-timeline">
+              <div className="calendar-list-title"><strong>История SFERA</strong><span>последние изменения</span></div>
+              {historyEvents.map((event) => (
+                <div className="history-row" key={event.id}>
+                  <span>{event.icon}</span>
+                  <div><strong>{event.title}</strong><small>{event.meta}</small></div>
+                  <time>{new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short" }).format(new Date(event.at))}</time>
+                </div>
+              ))}
+            </section>
+          )}
+        </section>
+
+        <button className="fab" aria-label="Быстрое добавление" onClick={() => setQuickMenuOpen(true)}>＋</button>
 
         <nav className="bottom-nav mobile-tabbar" aria-label="Основная навигация">
           <button className={mobileSection === "projects" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("projects"); setSettingsOpen(false); }}><span>◇</span>Проекты</button>
@@ -950,6 +1405,53 @@ export function App() {
           <button className={mobileSection === "notes" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("notes"); setSettingsOpen(false); }}><span>✎</span>Заметки</button>
           <button className={mobileSection === "photos" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("photos"); setSettingsOpen(false); }}><span>▧</span>Фото</button>
         </nav>
+
+        {quickMenuOpen && (
+          <div className="mobile-quick-backdrop" onClick={() => setQuickMenuOpen(false)}>
+            <div className="mobile-quick-sheet quick-type-sheet" onClick={(event) => event.stopPropagation()}>
+              <div className="mobile-sheet-handle" />
+              <div className="mobile-quick-head"><strong>Что добавить?</strong><button onClick={() => setQuickMenuOpen(false)}>Отмена</button></div>
+              <div className="quick-type-grid">
+                <button onClick={() => {
+                  setQuickMenuOpen(false);
+                  setQuickProjectId(mobileSection === "projects" && selectedProject ? selectedProject.id : null);
+                  setMobileQuickOpen(true);
+                }}><span>✓</span><strong>Задачу</strong><small>Дело, дата, приоритет</small></button>
+                <button onClick={() => { setQuickMenuOpen(false); setNoteKind("note"); setNoteProjectId(mobileSection === "projects" && selectedProject ? selectedProject.id : null); setNoteCreateOpen(true); }}><span>✎</span><strong>Заметку</strong><small>Мысль или запись</small></button>
+                <button onClick={() => { setQuickMenuOpen(false); setNoteKind("diary"); setNoteProjectId(mobileSection === "projects" && selectedProject ? selectedProject.id : null); setNoteCreateOpen(true); }}><span>☼</span><strong>Дневник</strong><small>Запись сегодняшнего дня</small></button>
+                <button onClick={() => { setQuickMenuOpen(false); setMobileSection("photos"); setToast("Открыт раздел фото"); }}><span>▧</span><strong>Фото</strong><small>Визуальные материалы</small></button>
+                <button onClick={() => { setQuickMenuOpen(false); setProjectParentId(selectedProject?.id ?? ""); setProjectCreateOpen(true); }}><span>◇</span><strong>Проект</strong><small>Сфера или подпроект</small></button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {noteCreateOpen && (
+          <div className="mobile-quick-backdrop" onClick={() => setNoteCreateOpen(false)}>
+            <form className="mobile-quick-sheet note-create-sheet" onSubmit={addNote} onClick={(event) => event.stopPropagation()}>
+              <div className="mobile-sheet-handle" />
+              <div className="mobile-quick-head">
+                <strong>Новая запись</strong>
+                <button type="button" onClick={() => setNoteCreateOpen(false)}>Отмена</button>
+              </div>
+              <div className="note-kind-picker">
+                {([
+                  ["note", "Заметка"],
+                  ["idea", "Идея"],
+                  ["diary", "Дневник"],
+                  ["collection", "Коллекция"],
+                  ["list", "Список"]
+                ] as Array<[NoteKind, string]>).map(([value, label]) => (
+                  <button type="button" key={value} className={noteKind === value ? "active" : ""} onClick={() => setNoteKind(value)}>{label}</button>
+                ))}
+              </div>
+              <input className="project-title-input" autoFocus value={noteTitle} onChange={(event) => setNoteTitle(event.target.value)} placeholder="Название" />
+              <textarea value={noteBody} onChange={(event) => setNoteBody(event.target.value)} placeholder="Текст, мысль, список..." rows={5} />
+              {noteProjectId && <div className="note-project-hint">◇ {projectPath(projects, noteProjectId)}</div>}
+              <button className="mobile-add-submit" disabled={!noteTitle.trim()}>Сохранить</button>
+            </form>
+          </div>
+        )}
 
         {projectCreateOpen && (
           <div className="mobile-quick-backdrop" onClick={() => setProjectCreateOpen(false)}>
