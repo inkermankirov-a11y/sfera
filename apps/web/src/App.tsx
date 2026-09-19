@@ -527,6 +527,264 @@ export function App() {
     return tasks.filter((task) => task.status === "active" && task.projectId && ids.has(task.projectId)).length;
   }
 
+  function projectScopeIds(projectId: string) {
+    return new Set([projectId, ...projectDescendants(projects, projectId).map((project) => project.id)]);
+  }
+
+  function taskInProjectScope(task: Task, projectId: string) {
+    const ids = projectScopeIds(projectId);
+    if (task.projectId && ids.has(task.projectId)) return true;
+    return Array.from(ids).some((id) => areLinked(relations, { type: "task", id: task.id }, { type: "project", id }));
+  }
+
+  function noteInProjectScope(note: Note, projectId: string) {
+    const ids = projectScopeIds(projectId);
+    if (note.projectId && ids.has(note.projectId)) return true;
+    return Array.from(ids).some((id) => areLinked(relations, { type: "note", id: note.id }, { type: "project", id }));
+  }
+
+  function projectNoteCount(projectId: string) {
+    return notes.filter((note) => noteInProjectScope(note, projectId)).length;
+  }
+
+  function entityTitle(ref: ObjectRef) {
+    if (ref.type === "project") {
+      const project = projects.find((item) => item.id === ref.id);
+      return project ? projectPath(projects, project.id) : "Удалённый проект";
+    }
+    if (ref.type === "task") return tasks.find((item) => item.id === ref.id)?.title ?? "Удалённая задача";
+    return notes.find((item) => item.id === ref.id)?.title ?? "Удалённая заметка";
+  }
+
+  function entityTypeLabel(type: EntityType) {
+    return type === "project" ? "Проект" : type === "task" ? "Задача" : "Заметка";
+  }
+
+  function relationTargetOptions(type: EntityType, source: ObjectRef) {
+    if (type === "project") {
+      return flattenedProjects
+        .filter(({ project }) => !(source.type === "project" && source.id === project.id))
+        .map(({ project, path }) => ({ id: project.id, label: path }));
+    }
+    if (type === "task") {
+      return tasks
+        .filter((task) => !(source.type === "task" && source.id === task.id))
+        .map((task) => ({ id: task.id, label: task.title }));
+    }
+    return notes
+      .filter((note) => !(source.type === "note" && source.id === note.id))
+      .map((note) => ({ id: note.id, label: note.title }));
+  }
+
+  function addObjectRelation(source: ObjectRef) {
+    if (!linkTargetId) return;
+    const target: ObjectRef = { type: linkType, id: linkTargetId };
+    if (source.type === target.type && source.id === target.id) return;
+    if (areLinked(relations, source, target)) {
+      setToast("Эта связь уже существует");
+      return;
+    }
+    setRelations((current) => [...current, createRelation(source, target)]);
+    setLinkTargetId("");
+    setToast("Связь добавлена");
+  }
+
+  function openLinkedObject(ref: ObjectRef) {
+    if (ref.type === "project") {
+      setSelectedProjectId(ref.id);
+      setMobileSection("projects");
+      setSelectedNoteId(null);
+      if (selectedId) closeDetail();
+      return;
+    }
+    if (ref.type === "task") {
+      setSelectedNoteId(null);
+      openDetail(ref.id);
+      return;
+    }
+    setSelectedNoteId(ref.id);
+    if (selectedId) closeDetail();
+  }
+
+  function renderRelationsPanel(source: ObjectRef) {
+    const linked = relationsFor(relations, source);
+    const options = relationTargetOptions(linkType, source);
+    return (
+      <section className="detail-section linked-objects-section">
+        <div className="section-heading">
+          <h3>Связи</h3>
+          <span>{linked.length}</span>
+        </div>
+        {linked.length > 0 && (
+          <div className="linked-object-list">
+            {linked.map((relation) => {
+              const ref = otherRef(relation, source);
+              return (
+                <div className="linked-object-chip" key={relation.id}>
+                  <button onClick={() => openLinkedObject(ref)}>
+                    <small>{entityTypeLabel(ref.type)}</small>
+                    <strong>{entityTitle(ref)}</strong>
+                  </button>
+                  <button
+                    className="linked-remove"
+                    aria-label="Удалить связь"
+                    onClick={() => setRelations((current) => current.filter((item) => item.id !== relation.id))}
+                  >×</button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        <div className="link-object-form">
+          <select value={linkType} onChange={(event) => { setLinkType(event.target.value as EntityType); setLinkTargetId(""); }}>
+            <option value="project">Проект / сфера</option>
+            <option value="task">Задача</option>
+            <option value="note">Заметка</option>
+          </select>
+          <select value={linkTargetId} onChange={(event) => setLinkTargetId(event.target.value)}>
+            <option value="">Выбрать объект…</option>
+            {options.map((option) => <option value={option.id} key={option.id}>{option.label}</option>)}
+          </select>
+          <button disabled={!linkTargetId} onClick={() => addObjectRelation(source)}>Связать</button>
+        </div>
+      </section>
+    );
+  }
+
+  async function attachFiles(ref: ObjectRef, fileList: FileList | null) {
+    if (!fileList?.length) return;
+    const files = Array.from(fileList);
+    const accepted: Attachment[] = [];
+    for (const file of files) {
+      if (file.size > 1_200_000) {
+        setToast("Файл слишком большой для локального прототипа — максимум 1,2 МБ");
+        continue;
+      }
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result ?? ""));
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+      accepted.push({
+        id: crypto.randomUUID(),
+        name: file.name,
+        mime: file.type || "application/octet-stream",
+        size: file.size,
+        dataUrl,
+        links: [ref],
+        createdAt: new Date().toISOString()
+      });
+    }
+    if (accepted.length) {
+      setAttachments((current) => [...accepted, ...current]);
+      setToast(accepted.length === 1 ? "Файл прикреплён" : "Файлы прикреплены");
+    }
+  }
+
+  function removeAttachmentFrom(ref: ObjectRef, attachmentId: string) {
+    setAttachments((current) => current
+      .map((attachment) => attachment.id === attachmentId ? removeAttachmentLink(attachment, ref) : attachment)
+      .filter((attachment) => attachment.links.length > 0));
+  }
+
+  function renderAttachmentsPanel(ref: ObjectRef) {
+    const items = attachmentsFor(attachments, ref);
+    return (
+      <section className="detail-section object-attachments-section">
+        <div className="section-heading">
+          <h3>Файлы и фото</h3>
+          <span>{items.length}</span>
+        </div>
+        {items.length > 0 && (
+          <div className="object-attachment-grid">
+            {items.map((attachment) => (
+              <article className="object-attachment" key={attachment.id}>
+                {attachment.mime.startsWith("image/") ? (
+                  <img src={attachment.dataUrl} alt={attachment.name} />
+                ) : (
+                  <span className="attachment-file-icon">▤</span>
+                )}
+                <div>
+                  <strong>{attachment.name}</strong>
+                  <small>{Math.max(1, Math.round(attachment.size / 1024))} КБ</small>
+                </div>
+                <a href={attachment.dataUrl} download={attachment.name} aria-label="Открыть файл">↗</a>
+                <button onClick={() => removeAttachmentFrom(ref, attachment.id)} aria-label="Открепить файл">×</button>
+              </article>
+            ))}
+          </div>
+        )}
+        <label className="attachment-upload">
+          <span>＋ Прикрепить фото или файл</span>
+          <input
+            type="file"
+            multiple
+            accept="image/*,.pdf,.txt,.doc,.docx,.xls,.xlsx,.zip"
+            onChange={(event) => { void attachFiles(ref, event.currentTarget.files); event.currentTarget.value = ""; }}
+          />
+        </label>
+        <small className="attachment-limit">Сейчас локально: до 1,2 МБ на файл. Голосовые с расшифровкой — следующий слой этой модели.</small>
+      </section>
+    );
+  }
+
+  function patchNote(id: string, patch: Partial<Note>) {
+    setNotes((current) => current.map((note) => note.id === id ? { ...note, ...patch, updatedAt: nowIso() } : note));
+  }
+
+  function deleteNote(note: Note) {
+    if (!window.confirm(`Удалить заметку «${note.title}»?`)) return;
+    const ref: ObjectRef = { type: "note", id: note.id };
+    setNotes((current) => current.filter((item) => item.id !== note.id));
+    setRelations((current) => removeRelationsFor(current, ref));
+    setAttachments((current) => current
+      .map((attachment) => removeAttachmentLink(attachment, ref))
+      .filter((attachment) => attachment.links.length > 0));
+    setSelectedNoteId(null);
+    setToast("Заметка удалена");
+  }
+
+  function openProjectEditor(project: ProjectNode) {
+    setEditProjectTitle(project.title);
+    setEditProjectParentId(project.parentId ?? "");
+    setProjectEditOpen(true);
+  }
+
+  function saveProjectEdit(event?: FormEvent) {
+    event?.preventDefault();
+    if (!selectedProject) return;
+    const title = editProjectTitle.trim();
+    if (!title) return;
+    const invalidParents = new Set([selectedProject.id, ...projectDescendants(projects, selectedProject.id).map((item) => item.id)]);
+    const parentId = editProjectParentId && !invalidParents.has(editProjectParentId) ? editProjectParentId : null;
+    patchProject(selectedProject.id, {
+      title,
+      parentId,
+      kind: parentId ? "project" : "sphere"
+    });
+    setProjectEditOpen(false);
+    setToast("Проект обновлён");
+  }
+
+  function deleteProjectNode(project: ProjectNode) {
+    if (!window.confirm(`Удалить «${project.title}»? Подпроекты будут подняты на уровень выше.`)) return;
+    const ref: ObjectRef = { type: "project", id: project.id };
+    const parentId = project.parentId;
+    setProjects((current) => current
+      .filter((item) => item.id !== project.id)
+      .map((item) => item.parentId === project.id ? { ...item, parentId, updatedAt: nowIso() } : item));
+    setTasks((current) => current.map((task) => task.projectId === project.id ? { ...task, projectId: parentId, updatedAt: nowIso() } : task));
+    setNotes((current) => current.map((note) => note.projectId === project.id ? { ...note, projectId: parentId, updatedAt: nowIso() } : note));
+    setRelations((current) => removeRelationsFor(current, ref));
+    setAttachments((current) => current
+      .map((attachment) => removeAttachmentLink(attachment, ref))
+      .filter((attachment) => attachment.links.length > 0));
+    setSelectedProjectId(parentId);
+    setProjectEditOpen(false);
+    setToast("Проект удалён");
+  }
+
   function setProjectViewMode(mode: "grid" | "list") {
     setProjectView(mode);
     try { localStorage.setItem("sfera.projectView", mode); } catch {}
