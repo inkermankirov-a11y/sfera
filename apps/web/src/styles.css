@@ -8450,3 +8450,48 @@ html,
     width: calc(100% - 27px);
   }
 }
+
+
+/* Project location picker: dropdown must open outside the modal instead of being clipped by it */
+@media (min-width: 721px) {
+  .mobile-quick-backdrop {
+    overflow-y: auto !important;
+    place-items: start center !important;
+    padding-top: 11vh !important;
+    padding-bottom: 40px !important;
+  }
+
+  .mobile-quick-sheet.project-create-sheet,
+  .mobile-quick-sheet.note-create-sheet {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  .project-parent-select,
+  .project-property-picker,
+  .project-location-picker {
+    overflow: visible !important;
+  }
+
+  .project-location-picker[open] {
+    z-index: 320 !important;
+  }
+
+  .project-location-menu {
+    position: absolute !important;
+    top: calc(100% + 6px) !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: auto !important;
+    max-height: min(420px, calc(100vh - 330px)) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    background: #fff !important;
+    box-shadow: 0 20px 55px rgba(24, 39, 50, .26) !important;
+  }
+
+  .project-location-picker[open] > .project-location-summary {
+    border-color: rgba(var(--picker-rgb), .5);
+    box-shadow: 0 0 0 3px rgba(var(--picker-rgb), .12);
+  }
+}
