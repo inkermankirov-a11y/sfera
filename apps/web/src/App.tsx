@@ -70,7 +70,13 @@ export function App() {
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [mobileQuickOpen, setMobileQuickOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [mobileSection, setMobileSection] = useState<"tasks" | "notes" | "photos">("tasks");
+  const [mobileSection, setMobileSection] = useState<"projects" | "tasks" | "notes" | "photos">("projects");
+  const [projects, setProjects] = useState<ProjectNode[]>(() => readProjects());
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [projectCreateOpen, setProjectCreateOpen] = useState(false);
+  const [projectTitle, setProjectTitle] = useState("");
+  const [projectParentId, setProjectParentId] = useState("");
+  const [quickProjectId, setQuickProjectId] = useState<string | null>(null);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
