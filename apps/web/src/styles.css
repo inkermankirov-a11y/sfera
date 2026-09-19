@@ -7006,3 +7006,206 @@ html,
     border-radius: 50% !important;
   }
 }
+
+
+/* Projects: user-selectable tile/list presentation with sphere color families */
+.projects-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.project-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid #dce5e8;
+  border-radius: 12px;
+  background: #edf2f4;
+}
+
+.project-view-toggle button {
+  width: 32px !important;
+  min-width: 32px;
+  height: 32px !important;
+  padding: 0;
+  border: 0 !important;
+  border-radius: 9px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #657784 !important;
+  font-size: 1rem !important;
+}
+
+.project-view-toggle button.active {
+  background: #fff !important;
+  color: #0f7779 !important;
+  box-shadow: 0 2px 7px rgba(38,58,72,.10) !important;
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.project-tile {
+  --sphere-rgb: 39, 125, 126;
+  --sphere-ink: #fff;
+  position: relative;
+  min-width: 0;
+  min-height: 128px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 4px;
+  overflow: hidden;
+  padding: 15px;
+  border: 0;
+  border-radius: 20px;
+  background: linear-gradient(145deg, rgba(var(--sphere-rgb), .96), rgba(var(--sphere-rgb), .72));
+  color: #fff;
+  text-align: left;
+  box-shadow: 0 8px 20px rgba(37,58,72,.11);
+  cursor: pointer;
+}
+
+.project-tile::after {
+  content: "";
+  position: absolute;
+  width: 84px;
+  height: 84px;
+  right: -20px;
+  top: -22px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.13);
+}
+
+.project-tile.sphere-tone-teal   { --sphere-rgb: 25, 139, 139; }
+.project-tile.sphere-tone-green  { --sphere-rgb: 68, 145, 91; }
+.project-tile.sphere-tone-violet { --sphere-rgb: 113, 91, 174; }
+.project-tile.sphere-tone-coral  { --sphere-rgb: 205, 105, 91; }
+.project-tile.sphere-tone-amber  { --sphere-rgb: 205, 145, 55; }
+.project-tile.sphere-tone-blue   { --sphere-rgb: 65, 119, 177; }
+
+.project-tile-icon {
+  position: absolute;
+  top: 13px;
+  left: 14px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(255,255,255,.18);
+  font-size: 1rem;
+}
+
+.project-tile strong {
+  position: relative;
+  z-index: 1;
+  max-width: 88%;
+  color: #fff;
+  font-size: 1.03rem;
+  line-height: 1.08;
+}
+
+.project-tile small {
+  position: relative;
+  z-index: 1;
+  color: rgba(255,255,255,.9);
+  font-size: .68rem;
+  line-height: 1.2;
+}
+
+.project-tile b {
+  position: absolute;
+  z-index: 1;
+  right: 12px;
+  bottom: 12px;
+  width: 25px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255,255,255,.17);
+  color: #fff;
+}
+
+.project-tile.sphere-child-tile {
+  background: linear-gradient(145deg, rgba(var(--sphere-rgb), .78), rgba(var(--sphere-rgb), .54));
+}
+
+.project-section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.project-view-toggle.compact button {
+  width: 27px !important;
+  min-width: 27px;
+  height: 27px !important;
+  font-size: .84rem !important;
+}
+
+@media (max-width: 720px) {
+  .projects-header {
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+  }
+
+  .projects-header-actions {
+    gap: 5px;
+  }
+
+  .projects-add-root {
+    width: 36px !important;
+    min-width: 36px;
+    height: 36px !important;
+    border-radius: 12px !important;
+  }
+
+  .project-view-toggle {
+    padding: 2px;
+    border-radius: 10px;
+  }
+
+  .project-view-toggle button {
+    width: 29px !important;
+    min-width: 29px;
+    height: 29px !important;
+    border-radius: 8px !important;
+    font-size: .9rem !important;
+  }
+
+  .project-grid {
+    gap: 8px;
+  }
+
+  .project-tile {
+    min-height: 112px;
+    padding: 12px;
+    border-radius: 17px;
+  }
+
+  .project-tile-icon {
+    top: 11px;
+    left: 11px;
+    width: 27px;
+    height: 27px;
+    border-radius: 9px;
+  }
+
+  .project-tile strong {
+    font-size: .9rem;
+  }
+
+  .project-tile small {
+    padding-right: 20px;
+    font-size: .59rem;
+  }
+}
