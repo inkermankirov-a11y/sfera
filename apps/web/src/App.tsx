@@ -1239,6 +1239,36 @@ export function App() {
     });
   }
 
+  const relationGraphObjects: ObjectRef[] = [
+    ...projects.map((project) => ({ type: "project" as const, id: project.id })),
+    ...tasks.filter((task) => task.status === "active").map((task) => ({ type: "task" as const, id: task.id })),
+    ...notes.map((note) => ({ type: "note" as const, id: note.id }))
+  ];
+
+  const relationGraphStructureEdges = [
+    ...projects
+      .filter((project) => project.parentId)
+      .map((project) => ({
+        id: `project-parent:${project.id}`,
+        a: { type: "project" as const, id: project.parentId! },
+        b: { type: "project" as const, id: project.id }
+      })),
+    ...tasks
+      .filter((task) => task.status === "active" && task.projectId)
+      .map((task) => ({
+        id: `task-project:${task.id}`,
+        a: { type: "project" as const, id: task.projectId! },
+        b: { type: "task" as const, id: task.id }
+      })),
+    ...notes
+      .filter((note) => note.projectId)
+      .map((note) => ({
+        id: `note-project:${note.id}`,
+        a: { type: "project" as const, id: note.projectId! },
+        b: { type: "note" as const, id: note.id }
+      }))
+  ];
+
   const visibleCount = topLevelForView.length;
 
   return (
@@ -1977,44 +2007,50 @@ export function App() {
           <header className="module-page-header">
             <button className="module-back-button" onClick={() => setMobileSection("home")} aria-label="Назад">←</button>
             <div><span>Связанные объекты</span><h2>Связи</h2></div>
-            <span className="relations-count">{relations.length}</span>
+            <span className="relations-count">{relationGraphObjects.length}</span>
           </header>
 
-          {relations.length === 0 ? (
+          {relationGraphObjects.length === 0 ? (
             <div className="module-empty-card">
-              <strong>Связей пока нет</strong>
-              <span>Свяжи проект, задачу или заметку внутри карточки объекта — здесь появится живая карта связей.</span>
+              <strong>Объектов пока нет</strong>
+              <span>Создай проект, задачу или заметку — они сразу появятся на карте.</span>
             </div>
           ) : (
             <>
               <RelationsGraph
                 relations={relations}
+                objects={relationGraphObjects}
+                structureEdges={relationGraphStructureEdges}
                 getTitle={entityTitle}
                 getTypeLabel={entityTypeLabel}
                 onOpen={openLinkedObject}
               />
               <details className="relations-list-disclosure">
-                <summary>Список связей · {relations.length}</summary>
-                <div className="relations-page-list">
-                  {relations.map((relation) => (
-                    <article className="relations-page-card" key={relation.id}>
-                      <button onClick={() => openLinkedObject(relation.a)}>
-                        <small>{entityTypeLabel(relation.a.type)}</small>
-                        <strong>{entityTitle(relation.a)}</strong>
-                      </button>
-                      <span className="relation-arrow">↔</span>
-                      <button onClick={() => openLinkedObject(relation.b)}>
-                        <small>{entityTypeLabel(relation.b.type)}</small>
-                        <strong>{entityTitle(relation.b)}</strong>
-                      </button>
-                      <button
-                        className="relation-delete"
-                        aria-label="Удалить связь"
-                        onClick={() => setRelations((current) => current.filter((item) => item.id !== relation.id))}
-                      >×</button>
-                    </article>
-                  ))}
-                </div>
+                <summary>Ручные связи · {relations.length}</summary>
+                {relations.length === 0 ? (
+                  <div className="relations-list-empty">Ручных связей пока нет. Пунктирные связи на карте строятся автоматически из структуры проектов.</div>
+                ) : (
+                  <div className="relations-page-list">
+                    {relations.map((relation) => (
+                      <article className="relations-page-card" key={relation.id}>
+                        <button onClick={() => openLinkedObject(relation.a)}>
+                          <small>{entityTypeLabel(relation.a.type)}</small>
+                          <strong>{entityTitle(relation.a)}</strong>
+                        </button>
+                        <span className="relation-arrow">↔</span>
+                        <button onClick={() => openLinkedObject(relation.b)}>
+                          <small>{entityTypeLabel(relation.b.type)}</small>
+                          <strong>{entityTitle(relation.b)}</strong>
+                        </button>
+                        <button
+                          className="relation-delete"
+                          aria-label="Удалить связь"
+                          onClick={() => setRelations((current) => current.filter((item) => item.id !== relation.id))}
+                        >×</button>
+                      </article>
+                    ))}
+                  </div>
+                )}
               </details>
             </>
           )}
