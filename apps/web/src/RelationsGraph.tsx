@@ -175,7 +175,6 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
   }, [edgeKeys, hovered]);
 
   useEffect(() => {
-    const count = Math.max(1, nodeRefs.length);
     const previous = new Map(simulationRef.current.map((node) => [node.key, node]));
     const next = nodeRefs.map((ref, index) => {
       const key = keyOf(ref);
@@ -362,7 +361,6 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
   }
 
   function resetGraph() {
-    const count = Math.max(1, simulationRef.current.length);
     simulationRef.current.forEach((node, index) => {
       const meta = hierarchy.get(node.key);
       const rootKey = meta?.rootKey ?? node.key;
