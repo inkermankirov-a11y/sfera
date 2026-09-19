@@ -599,7 +599,7 @@ export function App() {
         </div>
       </aside>
 
-      <main className="tasks-page">
+      <main className={`tasks-page section-${mobileSection}`}>
         <header className="desktop-topbar">
           <button className="desktop-search" onClick={() => { setMobileSection("tasks"); setSearchOpen(true); }}>
             <span>⌕</span>
@@ -630,6 +630,7 @@ export function App() {
         <section className={`home-dashboard ${mobileSection === "home" ? "active" : ""}`} aria-hidden={mobileSection !== "home"}>
           <header className="dashboard-hero">
             <div className="dashboard-hero-copy">
+              <div className="dashboard-wordmark">SFERA</div>
               <p className="dashboard-date">{dashboardDate}</p>
               <h1>{greeting}, Лаура!</h1>
               <p className="dashboard-lead">Большие перемены начинаются<br />с маленьких шагов ✨</p>
