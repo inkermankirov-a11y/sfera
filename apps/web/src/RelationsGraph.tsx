@@ -28,6 +28,8 @@ type Props = {
 const WIDTH = 1000;
 const HEIGHT = 610;
 
+const PROJECTS_GRAPH_ROOT_ID = "__projects_root__";
+
 function keyOf(ref: ObjectRef) {
   return `${ref.type}:${ref.id}`;
 }
@@ -104,6 +106,16 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
       const key = keyOf(ref);
       const existing = previous.get(key);
       if (existing) return { ...existing };
+      if (ref.type === "project" && ref.id === PROJECTS_GRAPH_ROOT_ID) {
+        return {
+          key,
+          ref,
+          x: WIDTH / 2,
+          y: HEIGHT / 2,
+          vx: 0,
+          vy: 0
+        };
+      }
       const angle = (index / count) * Math.PI * 2;
       const jitter = (hash(key) % 130) - 65;
       const radius = 175 + (hash(`${key}:r`) % 95);
@@ -171,8 +183,10 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
           node.vy = 0;
           return;
         }
-        node.vx += (WIDTH / 2 - node.x) * .00075 * dt;
-        node.vy += (HEIGHT / 2 - node.y) * .00075 * dt;
+        const isProjectsHub = node.ref.type === "project" && node.ref.id === PROJECTS_GRAPH_ROOT_ID;
+        const centerForce = isProjectsHub ? .008 : .00075;
+        node.vx += (WIDTH / 2 - node.x) * centerForce * dt;
+        node.vy += (HEIGHT / 2 - node.y) * centerForce * dt;
         node.vx *= .91;
         node.vy *= .91;
         node.x = Math.min(WIDTH - 44, Math.max(44, node.x + node.vx * dt));
@@ -201,6 +215,13 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
   function resetGraph() {
     const count = Math.max(1, simulationRef.current.length);
     simulationRef.current.forEach((node, index) => {
+      if (node.ref.type === "project" && node.ref.id === PROJECTS_GRAPH_ROOT_ID) {
+        node.x = WIDTH / 2;
+        node.y = HEIGHT / 2;
+        node.vx = 0;
+        node.vy = 0;
+        return;
+      }
       const angle = (index / count) * Math.PI * 2;
       const radius = 190 + (hash(node.key) % 65);
       node.x = WIDTH / 2 + Math.cos(angle) * radius;
@@ -211,6 +232,12 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
     setZoom(1);
     setLive(true);
   }
+
+  const degreeByKey = new Map<string, number>();
+  edgeKeys.forEach((edge) => {
+    degreeByKey.set(edge.a, (degreeByKey.get(edge.a) ?? 0) + 1);
+    degreeByKey.set(edge.b, (degreeByKey.get(edge.b) ?? 0) + 1);
+  });
 
   const byKey = new Map(nodes.map((node) => [node.key, node]));
 
@@ -250,10 +277,14 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
             <g className="relations-graph-nodes">
               {nodes.map((node) => {
                 const highlighted = !hovered || connectedToHovered.has(node.key);
+                const isProjectsHub = node.ref.type === "project" && node.ref.id === PROJECTS_GRAPH_ROOT_ID;
+                const degree = degreeByKey.get(node.key) ?? 0;
+                const baseRadius = isProjectsHub ? 22 : Math.min(16, 9.5 + degree * 1.25);
+                const activeRadius = hovered === node.key ? baseRadius + 3 : baseRadius;
                 return (
                   <g
                     key={node.key}
-                    className={`graph-node node-${node.ref.type} ${highlighted ? "" : "dimmed"} ${hovered === node.key ? "hovered" : ""}`}
+                    className={`graph-node node-${node.ref.type} ${isProjectsHub ? "projects-hub" : ""} ${highlighted ? "" : "dimmed"} ${hovered === node.key ? "hovered" : ""}`}
                     transform={`translate(${node.x} ${node.y})`}
                     onPointerEnter={() => setHovered(node.key)}
                     onPointerLeave={() => setHovered(null)}
@@ -280,10 +311,10 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
                       if (!moved) onOpen(node.ref);
                     }}
                   >
-                    <circle className="graph-node-halo" r="27" />
-                    <circle className="graph-node-core" r={hovered === node.key ? 13 : 10.5} filter={hovered === node.key ? "url(#nodeGlow)" : undefined} />
-                    <text className="graph-node-label" x="0" y="30" textAnchor="middle">{shortTitle(getTitle(node.ref))}</text>
-                    <text className="graph-node-type" x="0" y="44" textAnchor="middle">{getTypeLabel(node.ref.type)}</text>
+                    <circle className="graph-node-halo" r={isProjectsHub ? 38 : Math.max(27, baseRadius + 13)} />
+                    <circle className="graph-node-core" r={activeRadius} filter={hovered === node.key || isProjectsHub ? "url(#nodeGlow)" : undefined} />
+                    <text className="graph-node-label" x="0" y={isProjectsHub ? 39 : 30} textAnchor="middle">{shortTitle(getTitle(node.ref))}</text>
+                    <text className="graph-node-type" x="0" y={isProjectsHub ? 54 : 44} textAnchor="middle">{isProjectsHub ? "Раздел" : getTypeLabel(node.ref.type)}</text>
                   </g>
                 );
               })}
