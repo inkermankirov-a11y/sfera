@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   Filter,
   Priority,
@@ -169,6 +169,7 @@ export function App() {
   const [quickDeadline, setQuickDeadline] = useState("");
   const [calendarComposerOpen, setCalendarComposerOpen] = useState(false);
   const [calendarComposerPosition, setCalendarComposerPosition] = useState({ left: 360, top: 120 });
+  const calendarComposerRef = useRef<HTMLFormElement | null>(null);
   const [quickRelationType, setQuickRelationType] = useState<EntityType>("project");
   const [quickRelationTargetId, setQuickRelationTargetId] = useState("");
   const [projectView, setProjectView] = useState<"grid" | "list">(() => {
@@ -1000,14 +1001,42 @@ export function App() {
     setQuickDate(date);
     setQuickTime(time ?? "");
 
-    const width = 448;
-    const height = 470;
-    const left = Math.max(286, Math.min(window.innerWidth - width - 16, position.x - 38));
-    const top = Math.max(72, Math.min(window.innerHeight - height - 16, position.y - 70));
+    const width = 420;
+    const heightEstimate = 520;
+    const viewportMargin = 14;
+    const sidebarSafeLeft = window.innerWidth > 720 ? 274 : viewportMargin;
+    const left = Math.max(
+      sidebarSafeLeft,
+      Math.min(window.innerWidth - width - viewportMargin, position.x - 34)
+    );
+    const top = Math.max(
+      viewportMargin,
+      Math.min(window.innerHeight - heightEstimate - viewportMargin, position.y - 68)
+    );
 
     setCalendarComposerPosition({ left, top });
     setCalendarComposerOpen(true);
   }
+
+  useLayoutEffect(() => {
+    if (!calendarComposerOpen) return;
+
+    const element = calendarComposerRef.current;
+    if (!element) return;
+
+    const viewportMargin = 14;
+    const sidebarSafeLeft = window.innerWidth > 720 ? 274 : viewportMargin;
+    const rect = element.getBoundingClientRect();
+    const maxLeft = Math.max(sidebarSafeLeft, window.innerWidth - rect.width - viewportMargin);
+    const maxTop = Math.max(viewportMargin, window.innerHeight - rect.height - viewportMargin);
+
+    const nextLeft = Math.min(Math.max(calendarComposerPosition.left, sidebarSafeLeft), maxLeft);
+    const nextTop = Math.min(Math.max(calendarComposerPosition.top, viewportMargin), maxTop);
+
+    if (Math.abs(nextLeft - calendarComposerPosition.left) > 0.5 || Math.abs(nextTop - calendarComposerPosition.top) > 0.5) {
+      setCalendarComposerPosition({ left: nextLeft, top: nextTop });
+    }
+  }, [calendarComposerOpen, quickOptionsOpen, calendarComposerPosition.left, calendarComposerPosition.top]);
 
   function calendarEndTime() {
     if (!quickTime) return "";
@@ -2221,6 +2250,7 @@ export function App() {
         {calendarComposerOpen && (
           <div className="calendar-popover-layer" onClick={closeCalendarTaskComposer}>
             <form
+              ref={calendarComposerRef}
               className="calendar-task-popover"
               style={{ left: calendarComposerPosition.left, top: calendarComposerPosition.top }}
               onSubmit={addTask}
