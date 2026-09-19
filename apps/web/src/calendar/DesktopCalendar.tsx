@@ -19,7 +19,7 @@ type DesktopCalendarProps = {
 };
 
 const HOUR_HEIGHT = 56;
-const TOP_OFFSET = 14;
+const TOP_OFFSET = 0;
 const DAY_MIN_WIDTH_COMPACT = 72;
 const DAY_MIN_WIDTH_NORMAL = 118;
 const TIME_AXIS_WIDTH = 82;
@@ -105,7 +105,7 @@ export function DesktopCalendar({
             <div className="desktop-calendar-time-grid" style={{ gridTemplateColumns }}>
               <div className="desktop-time-axis">
                 {Array.from({ length: 24 }, (_, hour) => (
-                  <span key={hour} style={{ top: TOP_OFFSET + hour * HOUR_HEIGHT }}>
+                  <span key={hour} style={{ top: TOP_OFFSET + hour * HOUR_HEIGHT + HOUR_HEIGHT / 2 }}>
                     {String(hour).padStart(2, "0")}:00
                   </span>
                 ))}
