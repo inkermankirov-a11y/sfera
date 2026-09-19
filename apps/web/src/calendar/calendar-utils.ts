@@ -46,8 +46,12 @@ export function calendarRangeLabel(start: string, end: string) {
     startDate.getFullYear() === endDate.getFullYear();
 
   if (sameMonth) {
+    const monthNames = [
+      "января", "февраля", "марта", "апреля", "мая", "июня",
+      "июля", "августа", "сентября", "октября", "ноября", "декабря"
+    ];
     return startDate.getDate() + "–" + endDate.getDate() + " " +
-      new Intl.DateTimeFormat("ru-RU", { month: "long", year: "numeric" }).format(endDate);
+      monthNames[endDate.getMonth()] + " " + endDate.getFullYear() + " г.";
   }
 
   return new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short" }).format(startDate) +
