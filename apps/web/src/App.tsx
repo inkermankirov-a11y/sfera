@@ -162,6 +162,11 @@ export function App() {
   });
   const [quickTitle, setQuickTitle] = useState("");
   const [quickPriority, setQuickPriority] = useState<Priority>(4);
+  const [quickOptionsOpen, setQuickOptionsOpen] = useState(false);
+  const [quickDate, setQuickDate] = useState("");
+  const [quickDeadline, setQuickDeadline] = useState("");
+  const [quickRelationType, setQuickRelationType] = useState<EntityType>("project");
+  const [quickRelationTargetId, setQuickRelationTargetId] = useState("");
   const [projectView, setProjectView] = useState<"grid" | "list">(() => {
     try { return localStorage.getItem("sfera.projectView") === "list" ? "list" : "grid"; } catch { return "grid"; }
   });
@@ -928,9 +933,9 @@ export function App() {
       parentId: null,
       projectId: quickProjectId,
       order: nextOrder(tasks, null),
-      date: filter === "today" && !parsed.date ? isoToday() : parsed.date,
+      date: quickDate || (filter === "today" && !parsed.date ? isoToday() : parsed.date),
       time: parsed.time,
-      deadline: parsed.deadline,
+      deadline: quickDeadline || parsed.deadline,
       recurrence: parsed.recurrence,
       priority: quickPriority < 4 ? quickPriority : parsed.priority,
       labels: parsed.labels,
@@ -938,8 +943,22 @@ export function App() {
     });
 
     setTasks((current) => [...current, task]);
+    if (quickRelationTargetId) {
+      setRelations((current) => [
+        ...current,
+        createRelation(
+          { type: "task", id: task.id },
+          { type: quickRelationType, id: quickRelationTargetId }
+        )
+      ]);
+    }
     setQuickTitle("");
     setQuickPriority(4);
+    setQuickDate("");
+    setQuickDeadline("");
+    setQuickRelationType("project");
+    setQuickRelationTargetId("");
+    setQuickOptionsOpen(false);
     setQuickProjectId(null);
     setMobileQuickOpen(false);
     setToast("Задача добавлена");
@@ -1457,24 +1476,64 @@ export function App() {
           <button className={taskView === "done" ? "active" : ""} onClick={() => chooseTaskView("done")}>Выполнено</button>
         </div>
 
-        <form className="quick-add advanced" onSubmit={addTask}>
-          <span className="quick-plus">＋</span>
-          <input
-            id="quick-add"
-            value={quickTitle}
-            onChange={(event) => setQuickTitle(event.target.value)}
-            placeholder="Задача · попробуй: Купить корм завтра 18:00 p1 %дом"
-            aria-label="Новая задача"
-          />
-          <span className="quick-hint">Q</span>
-          <button type="submit" disabled={!quickTitle.trim()}>Добавить</button>
-        </form>
+        <div className="simple-quick-add">
+          <form className="quick-add advanced" onSubmit={addTask}>
+            <span className="quick-plus">＋</span>
+            <input
+              id="quick-add"
+              value={quickTitle}
+              onChange={(event) => setQuickTitle(event.target.value)}
+              placeholder="Добавить задачу…"
+              aria-label="Новая задача"
+            />
+            <button
+              type="button"
+              className={quickOptionsOpen ? "quick-options-toggle active" : "quick-options-toggle"}
+              onClick={() => setQuickOptionsOpen((value) => !value)}
+              aria-label="Параметры задачи"
+              title="Параметры"
+            >•••</button>
+            <button type="submit" disabled={!quickTitle.trim()}>Добавить</button>
+          </form>
 
-        <div className="quick-guide">
-          <span><b>p1–p4</b> приоритет</span>
-          <span><b>%метка</b> метка</span>
-          <span><b>сегодня / завтра</b> дата</span>
-          <span><b>* Заголовок</b> незавершаемая</span>
+          {quickOptionsOpen && (
+            <div className="quick-options-panel">
+              <label><span>Дата</span><input type="date" value={quickDate} onChange={(event) => setQuickDate(event.target.value)} /></label>
+              <label><span>Дедлайн</span><input type="date" value={quickDeadline} onChange={(event) => setQuickDeadline(event.target.value)} /></label>
+              <div className="quick-options-project">
+                <span>Проект</span>
+                {renderProjectLocationPicker(quickProjectId ?? "", (value) => setQuickProjectId(value || null), "Без проекта")}
+              </div>
+              <div className="quick-options-priority">
+                <span>Приоритет</span>
+                <div className="quick-priority-picker" role="group" aria-label="Приоритет">
+                  {([1, 2, 3, 4] as Priority[]).map((priority) => (
+                    <button
+                      type="button"
+                      key={priority}
+                      className={`quick-priority-choice p${priority} ${quickPriority === priority ? "active" : ""}`}
+                      onClick={() => setQuickPriority(priority)}
+                      title={priorityLabels[priority]}
+                    >⚑</button>
+                  ))}
+                </div>
+              </div>
+              <div className="quick-options-link">
+                <span>Связь</span>
+                <select value={quickRelationType} onChange={(event) => { setQuickRelationType(event.target.value as EntityType); setQuickRelationTargetId(""); }}>
+                  <option value="project">Проект</option>
+                  <option value="task">Задача</option>
+                  <option value="note">Заметка</option>
+                </select>
+                <select value={quickRelationTargetId} onChange={(event) => setQuickRelationTargetId(event.target.value)}>
+                  <option value="">Не выбрана</option>
+                  {relationTargetOptions(quickRelationType, { type: "task", id: "__new__" }).map((option) => (
+                    <option key={option.id} value={option.id}>{option.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
         </div>
 
         {taskView === "week" ? (
@@ -2030,7 +2089,7 @@ export function App() {
                   <strong>Новая задача</strong>
                   {quickProjectId && <small>{projectPath(projects, quickProjectId)}</small>}
                 </div>
-                <button type="button" onClick={() => { setMobileQuickOpen(false); setQuickProjectId(null); setQuickPriority(4); }}>Отмена</button>
+                <button type="button" onClick={() => { setMobileQuickOpen(false); setQuickProjectId(null); setQuickPriority(4); setQuickDate(""); setQuickDeadline(""); setQuickRelationType("project"); setQuickRelationTargetId(""); setQuickOptionsOpen(false); }}>Отмена</button>
               </div>
               <textarea
                 autoFocus
@@ -2039,23 +2098,49 @@ export function App() {
                 placeholder="Что нужно сделать?"
                 rows={3}
               />
-              <div className="mobile-quick-tools">
-                <button type="button" onClick={() => setQuickTitle((value) => value + " сегодня")}>Сегодня</button>
-                <button type="button" onClick={() => setQuickTitle((value) => value + " завтра")}>Завтра</button>
-                <div className="quick-priority-picker" role="group" aria-label="Приоритет">
-                  {([1, 2, 3, 4] as Priority[]).map((priority) => (
-                    <button
-                      type="button"
-                      key={priority}
-                      className={`quick-priority-choice p${priority} ${quickPriority === priority ? "active" : ""}`}
-                      onClick={() => setQuickPriority(priority)}
-                      title={priorityLabels[priority]}
-                      aria-label={`Приоритет: ${priorityLabels[priority]}`}
-                      aria-pressed={quickPriority === priority}
-                    >⚑</button>
-                  ))}
+              <button
+                type="button"
+                className="mobile-more-options"
+                onClick={() => setQuickOptionsOpen((value) => !value)}
+              >{quickOptionsOpen ? "Скрыть параметры" : "Параметры"}</button>
+              {quickOptionsOpen && (
+                <div className="mobile-quick-options">
+                  <label><span>Дата</span><input type="date" value={quickDate} onChange={(event) => setQuickDate(event.target.value)} /></label>
+                  <label><span>Дедлайн</span><input type="date" value={quickDeadline} onChange={(event) => setQuickDeadline(event.target.value)} /></label>
+                  <div className="quick-options-project">
+                    <span>Проект</span>
+                    {renderProjectLocationPicker(quickProjectId ?? "", (value) => setQuickProjectId(value || null), "Без проекта")}
+                  </div>
+                  <div className="quick-options-priority">
+                    <span>Приоритет</span>
+                    <div className="quick-priority-picker" role="group" aria-label="Приоритет">
+                      {([1, 2, 3, 4] as Priority[]).map((priority) => (
+                        <button
+                          type="button"
+                          key={priority}
+                          className={`quick-priority-choice p${priority} ${quickPriority === priority ? "active" : ""}`}
+                          onClick={() => setQuickPriority(priority)}
+                          title={priorityLabels[priority]}
+                        >⚑</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="quick-options-link">
+                    <span>Связь</span>
+                    <select value={quickRelationType} onChange={(event) => { setQuickRelationType(event.target.value as EntityType); setQuickRelationTargetId(""); }}>
+                      <option value="project">Проект</option>
+                      <option value="task">Задача</option>
+                      <option value="note">Заметка</option>
+                    </select>
+                    <select value={quickRelationTargetId} onChange={(event) => setQuickRelationTargetId(event.target.value)}>
+                      <option value="">Не выбрана</option>
+                      {relationTargetOptions(quickRelationType, { type: "task", id: "__new__" }).map((option) => (
+                        <option key={option.id} value={option.id}>{option.label}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-              </div>
+              )}
               <button className="mobile-add-submit" disabled={!quickTitle.trim()}>Добавить задачу</button>
             </form>
           </div>

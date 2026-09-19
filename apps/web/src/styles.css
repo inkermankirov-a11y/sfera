@@ -8495,3 +8495,129 @@ html,
     box-shadow: 0 0 0 3px rgba(var(--picker-rgb), .12);
   }
 }
+
+
+/* Quick add: simple by default, details only on demand */
+.simple-quick-add {
+  display: grid;
+  gap: 8px;
+}
+
+.quick-add.advanced {
+  grid-template-columns: 28px minmax(0, 1fr) auto auto !important;
+}
+
+.quick-add.advanced input::placeholder {
+  color: #8393a0;
+}
+
+.quick-guide {
+  display: none !important;
+}
+
+.quick-options-toggle {
+  min-width: 38px;
+  height: 34px;
+  padding: 0 9px;
+  border: 1px solid #dce5e8;
+  border-radius: 10px;
+  background: #fff;
+  color: #6d7f8c;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.quick-options-toggle.active {
+  border-color: #acd5d3;
+  background: #eaf5f4;
+  color: #146f72;
+}
+
+.quick-options-panel,
+.mobile-quick-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #dde6e9;
+  border-radius: 14px;
+  background: #f9fbfc;
+}
+
+.quick-options-panel label,
+.quick-options-project,
+.quick-options-priority,
+.quick-options-link,
+.mobile-quick-options label {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.quick-options-panel label > span,
+.quick-options-project > span,
+.quick-options-priority > span,
+.quick-options-link > span,
+.mobile-quick-options label > span {
+  color: #687b89;
+  font-size: .67rem;
+  font-weight: 760;
+}
+
+.quick-options-panel input,
+.quick-options-panel select,
+.mobile-quick-options input,
+.mobile-quick-options select {
+  min-width: 0;
+  min-height: 38px;
+  padding: 0 9px;
+  border: 1px solid #dce5e8;
+  border-radius: 10px;
+  background: #fff;
+  color: #243b4c;
+}
+
+.quick-options-link {
+  grid-column: 1 / -1;
+  grid-template-columns: 90px minmax(0, 1fr);
+  align-items: end;
+}
+
+.quick-options-link > span {
+  grid-column: 1 / -1;
+}
+
+.quick-priority-picker {
+  justify-self: start;
+}
+
+.mobile-more-options {
+  justify-self: start;
+  min-height: 36px;
+  padding: 0 11px;
+  border: 1px solid #dce5e8;
+  border-radius: 10px;
+  background: #f7fafb;
+  color: #536a79;
+  font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .quick-add.advanced,
+  .quick-guide {
+    display: none !important;
+  }
+
+  .mobile-quick-options {
+    grid-template-columns: 1fr;
+    padding: 10px;
+  }
+
+  .quick-options-link {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-options-link > span {
+    grid-column: auto;
+  }
+}
