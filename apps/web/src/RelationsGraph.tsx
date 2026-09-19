@@ -184,13 +184,13 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
       const rootKey = meta?.rootKey ?? key;
       const rootAngle = ((hash(rootKey) % 6283) / 1000);
       const rootRadius = ref.type === "project" && (meta?.depth ?? 0) === 0
-        ? 38 + (hash(`${rootKey}:root-radius`) % 54)
-        : 160 + (hash(`${rootKey}:outer-radius`) % 55);
+        ? 22 + (hash(`${rootKey}:root-radius`) % 34)
+        : 132 + (hash(`${rootKey}:outer-radius`) % 48);
       const rootX = WIDTH / 2 + Math.cos(rootAngle) * rootRadius;
       const rootY = HEIGHT / 2 + Math.sin(rootAngle) * rootRadius * .72;
       const depth = meta?.depth ?? 0;
       const childAngle = ((hash(key) % 6283) / 1000);
-      const childDistance = depth === 0 ? 0 : 92 + Math.min(230, (depth - 1) * 72) + (hash(`${key}:offset`) % 32);
+      const childDistance = depth === 0 ? 0 : 72 + Math.min(190, (depth - 1) * 58) + (hash(`${key}:offset`) % 24);
       return {
         key,
         ref,
@@ -227,8 +227,8 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
           const bothRootProjects = a.ref.type === "project" && b.ref.type === "project"
             && (metaA?.depth ?? 0) === 0 && (metaB?.depth ?? 0) === 0;
           const sameBranch = metaA?.rootKey && metaA.rootKey === metaB?.rootKey;
-          const repulsion = bothRootProjects ? 52000 : sameBranch ? 19000 : 27000;
-          const force = Math.min(bothRootProjects ? 3.2 : 2.35, repulsion / dist2);
+          const repulsion = bothRootProjects ? 17500 : sameBranch ? 13500 : 22000;
+          const force = Math.min(bothRootProjects ? 1.7 : 2.15, repulsion / dist2);
           dx /= dist;
           dy /= dist;
           a.vx -= dx * force * dt;
@@ -247,9 +247,9 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
         const dist = Math.max(1, Math.sqrt(dx * dx + dy * dy));
         const childMeta = hierarchy.get(edge.b);
         const target = edge.kind === "structure"
-          ? childMeta?.depth === 1 ? 122 : childMeta?.depth === 2 ? 96 : 82
-          : 145;
-        const force = (dist - target) * (edge.kind === "structure" ? .0105 : .0048);
+          ? childMeta?.depth === 1 ? 88 : childMeta?.depth === 2 ? 74 : 66
+          : 118;
+        const force = (dist - target) * (edge.kind === "structure" ? .012 : .0052);
         dx /= dist;
         dy /= dist;
         a.vx += dx * force * dt;
@@ -265,14 +265,38 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
           return;
         }
         const meta = hierarchy.get(node.key);
-        const isRootProject = node.ref.type === "project" && (meta?.depth ?? 0) === 0;
-        const centerStrength = isRootProject ? .0044 : node.ref.type === "project" ? .00028 : .00012;
+        const depth = meta?.depth ?? 0;
+        const isRootProject = node.ref.type === "project" && depth === 0;
+
+        // Root projects form one loose, moving central cluster. Children are governed
+        // mainly by springs to their parents, not by fixed screen coordinates.
+        const centerStrength = isRootProject
+          ? .0068
+          : node.ref.type === "project"
+            ? depth === 1 ? .00075 : .00034
+            : .00014;
+
         node.vx += (WIDTH / 2 - node.x) * centerStrength * dt;
         node.vy += (HEIGHT / 2 - node.y) * centerStrength * dt;
-        node.vx *= .91;
-        node.vy *= .91;
-        node.x = Math.min(WIDTH - 44, Math.max(44, node.x + node.vx * dt));
-        node.y = Math.min(HEIGHT - 38, Math.max(38, node.y + node.vy * dt));
+
+        // Soft circular world boundary instead of rectangular x/y clamps.
+        const cx = node.x - WIDTH / 2;
+        const cy = node.y - HEIGHT / 2;
+        const radialDistance = Math.sqrt(cx * cx + cy * cy);
+        const softRadius = 430;
+        if (radialDistance > softRadius) {
+          const overflow = radialDistance - softRadius;
+          const nx = cx / radialDistance;
+          const ny = cy / radialDistance;
+          const boundaryForce = overflow * .0038;
+          node.vx -= nx * boundaryForce * dt;
+          node.vy -= ny * boundaryForce * dt;
+        }
+
+        node.vx *= .915;
+        node.vy *= .915;
+        node.x += node.vx * dt;
+        node.y += node.vy * dt;
       });
 
       setNodes(data.map((node) => ({ ...node })));
@@ -366,13 +390,13 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
       const rootKey = meta?.rootKey ?? node.key;
       const rootAngle = ((hash(rootKey) % 6283) / 1000);
       const rootRadius = node.ref.type === "project" && (meta?.depth ?? 0) === 0
-        ? 38 + (hash(`${rootKey}:root-radius`) % 54)
-        : 160 + (hash(`${rootKey}:outer-radius`) % 55);
+        ? 22 + (hash(`${rootKey}:root-radius`) % 34)
+        : 132 + (hash(`${rootKey}:outer-radius`) % 48);
       const rootX = WIDTH / 2 + Math.cos(rootAngle) * rootRadius;
       const rootY = HEIGHT / 2 + Math.sin(rootAngle) * rootRadius * .72;
       const depth = meta?.depth ?? 0;
       const childAngle = ((hash(node.key) % 6283) / 1000);
-      const childDistance = depth === 0 ? 0 : 92 + Math.min(230, (depth - 1) * 72) + (hash(`${node.key}:offset`) % 32);
+      const childDistance = depth === 0 ? 0 : 72 + Math.min(190, (depth - 1) * 58) + (hash(`${node.key}:offset`) % 24);
       node.x = rootX + Math.cos(childAngle) * childDistance;
       node.y = rootY + Math.sin(childAngle) * childDistance * .82;
       node.vx = (((hash(`${node.key}:reset-vx:${index}`) % 200) - 100) / 850);
