@@ -683,3 +683,34 @@
     font-size: .70rem;
   }
 }
+
+
+/* Long timed tasks continue into following day columns instead of overflowing vertically */
+.calendar-timed-task.continues-to-next {
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+
+.calendar-timed-task.continues-from-previous {
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+}
+
+.calendar-timed-task.continues-from-previous::before,
+.calendar-timed-task.continues-to-next::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  height: 1px;
+  background: currentColor;
+  opacity: .22;
+}
+
+.calendar-timed-task.continues-from-previous::before {
+  top: 2px;
+}
+
+.calendar-timed-task.continues-to-next::after {
+  bottom: 2px;
+}
