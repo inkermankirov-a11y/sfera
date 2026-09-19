@@ -6893,3 +6893,116 @@ html,
     min-height: 29px;
   }
 }
+
+
+/* Detail priority: real circles, no emoji glyph metrics */
+.detail-priority-picker {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+}
+
+.detail-priority-option {
+  min-width: 0;
+  min-height: 34px;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: #20394d;
+  text-align: left;
+  font: inherit;
+  font-weight: 700;
+}
+
+.priority-dot {
+  box-sizing: border-box;
+  display: block;
+  width: 16px;
+  min-width: 16px;
+  max-width: 16px;
+  height: 16px;
+  min-height: 16px;
+  max-height: 16px;
+  border-radius: 50%;
+  aspect-ratio: 1 / 1;
+  background: #98a2aa;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.08);
+}
+
+.detail-priority-option.p1 .priority-dot { background: #d84a4a; }
+.detail-priority-option.p2 .priority-dot { background: #d9902f; }
+.detail-priority-option.p3 .priority-dot { background: #4f9a67; }
+.detail-priority-option.p4 .priority-dot { background: #98a2aa; }
+
+.detail-priority-option.active {
+  border-color: #dbe5e8;
+  background: #fff;
+  box-shadow: 0 2px 7px rgba(37,58,72,.06);
+}
+
+/* Project hierarchy: every root sphere owns a hue; descendants inherit lighter shades. */
+.project-tree-row {
+  --sphere-rgb: 39, 125, 126;
+  --sphere-ink: #1d6869;
+}
+.project-tree-row.sphere-tone-teal   { --sphere-rgb: 25, 139, 139; --sphere-ink: #126f70; }
+.project-tree-row.sphere-tone-green  { --sphere-rgb: 68, 145, 91;  --sphere-ink: #347849; }
+.project-tree-row.sphere-tone-violet { --sphere-rgb: 113, 91, 174; --sphere-ink: #66509f; }
+.project-tree-row.sphere-tone-coral  { --sphere-rgb: 205, 105, 91; --sphere-ink: #a95146; }
+.project-tree-row.sphere-tone-amber  { --sphere-rgb: 205, 145, 55; --sphere-ink: #9a681d; }
+.project-tree-row.sphere-tone-blue   { --sphere-rgb: 65, 119, 177; --sphere-ink: #356a9f; }
+
+.project-tree-row.sphere-root-row {
+  background: rgba(var(--sphere-rgb), .13);
+}
+.project-tree-row.sphere-child-row {
+  background: rgba(var(--sphere-rgb), .055);
+}
+.project-tree-row.sphere-child-row.project-depth-2,
+.project-tree-row.sphere-child-row.project-depth-3,
+.project-tree-row.sphere-child-row.project-depth-4 {
+  background: rgba(var(--sphere-rgb), .025);
+}
+.project-tree-row .project-folder-icon {
+  background: rgba(var(--sphere-rgb), .16);
+  color: var(--sphere-ink);
+}
+.project-tree-row.sphere-root-row .project-main strong {
+  color: var(--sphere-ink);
+  font-weight: 820;
+}
+
+@media (max-width: 720px) {
+  .task-chip.compact:has(.detail-priority-picker) {
+    align-content: start;
+    min-height: 142px;
+  }
+
+  .detail-priority-picker {
+    gap: 2px;
+  }
+
+  .detail-priority-option {
+    min-height: 26px;
+    grid-template-columns: 16px minmax(0, 1fr);
+    gap: 7px;
+    padding: 2px 4px;
+    font-size: .76rem;
+  }
+
+  .priority-dot {
+    width: 14px !important;
+    min-width: 14px !important;
+    max-width: 14px !important;
+    height: 14px !important;
+    min-height: 14px !important;
+    max-height: 14px !important;
+    flex: 0 0 14px !important;
+    border-radius: 50% !important;
+  }
+}

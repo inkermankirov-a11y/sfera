@@ -104,6 +104,25 @@ const priorityLabels: Record<Priority, string> = {
   4: "Без приоритета"
 };
 
+function rootSphereId(projects: ProjectNode[], projectId: string | null | undefined) {
+  if (!projectId) return null;
+  let current = projects.find((item) => item.id === projectId);
+  const seen = new Set<string>();
+  while (current?.parentId && !seen.has(current.id)) {
+    seen.add(current.id);
+    current = projects.find((item) => item.id === current!.parentId);
+  }
+  return current?.id ?? null;
+}
+
+function sphereTone(projects: ProjectNode[], projectId: string | null | undefined) {
+  const rootId = rootSphereId(projects, projectId);
+  if (!rootId) return "neutral";
+  const roots = projectChildren(projects, null);
+  const index = Math.max(0, roots.findIndex((item) => item.id === rootId));
+  return ["teal", "green", "violet", "coral", "amber", "blue"][index % 6];
+}
+
 function dateTimeLocalValue(at: string) {
   const d = new Date(at);
   const offset = d.getTimezoneOffset();
@@ -468,7 +487,7 @@ export function App() {
       const children = projectChildren(projects, project.id);
       return (
         <div className="project-tree-node" key={project.id}>
-          <div className={`project-tree-row project-depth-${Math.min(depth, 4)}`}>
+          <div className={`project-tree-row project-depth-${Math.min(depth, 4)} sphere-tone-${sphereTone(projects, project.id)} ${depth === 0 ? "sphere-root-row" : "sphere-child-row"}`}>
             <button
               className="project-toggle"
               disabled={children.length === 0}
@@ -1710,12 +1729,20 @@ export function App() {
                 </label>
                 <label className="task-chip compact">
                   <span>Приоритет</span>
-                  <select value={selected.priority} onChange={(event) => patchTask(selected.id, { priority: Number(event.target.value) as Priority })}>
-                    <option value={1}>🔴 Высокий</option>
-                    <option value={2}>🟠 Средний</option>
-                    <option value={3}>🟢 Низкий</option>
-                    <option value={4}>⚪ Без приоритета</option>
-                  </select>
+                  <div className="detail-priority-picker" role="group" aria-label="Приоритет">
+                    {([1, 2, 3, 4] as Priority[]).map((priority) => (
+                      <button
+                        type="button"
+                        key={priority}
+                        className={`detail-priority-option p${priority} ${selected.priority === priority ? "active" : ""}`}
+                        onClick={() => patchTask(selected.id, { priority })}
+                        aria-pressed={selected.priority === priority}
+                      >
+                        <span className="priority-dot" aria-hidden="true" />
+                        <span>{priorityLabels[priority]}</span>
+                      </button>
+                    ))}
+                  </div>
                 </label>
                 <label className="task-chip compact">
                   <span>Длительность</span>
@@ -1748,7 +1775,7 @@ export function App() {
                     <option value="">Без проекта</option>
                     {flattenedProjects.map(({ project, depth, path }) => (
                       <option key={project.id} value={project.id}>
-                        {"— ".repeat(depth)}{path}
+                        {depth === 0 ? "● " : "○ "}{path}
                       </option>
                     ))}
                   </select>
