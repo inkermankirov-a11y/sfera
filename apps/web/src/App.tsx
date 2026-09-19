@@ -134,6 +134,27 @@ function russianPlural(count: number, one: string, few: string, many: string) {
   return many;
 }
 
+const moonPhases = [
+  { icon: "🌑", name: "Новолуние" },
+  { icon: "🌒", name: "Растущий серп" },
+  { icon: "🌓", name: "Первая четверть" },
+  { icon: "🌔", name: "Растущая Луна" },
+  { icon: "🌕", name: "Полнолуние" },
+  { icon: "🌖", name: "Убывающая Луна" },
+  { icon: "🌗", name: "Последняя четверть" },
+  { icon: "🌘", name: "Убывающий серп" }
+] as const;
+
+function moonPhaseFor(date: Date) {
+  const synodicMonth = 29.530588853;
+  const knownNewMoonUtc = Date.UTC(2000, 0, 6, 18, 14);
+  const localNoonUtc = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 12);
+  const daysSinceNewMoon = (localNoonUtc - knownNewMoonUtc) / 86_400_000;
+  const age = ((daysSinceNewMoon % synodicMonth) + synodicMonth) % synodicMonth;
+  const phaseIndex = Math.floor((age / synodicMonth) * 8 + 0.5) % 8;
+  return moonPhases[phaseIndex];
+}
+
 function rootSphereId(projects: ProjectNode[], projectId: string | null | undefined) {
   if (!projectId) return null;
   let current = projects.find((item) => item.id === projectId);
@@ -332,6 +353,7 @@ export function App() {
     day: "numeric",
     month: "long"
   }).format(new Date());
+  const moonPhase = moonPhaseFor(new Date());
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Доброе утро" : hour < 18 ? "Добрый день" : "Добрый вечер";
   const weekDates = useMemo(() => currentWeekDates(), []);
@@ -1519,7 +1541,12 @@ export function App() {
           <header className="dashboard-hero">
             <div className="dashboard-hero-copy">
               <div className="dashboard-wordmark">СФЕРА</div>
-              <p className="dashboard-date">{dashboardDate}</p>
+              <p className="dashboard-date">
+                <span>{dashboardDate}</span>
+                <span className="dashboard-moon-phase" aria-label={`Фаза Луны: ${moonPhase.name}`}>
+                  <span aria-hidden="true">· {moonPhase.icon}</span> {moonPhase.name}
+                </span>
+              </p>
               <h1>{greeting}, {profileName}!</h1>
               <p className="dashboard-lead">Большие перемены начинаются<br />с маленьких шагов ✨</p>
             </div>
