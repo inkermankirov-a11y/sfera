@@ -1476,6 +1476,7 @@ export function App() {
             </header>
 
             <section className="desktop-calendar-surface">
+              <div className="desktop-calendar-hscroll" style={{ minWidth: Math.max(760, 64 + desktopCalendarDayCount * 118) }}>
               <div
                 className="desktop-calendar-days-head"
                 style={{ gridTemplateColumns: `64px repeat(${desktopCalendarDayCount}, minmax(118px, 1fr))` }}
@@ -1560,6 +1561,7 @@ export function App() {
                     );
                   })}
                 </div>
+              </div>
               </div>
             </section>
           </div>
