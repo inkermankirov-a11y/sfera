@@ -103,6 +103,47 @@ function monthCells(cursor: Date) {
   });
 }
 
+function isoDate(iso: string) {
+  return new Date(iso + "T12:00:00");
+}
+
+function addDaysIso(iso: string, days: number) {
+  const date = isoDate(iso);
+  date.setDate(date.getDate() + days);
+  return localIso(date);
+}
+
+function inclusiveDayCount(start: string, end: string) {
+  const ms = isoDate(end).getTime() - isoDate(start).getTime();
+  return Math.floor(ms / 86_400_000) + 1;
+}
+
+function isoRange(start: string, end: string) {
+  const count = Math.max(1, inclusiveDayCount(start, end));
+  return Array.from({ length: count }, (_, index) => addDaysIso(start, index));
+}
+
+function calendarRangeLabel(start: string, end: string) {
+  if (start === end) {
+    return new Intl.DateTimeFormat("ru-RU", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    }).format(isoDate(start));
+  }
+  const startDate = isoDate(start);
+  const endDate = isoDate(end);
+  const sameMonth = startDate.getMonth() === endDate.getMonth() && startDate.getFullYear() === endDate.getFullYear();
+  if (sameMonth) {
+    return startDate.getDate() + "–" + endDate.getDate() + " " +
+      new Intl.DateTimeFormat("ru-RU", { month: "long", year: "numeric" }).format(endDate);
+  }
+  return new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short" }).format(startDate) +
+    " — " +
+    new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short", year: "numeric" }).format(endDate);
+}
+
 const priorityLabels: Record<Priority, string> = {
   1: "P1",
   2: "P2",
@@ -157,6 +198,9 @@ export function App() {
   const [goalTitle, setGoalTitle] = useState("");
   const [calendarMode, setCalendarMode] = useState<CalendarMode>("month");
   const [calendarCursor, setCalendarCursor] = useState(() => new Date());
+  const [calendarRangeStart, setCalendarRangeStart] = useState(() => isoToday());
+  const [calendarRangeEnd, setCalendarRangeEnd] = useState(() => addDaysIso(isoToday(), 6));
+  const [calendarPickingEnd, setCalendarPickingEnd] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
@@ -252,6 +296,9 @@ export function App() {
   }, [notes, noteView]);
   const calendarCells = useMemo(() => monthCells(calendarCursor), [calendarCursor]);
   const calendarTitle = new Intl.DateTimeFormat("ru-RU", { month: "long", year: "numeric" }).format(calendarCursor);
+  const desktopCalendarDates = useMemo(() => isoRange(calendarRangeStart, calendarRangeEnd), [calendarRangeStart, calendarRangeEnd]);
+  const desktopCalendarTitle = calendarRangeLabel(calendarRangeStart, calendarRangeEnd);
+  const desktopCalendarDayCount = desktopCalendarDates.length;
   const historyEvents = useMemo(() => {
     const taskEvents = tasks.flatMap((task) => {
       const events = [
@@ -398,6 +445,46 @@ export function App() {
 
   function setMonthOffset(delta: number) {
     setCalendarCursor((current) => new Date(current.getFullYear(), current.getMonth() + delta, 1));
+  }
+
+  function setDesktopCalendarPeriod(start: string, days: number) {
+    const safeDays = Math.max(1, Math.min(14, days));
+    setCalendarRangeStart(start);
+    setCalendarRangeEnd(addDaysIso(start, safeDays - 1));
+    setCalendarPickingEnd(false);
+    setCalendarCursor(isoDate(start));
+  }
+
+  function selectMiniCalendarDay(iso: string) {
+    if (!calendarPickingEnd) {
+      setCalendarRangeStart(iso);
+      setCalendarRangeEnd(iso);
+      setCalendarPickingEnd(true);
+      setCalendarCursor(isoDate(iso));
+      return;
+    }
+
+    const anchor = calendarRangeStart;
+    let start = anchor <= iso ? anchor : iso;
+    let end = anchor <= iso ? iso : anchor;
+    if (inclusiveDayCount(start, end) > 14) {
+      if (iso >= anchor) end = addDaysIso(anchor, 13);
+      else start = addDaysIso(anchor, -13);
+    }
+    setCalendarRangeStart(start);
+    setCalendarRangeEnd(end);
+    setCalendarPickingEnd(false);
+    setCalendarCursor(isoDate(start));
+  }
+
+  function moveDesktopCalendarPeriod(direction: -1 | 1) {
+    const days = inclusiveDayCount(calendarRangeStart, calendarRangeEnd);
+    const nextStart = addDaysIso(calendarRangeStart, days * direction);
+    setDesktopCalendarPeriod(nextStart, days);
+  }
+
+  function chooseTodayPeriod() {
+    setDesktopCalendarPeriod(isoToday(), desktopCalendarDayCount);
   }
 
   function setTaskProject(task: Task, projectId: string | null) {
