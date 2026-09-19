@@ -581,8 +581,8 @@ export function App() {
         <button className="brand brand-button" onClick={() => setMobileSection("home")} aria-label="Главная SFERA">
           <div className="brand-mark">S</div>
           <div>
-            <strong>СФЕРА</strong>
-            <span>личное пространство</span>
+            <strong>SFERA</strong>
+            <span>Гармония в каждом дне</span>
           </div>
         </button>
 
