@@ -6834,3 +6834,62 @@ html,
     font-size: 1.12rem;
   }
 }
+
+
+/* Quick add: priority is metadata, never typed into the task title */
+.quick-priority-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid #dbe4e3;
+  border-radius: 999px;
+  background: #f8faf9;
+}
+
+.quick-priority-choice {
+  width: 31px;
+  min-width: 31px;
+  height: 31px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  font-size: .94rem;
+  line-height: 1;
+  opacity: .45;
+}
+
+.quick-priority-choice.p1 { color: #d84a4a; }
+.quick-priority-choice.p2 { color: #d9902f; }
+.quick-priority-choice.p3 { color: #4f9a67; }
+.quick-priority-choice.p4 { color: #8b98a2; }
+
+.quick-priority-choice.active {
+  background: #fff;
+  box-shadow: 0 1px 5px rgba(38,60,70,.14);
+  opacity: 1;
+}
+
+@media (max-width: 720px) {
+  .mobile-quick-tools {
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mobile-quick-tools > button {
+    flex: 0 0 auto;
+  }
+
+  .quick-priority-picker {
+    margin-left: auto;
+  }
+
+  .quick-priority-choice {
+    width: 29px;
+    min-width: 29px;
+    height: 29px;
+    min-height: 29px;
+  }
+}
