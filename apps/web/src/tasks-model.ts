@@ -1,6 +1,6 @@
 export type Priority = 1 | 2 | 3 | 4;
 export type TaskStatus = "active" | "done";
-export type Filter = "all" | "today" | "inbox" | "done";
+export type Filter = "all" | "today" | "inbox" | "overdue" | "done";
 
 export type Reminder = {
   id: string;
