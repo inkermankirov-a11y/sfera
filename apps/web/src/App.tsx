@@ -255,7 +255,7 @@ export function App() {
     const task = createTask({
       title: parsed.title,
       parentId: null,
-      projectId: null,
+      projectId: quickProjectId,
       order: nextOrder(tasks, null),
       date: filter === "today" && !parsed.date ? isoToday() : parsed.date,
       time: parsed.time,
@@ -268,6 +268,8 @@ export function App() {
 
     setTasks((current) => [...current, task]);
     setQuickTitle("");
+    setQuickProjectId(null);
+    setMobileQuickOpen(false);
     setToast("Задача добавлена");
   }
 
