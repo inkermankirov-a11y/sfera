@@ -354,7 +354,8 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
           aria-label="Интерактивная карта связей"
           onPointerDown={(event) => {
             if (event.button !== 0) return;
-            if (event.target !== event.currentTarget) return;
+            const target = event.target as Element;
+            if (event.target !== event.currentTarget && !target.classList.contains("relations-graph-pan-surface")) return;
             event.currentTarget.setPointerCapture(event.pointerId);
             panRef.current = {
               pointerId: event.pointerId,
