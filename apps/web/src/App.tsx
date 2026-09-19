@@ -73,6 +73,8 @@ import {
   monthCells
 } from "./calendar/calendar-utils";
 
+const PROJECTS_GRAPH_ROOT_ID = "__projects_root__";
+
 const filterLabels: Record<Filter, string> = {
   all: "Все",
   today: "Сегодня",
@@ -554,6 +556,7 @@ export function App() {
   }
 
   function entityTitle(ref: ObjectRef) {
+    if (ref.type === "project" && ref.id === PROJECTS_GRAPH_ROOT_ID) return "Проекты";
     if (ref.type === "project") {
       const project = projects.find((item) => item.id === ref.id);
       return project ? projectPath(projects, project.id) : "Удалённый проект";
@@ -596,6 +599,13 @@ export function App() {
   }
 
   function openLinkedObject(ref: ObjectRef) {
+    if (ref.type === "project" && ref.id === PROJECTS_GRAPH_ROOT_ID) {
+      setSelectedProjectId(null);
+      setMobileSection("projects");
+      setSelectedNoteId(null);
+      if (selectedId) closeDetail();
+      return;
+    }
     if (ref.type === "project") {
       setSelectedProjectId(ref.id);
       setMobileSection("projects");
@@ -1240,12 +1250,20 @@ export function App() {
   }
 
   const relationGraphObjects: ObjectRef[] = [
+    { type: "project" as const, id: PROJECTS_GRAPH_ROOT_ID },
     ...projects.map((project) => ({ type: "project" as const, id: project.id })),
     ...tasks.filter((task) => task.status === "active").map((task) => ({ type: "task" as const, id: task.id })),
     ...notes.map((note) => ({ type: "note" as const, id: note.id }))
   ];
 
   const relationGraphStructureEdges = [
+    ...projects
+      .filter((project) => !project.parentId)
+      .map((project) => ({
+        id: `projects-root:${project.id}`,
+        a: { type: "project" as const, id: PROJECTS_GRAPH_ROOT_ID },
+        b: { type: "project" as const, id: project.id }
+      })),
     ...projects
       .filter((project) => project.parentId)
       .map((project) => ({
