@@ -790,6 +790,65 @@ export function App() {
     try { localStorage.setItem("sfera.projectView", mode); } catch {}
   }
 
+  function renderProjectLocationPicker(
+    value: string,
+    onChange: (value: string) => void,
+    rootLabel = "Без проекта / корень",
+    excludeIds: Set<string> = new Set()
+  ) {
+    const selectedProject = value ? projects.find((project) => project.id === value) ?? null : null;
+    const selectedTone = selectedProject ? sphereTone(projects, selectedProject.id) : "neutral";
+    return (
+      <details className="project-location-picker">
+        <summary className={`project-location-summary tone-${selectedTone} ${selectedProject ? "has-project" : "is-root"}`}>
+          <span className="project-location-swatch" />
+          <span>
+            <strong>{selectedProject ? selectedProject.title : rootLabel}</strong>
+            {selectedProject && <small>{projectPath(projects, selectedProject.id)}</small>}
+          </span>
+          <b>⌄</b>
+        </summary>
+        <div className="project-location-menu">
+          <button
+            type="button"
+            className={`project-location-option tone-neutral depth-0 ${!value ? "selected" : ""}`}
+            onClick={(event) => {
+              onChange("");
+              event.currentTarget.closest("details")?.removeAttribute("open");
+            }}
+          >
+            <span className="project-location-swatch" />
+            <span className="project-location-copy"><strong>{rootLabel}</strong><small>Верхний уровень</small></span>
+            {!value && <b>✓</b>}
+          </button>
+          {flattenedProjects
+            .filter(({ project }) => !excludeIds.has(project.id))
+            .map(({ project, depth, path }) => {
+              const tone = sphereTone(projects, project.id);
+              return (
+                <button
+                  type="button"
+                  key={project.id}
+                  className={`project-location-option tone-${tone} depth-${Math.min(depth, 4)} ${value === project.id ? "selected" : ""}`}
+                  onClick={(event) => {
+                    onChange(project.id);
+                    event.currentTarget.closest("details")?.removeAttribute("open");
+                  }}
+                >
+                  <span className="project-location-swatch" />
+                  <span className="project-location-copy">
+                    <strong>{project.title}</strong>
+                    <small>{depth === 0 ? "Сфера жизни" : path}</small>
+                  </span>
+                  {value === project.id && <b>✓</b>}
+                </button>
+              );
+            })}
+        </div>
+      </details>
+    );
+  }
+
   function renderProjectGrid(parentId: string | null) {
     const items = projectChildren(projects, parentId);
     return (
@@ -1903,15 +1962,10 @@ export function App() {
               </div>
               <input className="project-title-input" autoFocus value={noteTitle} onChange={(event) => setNoteTitle(event.target.value)} placeholder="Название" />
               <textarea value={noteBody} onChange={(event) => setNoteBody(event.target.value)} placeholder="Текст, мысль, список..." rows={5} />
-              <label className="project-parent-select">
+              <div className="project-parent-select">
                 <span>Основное расположение</span>
-                <select value={noteProjectId ?? ""} onChange={(event) => setNoteProjectId(event.target.value || null)}>
-                  <option value="">Без проекта</option>
-                  {flattenedProjects.map(({ project, depth, path }) => (
-                    <option key={project.id} value={project.id}>{"— ".repeat(depth)}{path}</option>
-                  ))}
-                </select>
-              </label>
+                {renderProjectLocationPicker(noteProjectId ?? "", (value) => setNoteProjectId(value || null), "Без проекта")}
+              </div>
               <button className="mobile-add-submit" disabled={!noteTitle.trim()}>Сохранить</button>
             </form>
           </div>
@@ -1932,15 +1986,10 @@ export function App() {
                 onChange={(event) => setProjectTitle(event.target.value)}
                 placeholder={projectParentId ? "Название проекта" : "Например: Семья"}
               />
-              <label className="project-parent-select">
+              <div className="project-parent-select">
                 <span>Расположение</span>
-                <select value={projectParentId} onChange={(event) => setProjectParentId(event.target.value)}>
-                  <option value="">Корень · новая сфера жизни</option>
-                  {flattenedProjects.map(({ project, depth, path }) => (
-                    <option key={project.id} value={project.id}>{"— ".repeat(depth)}{path}</option>
-                  ))}
-                </select>
-              </label>
+                {renderProjectLocationPicker(projectParentId, setProjectParentId, "Корень · новая сфера жизни")}
+              </div>
               <button className="mobile-add-submit" disabled={!projectTitle.trim()}>
                 {projectParentId ? "Создать проект" : "Создать сферу"}
               </button>
@@ -1957,15 +2006,15 @@ export function App() {
                 <button type="button" onClick={() => setProjectEditOpen(false)}>Отмена</button>
               </div>
               <input className="project-title-input" autoFocus value={editProjectTitle} onChange={(event) => setEditProjectTitle(event.target.value)} placeholder="Название" />
-              <label className="project-parent-select">
+              <div className="project-parent-select">
                 <span>Расположение</span>
-                <select value={editProjectParentId} onChange={(event) => setEditProjectParentId(event.target.value)}>
-                  <option value="">Корень · сфера жизни</option>
-                  {flattenedProjects
-                    .filter(({ project }) => project.id !== selectedProject.id && !projectDescendants(projects, selectedProject.id).some((item) => item.id === project.id))
-                    .map(({ project, depth, path }) => <option key={project.id} value={project.id}>{"— ".repeat(depth)}{path}</option>)}
-                </select>
-              </label>
+                {renderProjectLocationPicker(
+                  editProjectParentId,
+                  setEditProjectParentId,
+                  "Корень · сфера жизни",
+                  new Set([selectedProject.id, ...projectDescendants(projects, selectedProject.id).map((item) => item.id)])
+                )}
+              </div>
               <button className="mobile-add-submit" disabled={!editProjectTitle.trim()}>Сохранить</button>
               <button type="button" className="danger-sheet-button" onClick={() => deleteProjectNode(selectedProject)}>Удалить проект</button>
             </form>
@@ -2076,13 +2125,10 @@ export function App() {
                     {Object.entries(noteKindLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                   </select>
                 </label>
-                <label>
+                <div className="project-property-picker">
                   <span>Основное расположение</span>
-                  <select value={selectedNote.projectId ?? ""} onChange={(event) => patchNote(selectedNote.id, { projectId: event.target.value || null })}>
-                    <option value="">Без проекта</option>
-                    {flattenedProjects.map(({ project, depth, path }) => <option key={project.id} value={project.id}>{"— ".repeat(depth)}{path}</option>)}
-                  </select>
-                </label>
+                  {renderProjectLocationPicker(selectedNote.projectId ?? "", (value) => patchNote(selectedNote.id, { projectId: value || null }), "Без проекта")}
+                </div>
               </div>
               {renderRelationsPanel({ type: "note", id: selectedNote.id })}
               {renderAttachmentsPanel({ type: "note", id: selectedNote.id })}
@@ -2197,20 +2243,10 @@ export function App() {
               </div>
 
               <section className="detail-section property-section project-property">
-                <label>
+                <div className="project-property-picker">
                   <span>Проект</span>
-                  <select
-                    value={selected.projectId ?? ""}
-                    onChange={(event) => setTaskProject(selected, event.target.value || null)}
-                  >
-                    <option value="">Без проекта</option>
-                    {flattenedProjects.map(({ project, depth, path }) => (
-                      <option key={project.id} value={project.id}>
-                        {depth === 0 ? "● " : "○ "}{path}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                  {renderProjectLocationPicker(selected.projectId ?? "", (value) => setTaskProject(selected, value || null), "Без проекта")}
+                </div>
                 {selected.projectId && (
                   <button className="open-project-button" onClick={() => { setSelectedProjectId(selected.projectId); setMobileSection("projects"); closeDetail(); }}>
                     ◇ {projectPath(projects, selected.projectId)}
