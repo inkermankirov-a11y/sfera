@@ -59,6 +59,7 @@ export function App() {
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [mobileQuickOpen, setMobileQuickOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [mobileSection, setMobileSection] = useState<"tasks" | "notes" | "photos">("tasks");
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
@@ -472,14 +473,17 @@ export function App() {
           <div className="mobile-profile-mark">S</div>
           <div className="mobile-app-title">
             <strong>СФЕРА</strong>
-            <span>Задачи</span>
+            <span>{mobileSection === "tasks" ? "Задачи" : mobileSection === "notes" ? "Заметки" : "Фото"}</span>
           </div>
           <div className="mobile-app-actions">
-            <button className="mobile-icon-action" aria-label="Поиск" onClick={() => setSearchOpen((value) => !value)}>⌕</button>
+            {mobileSection === "tasks" && (
+              <button className="mobile-icon-action" aria-label="Поиск" onClick={() => setSearchOpen((value) => !value)}>⌕</button>
+            )}
             <button className="mobile-icon-action" aria-label="Настройки" onClick={() => setSettingsOpen(true)}>⚙</button>
           </div>
         </header>
 
+        <div className={`tasks-module-content ${mobileSection === "tasks" ? "mobile-section-active" : "mobile-section-hidden"}`}>
         <div className="page-header">
           <div>
             <p className="eyebrow">Модуль</p>
@@ -555,12 +559,39 @@ export function App() {
           )}
         </section>
 
-        <button className="fab" aria-label="Добавить задачу" onClick={() => setMobileQuickOpen(true)}>＋</button>
+        </div>
+
+        <section className={`mobile-module-screen ${mobileSection === "notes" ? "active" : ""}`} aria-hidden={mobileSection !== "notes"}>
+          <div className="module-intro-card">
+            <div className="module-intro-icon">✎</div>
+            <h2>Заметки</h2>
+            <p>Здесь будут быстрые записи, мысли, списки и связанные с ними материалы.</p>
+          </div>
+          <div className="module-empty-card">
+            <strong>Пока пусто</strong>
+            <span>Следующим шагом добавим создание и хранение заметок.</span>
+          </div>
+        </section>
+
+        <section className={`mobile-module-screen ${mobileSection === "photos" ? "active" : ""}`} aria-hidden={mobileSection !== "photos"}>
+          <div className="module-intro-card">
+            <div className="module-intro-icon">▧</div>
+            <h2>Фото</h2>
+            <p>Отдельное место для фотографий и изображений внутри СФЕРЫ.</p>
+          </div>
+          <div className="photo-placeholder-grid">
+            <div /><div /><div /><div /><div /><div />
+          </div>
+        </section>
+
+        {mobileSection === "tasks" && (
+          <button className="fab" aria-label="Добавить задачу" onClick={() => setMobileQuickOpen(true)}>＋</button>
+        )}
 
         <nav className="bottom-nav mobile-tabbar" aria-label="Основная навигация">
-          <button className={filter === "inbox" ? "active" : ""} onClick={() => setFilter("inbox")}><span>▱</span>Входящие</button>
-          <button className={filter === "today" ? "active" : ""} onClick={() => setFilter("today")}><span>◉</span>Сегодня</button>
-          <button className={filter === "all" ? "active" : ""} onClick={() => setFilter("all")}><span>▦</span>Задачи</button>
+          <button className={mobileSection === "tasks" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("tasks"); setSettingsOpen(false); }}><span>✓</span>Задачи</button>
+          <button className={mobileSection === "notes" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("notes"); setSettingsOpen(false); }}><span>✎</span>Заметки</button>
+          <button className={mobileSection === "photos" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("photos"); setSettingsOpen(false); }}><span>▧</span>Фото</button>
           <button className={settingsOpen ? "active" : ""} onClick={() => setSettingsOpen(true)}><span>☰</span>Настройки</button>
         </nav>
 
