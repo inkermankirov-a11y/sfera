@@ -165,6 +165,7 @@ export function App() {
   const [quickPriority, setQuickPriority] = useState<Priority>(4);
   const [quickOptionsOpen, setQuickOptionsOpen] = useState(false);
   const [quickDate, setQuickDate] = useState("");
+  const [quickTime, setQuickTime] = useState("");
   const [quickDeadline, setQuickDeadline] = useState("");
   const [quickRelationType, setQuickRelationType] = useState<EntityType>("project");
   const [quickRelationTargetId, setQuickRelationTargetId] = useState("");
@@ -943,7 +944,7 @@ export function App() {
       projectId: quickProjectId,
       order: nextOrder(tasks, null),
       date: quickDate || (filter === "today" && !parsed.date ? isoToday() : parsed.date),
-      time: parsed.time,
+      time: quickTime || parsed.time,
       deadline: quickDeadline || parsed.deadline,
       recurrence: parsed.recurrence,
       priority: quickPriority < 4 ? quickPriority : parsed.priority,
@@ -964,6 +965,7 @@ export function App() {
     setQuickTitle("");
     setQuickPriority(4);
     setQuickDate("");
+    setQuickTime("");
     setQuickDeadline("");
     setQuickRelationType("project");
     setQuickRelationTargetId("");
@@ -971,6 +973,19 @@ export function App() {
     setQuickProjectId(null);
     setMobileQuickOpen(false);
     setToast("Задача добавлена");
+  }
+
+  function openCalendarTaskCreator(date: string, time: string | null) {
+    setQuickTitle("");
+    setQuickProjectId(null);
+    setQuickPriority(4);
+    setQuickDate(date);
+    setQuickTime(time ?? "");
+    setQuickDeadline("");
+    setQuickRelationType("project");
+    setQuickRelationTargetId("");
+    setQuickOptionsOpen(false);
+    setMobileQuickOpen(true);
   }
 
   function addSubtask(parent: Task) {
@@ -1539,6 +1554,7 @@ export function App() {
           {quickOptionsOpen && (
             <div className="quick-options-panel">
               <label><span>Дата</span><input type="date" value={quickDate} onChange={(event) => setQuickDate(event.target.value)} /></label>
+              <label><span>Время</span><input type="time" value={quickTime} onChange={(event) => setQuickTime(event.target.value)} /></label>
               <label><span>Дедлайн</span><input type="date" value={quickDeadline} onChange={(event) => setQuickDeadline(event.target.value)} /></label>
               <div className="quick-options-project">
                 <span>Проект</span>
@@ -1924,6 +1940,7 @@ export function App() {
             timezoneLabel={timezoneLabel}
             todayIso={isoToday()}
             onOpenTask={openDetail}
+            onCreateTask={openCalendarTaskCreator}
             onToday={chooseTodayPeriod}
             onMovePeriod={moveDesktopCalendarPeriod}
             onSetPeriod={setDesktopCalendarPeriod}
@@ -2182,7 +2199,7 @@ export function App() {
                   <strong>Новая задача</strong>
                   {quickProjectId && <small>{projectPath(projects, quickProjectId)}</small>}
                 </div>
-                <button type="button" onClick={() => { setMobileQuickOpen(false); setQuickProjectId(null); setQuickPriority(4); setQuickDate(""); setQuickDeadline(""); setQuickRelationType("project"); setQuickRelationTargetId(""); setQuickOptionsOpen(false); }}>Отмена</button>
+                <button type="button" onClick={() => { setMobileQuickOpen(false); setQuickProjectId(null); setQuickPriority(4); setQuickDate(""); setQuickTime(""); setQuickDeadline(""); setQuickRelationType("project"); setQuickRelationTargetId(""); setQuickOptionsOpen(false); }}>Отмена</button>
               </div>
               <textarea
                 autoFocus
@@ -2191,6 +2208,12 @@ export function App() {
                 placeholder="Что нужно сделать?"
                 rows={3}
               />
+              {(quickDate || quickTime) && (
+                <div className="calendar-create-context">
+                  {quickDate && <span>▦ {new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long" }).format(isoDate(quickDate))}</span>}
+                  {quickTime && <span>◴ {quickTime}</span>}
+                </div>
+              )}
               <button
                 type="button"
                 className="mobile-more-options"
@@ -2199,6 +2222,7 @@ export function App() {
               {quickOptionsOpen && (
                 <div className="mobile-quick-options">
                   <label><span>Дата</span><input type="date" value={quickDate} onChange={(event) => setQuickDate(event.target.value)} /></label>
+                  <label><span>Время</span><input type="time" value={quickTime} onChange={(event) => setQuickTime(event.target.value)} /></label>
                   <label><span>Дедлайн</span><input type="date" value={quickDeadline} onChange={(event) => setQuickDeadline(event.target.value)} /></label>
                   <div className="quick-options-project">
                     <span>Проект</span>
