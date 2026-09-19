@@ -9022,3 +9022,38 @@ html,
   font-size: .7rem;
   line-height: 1.4;
 }
+
+
+/* Relations graph hierarchy: central Projects hub with animated branches */
+.graph-node.projects-hub .graph-node-core {
+  fill: #0f777a;
+  stroke-width: 4;
+}
+
+.graph-node.projects-hub .graph-node-halo {
+  fill: rgba(15, 119, 122, .10);
+  stroke: rgba(15, 119, 122, .18);
+  animation: projectsHubPulse 2.6s ease-in-out infinite;
+}
+
+.graph-node.projects-hub .graph-node-label {
+  fill: #123a4d;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.graph-node.projects-hub .graph-node-type {
+  fill: #557381;
+  font-size: 10px;
+}
+
+@keyframes projectsHubPulse {
+  0%, 100% { opacity: .62; transform: scale(1); }
+  50% { opacity: .22; transform: scale(1.14); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .graph-node.projects-hub .graph-node-halo {
+    animation: none;
+  }
+}
