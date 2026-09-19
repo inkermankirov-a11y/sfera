@@ -3849,12 +3849,21 @@ html,
 }
 
 .dashboard-date {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 6px;
   margin: 0 0 8px;
   color: #6f8291;
   font-size: .76rem;
   font-weight: 650;
   text-transform: capitalize;
   letter-spacing: 0;
+}
+
+.dashboard-moon-phase {
+  color: #46697b;
+  white-space: nowrap;
 }
 
 .dashboard-hero h1 {
