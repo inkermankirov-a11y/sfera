@@ -299,6 +299,8 @@ export function App() {
   const desktopCalendarDates = useMemo(() => isoRange(calendarRangeStart, calendarRangeEnd), [calendarRangeStart, calendarRangeEnd]);
   const desktopCalendarTitle = calendarRangeLabel(calendarRangeStart, calendarRangeEnd);
   const desktopCalendarDayCount = desktopCalendarDates.length;
+  const timezoneHours = -new Date().getTimezoneOffset() / 60;
+  const timezoneLabel = "GMT" + (timezoneHours >= 0 ? "+" : "") + (Number.isInteger(timezoneHours) ? timezoneHours : timezoneHours.toFixed(1));
   const historyEvents = useMemo(() => {
     const taskEvents = tasks.flatMap((task) => {
       const events = [
