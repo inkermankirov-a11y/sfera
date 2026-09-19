@@ -63,6 +63,7 @@ import {
 } from "./attachments-model";
 import { CalendarMiniMonth } from "./calendar/CalendarMiniMonth";
 import { DesktopCalendar } from "./calendar/DesktopCalendar";
+import { RelationsGraph } from "./RelationsGraph";
 import {
   addDaysIso,
   calendarRangeLabel,
@@ -1982,29 +1983,40 @@ export function App() {
           {relations.length === 0 ? (
             <div className="module-empty-card">
               <strong>Связей пока нет</strong>
-              <span>Свяжи проект, задачу или заметку внутри карточки объекта — связь появится здесь.</span>
+              <span>Свяжи проект, задачу или заметку внутри карточки объекта — здесь появится живая карта связей.</span>
             </div>
           ) : (
-            <div className="relations-page-list">
-              {relations.map((relation) => (
-                <article className="relations-page-card" key={relation.id}>
-                  <button onClick={() => openLinkedObject(relation.a)}>
-                    <small>{entityTypeLabel(relation.a.type)}</small>
-                    <strong>{entityTitle(relation.a)}</strong>
-                  </button>
-                  <span className="relation-arrow">↔</span>
-                  <button onClick={() => openLinkedObject(relation.b)}>
-                    <small>{entityTypeLabel(relation.b.type)}</small>
-                    <strong>{entityTitle(relation.b)}</strong>
-                  </button>
-                  <button
-                    className="relation-delete"
-                    aria-label="Удалить связь"
-                    onClick={() => setRelations((current) => current.filter((item) => item.id !== relation.id))}
-                  >×</button>
-                </article>
-              ))}
-            </div>
+            <>
+              <RelationsGraph
+                relations={relations}
+                getTitle={entityTitle}
+                getTypeLabel={entityTypeLabel}
+                onOpen={openLinkedObject}
+              />
+              <details className="relations-list-disclosure">
+                <summary>Список связей · {relations.length}</summary>
+                <div className="relations-page-list">
+                  {relations.map((relation) => (
+                    <article className="relations-page-card" key={relation.id}>
+                      <button onClick={() => openLinkedObject(relation.a)}>
+                        <small>{entityTypeLabel(relation.a.type)}</small>
+                        <strong>{entityTitle(relation.a)}</strong>
+                      </button>
+                      <span className="relation-arrow">↔</span>
+                      <button onClick={() => openLinkedObject(relation.b)}>
+                        <small>{entityTypeLabel(relation.b.type)}</small>
+                        <strong>{entityTitle(relation.b)}</strong>
+                      </button>
+                      <button
+                        className="relation-delete"
+                        aria-label="Удалить связь"
+                        onClick={() => setRelations((current) => current.filter((item) => item.id !== relation.id))}
+                      >×</button>
+                    </article>
+                  ))}
+                </div>
+              </details>
+            </>
           )}
         </section>
 
