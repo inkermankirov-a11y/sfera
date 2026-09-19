@@ -6629,3 +6629,63 @@ html,
     padding: 7px 8px;
   }
 }
+
+
+/* QA mobile polish: resolve older compact-pass conflicts */
+@media (max-width: 720px) {
+  /* Secondary shortcuts stay off the first mobile viewport; primary dashboard remains self-contained. */
+  .section-home .home-function-strip {
+    display: none;
+  }
+
+  /* An older compact rule hid the 4th task. The approved home card shows up to four. */
+  .section-home .dashboard-task-list .dashboard-task-row:nth-child(-n + 4) {
+    display: grid;
+  }
+
+  .section-home .dashboard-task-list .dashboard-task-row:nth-child(n + 5) {
+    display: none;
+  }
+
+  /* Readability floor for the compact home card. */
+  .section-home .dashboard-task-main strong {
+    font-size: .81rem;
+    font-weight: 780;
+  }
+
+  .section-home .dashboard-task-time {
+    color: #40586a;
+    font-size: .66rem;
+    font-weight: 700;
+  }
+
+  .section-home .dashboard-project-pill {
+    font-size: .60rem;
+    font-weight: 800;
+  }
+
+  .section-home .stat-tile small {
+    font-size: .59rem;
+    font-weight: 760;
+  }
+
+  .section-home .sphere-info strong {
+    font-size: .76rem;
+    font-weight: 800;
+  }
+
+  .section-home .sphere-info small {
+    font-size: .55rem;
+    font-weight: 680;
+  }
+
+  .section-tasks .task-meta {
+    color: #445d70;
+    font-size: .69rem;
+    font-weight: 620;
+  }
+
+  .section-tasks .task-meta span {
+    color: #445d70;
+  }
+}
