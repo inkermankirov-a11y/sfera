@@ -7435,3 +7435,149 @@ html,
     grid-template-columns: repeat(2, minmax(210px, 1fr)) !important;
   }
 }
+
+
+/* Projects grid v4: compact square cards, inspired by the provided reference */
+@media (min-width: 721px) {
+  .projects-screen {
+    max-width: 1120px !important;
+    margin: -4px auto 0 !important;
+  }
+
+  .projects-header {
+    margin-bottom: 14px !important;
+  }
+
+  .project-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+    gap: 12px !important;
+    align-items: stretch;
+    justify-content: start;
+    margin-top: 0 !important;
+  }
+
+  .project-tile {
+    min-height: 142px !important;
+    height: 142px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 0 !important;
+    padding: 14px 14px 12px !important;
+    border-radius: 18px !important;
+    box-shadow: 0 10px 24px rgba(30,48,64,.13) !important;
+    text-align: left !important;
+  }
+
+  .project-tile::after {
+    width: 74px !important;
+    height: 74px !important;
+    right: -22px !important;
+    top: -22px !important;
+    opacity: .8;
+  }
+
+  .project-tile-icon {
+    position: static !important;
+    width: 36px !important;
+    height: 36px !important;
+    flex: 0 0 36px !important;
+    margin: 0 0 10px !important;
+    border-radius: 10px !important;
+    background: rgba(255,255,255,.19) !important;
+    font-size: 1.05rem !important;
+  }
+
+  .project-tile strong {
+    position: relative;
+    z-index: 1;
+    max-width: 100% !important;
+    margin: 0 !important;
+    color: #fff !important;
+    font-size: 1.02rem !important;
+    line-height: 1.08 !important;
+    font-weight: 850 !important;
+  }
+
+  .project-tile small {
+    position: relative;
+    z-index: 1;
+    margin-top: auto !important;
+    padding: 8px 0 0 !important;
+    color: rgba(255,255,255,.92) !important;
+    font-size: .68rem !important;
+    line-height: 1.2 !important;
+    font-weight: 650 !important;
+  }
+
+  .project-tile b {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1050px) {
+  .project-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (min-width: 721px) and (max-width: 1049px) {
+  .project-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (min-width: 721px) and (max-width: 860px) {
+  .project-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .project-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 9px !important;
+  }
+
+  .project-tile {
+    min-height: 116px !important;
+    height: 116px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 0 !important;
+    padding: 11px !important;
+    border-radius: 16px !important;
+  }
+
+  .project-tile-icon {
+    position: static !important;
+    width: 30px !important;
+    height: 30px !important;
+    flex: 0 0 30px !important;
+    margin: 0 0 8px !important;
+    border-radius: 9px !important;
+    font-size: .9rem !important;
+  }
+
+  .project-tile strong {
+    max-width: 100% !important;
+    font-size: .84rem !important;
+    line-height: 1.07 !important;
+    font-weight: 820 !important;
+  }
+
+  .project-tile small {
+    margin-top: auto !important;
+    padding: 6px 0 0 !important;
+    font-size: .57rem !important;
+    line-height: 1.15 !important;
+  }
+
+  .project-tile b {
+    display: none !important;
+  }
+}
