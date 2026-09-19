@@ -893,11 +893,10 @@ export function App() {
           <div className="dashboard-layout">
             <section className="dashboard-card dashboard-today">
               <div className="dashboard-card-head">
-                <div>
-                  <span className="dashboard-kicker">Фокус</span>
-                  <h2>Сегодня</h2>
-                </div>
-                <button onClick={() => { chooseTaskView("today"); setMobileSection("tasks"); }}>Все задачи ›</button>
+                <h2>Сегодня</h2>
+                <button onClick={() => { chooseTaskView("today"); setMobileSection("tasks"); }}>
+                  {todayTasks.length} {todayTasks.length === 1 ? "задача" : todayTasks.length < 5 ? "задачи" : "задач"} ›
+                </button>
               </div>
 
               <div className="dashboard-task-list">
@@ -921,13 +920,15 @@ export function App() {
                           aria-label="Выполнить задачу"
                         />
                       )}
+                      <span className="dashboard-task-time">{task.time || "—"}</span>
                       <button className="dashboard-task-main" onClick={() => openDetail(task.id)}>
                         <strong>{task.title}</strong>
-                        <small>
-                          {task.time ? task.time : "Сегодня"}
-                          {task.projectId ? ` · ${projectPath(projects, task.projectId)}` : " · Без проекта"}
-                        </small>
                       </button>
+                      {task.projectId && (
+                        <span className="dashboard-project-pill">
+                          {projectPath(projects, task.projectId).split(" / ").at(-1)}
+                        </span>
+                      )}
                       <button className="dashboard-row-arrow" onClick={() => openDetail(task.id)}>›</button>
                     </div>
                   ))
