@@ -1416,11 +1416,7 @@ export function App() {
     <div className={`app-shell section-${mobileSection} ${selected ? "has-detail" : ""}`}>
       <aside className="sidebar" aria-label="Навигация SFERA">
         <button className="brand brand-button" onClick={() => setMobileSection("home")} aria-label="Главная SFERA">
-          <div className="brand-mark">S</div>
-          <div>
-            <strong>SFERA</strong>
-            <span>Гармония в каждом дне</span>
-          </div>
+          <img className="brand-logo" src="/sfera/sfera-logo.webp" alt="SFERA" />
         </button>
 
         <nav className="side-nav">
