@@ -58,7 +58,8 @@ export function App() {
   const [toast, setToast] = useState("");
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [mobileQuickOpen, setMobileQuickOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);\n  const [mobileSection, setMobileSection] = useState<"tasks" | "notes" | "photos">("tasks");
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [mobileSection, setMobileSection] = useState<"tasks" | "notes" | "photos">("tasks");
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
