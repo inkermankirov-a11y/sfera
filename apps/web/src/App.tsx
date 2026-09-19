@@ -1242,27 +1242,157 @@ export function App() {
           )}
         </section>
 
-        <section className={`mobile-module-screen ${mobileSection === "notes" ? "active" : ""}`} aria-hidden={mobileSection !== "notes"}>
-          <div className="module-intro-card">
-            <div className="module-intro-icon">✎</div>
-            <h2>Заметки</h2>
-            <p>Здесь будут быстрые записи, мысли, списки и связанные с ними материалы.</p>
+        <section className={`mobile-module-screen notes-screen ${mobileSection === "notes" ? "active" : ""}`} aria-hidden={mobileSection !== "notes"}>
+          <header className="module-page-header">
+            <div><span>Личная база знаний</span><h2>Заметки</h2></div>
+            <button onClick={() => { setNoteKind("note"); setNoteCreateOpen(true); }}>＋</button>
+          </header>
+
+          <div className="section-tabs notes-tabs" role="tablist" aria-label="Типы заметок">
+            {([
+              ["all", "Все"],
+              ["ideas", "Идеи"],
+              ["diary", "Дневник"],
+              ["collections", "Коллекции"],
+              ["lists", "Списки"],
+              ["favorites", "Важное"]
+            ] as Array<[NoteView, string]>).map(([value, label]) => (
+              <button key={value} className={noteView === value ? "active" : ""} onClick={() => setNoteView(value)}>{label}</button>
+            ))}
           </div>
-          <div className="module-empty-card">
-            <strong>Пока пусто</strong>
-            <span>Следующим шагом добавим создание и хранение заметок.</span>
+
+          {noteView === "collections" && (
+            <div className="collection-presets">
+              {["Рецепты", "Книги", "Фильмы", "Клиенты"].map((name, index) => (
+                <button key={name} onClick={() => { setNoteKind("collection"); setNoteTitle(name); setNoteCreateOpen(true); }}>
+                  <span>{["⌑","▤","▷","◎"][index]}</span><strong>{name}</strong><small>Коллекция</small>
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="notes-grid">
+            {visibleNotes.length === 0 ? (
+              <div className="module-empty-card"><strong>Здесь пока пусто</strong><span>Создай первую запись через кнопку «+».</span></div>
+            ) : visibleNotes.map((note) => (
+              <article className={`note-card note-kind-${note.kind}`} key={note.id}>
+                <div className="note-card-top">
+                  <span>{note.kind === "diary" ? "☼" : note.kind === "idea" ? "✦" : note.kind === "collection" ? "▦" : note.kind === "list" ? "☷" : "✎"}</span>
+                  <small>{noteKindLabels[note.kind]}</small>
+                  <button className={note.favorite ? "favorite active" : "favorite"} onClick={() => setNotes((current) => current.map((item) => item.id === note.id ? { ...item, favorite: !item.favorite, updatedAt: nowIso() } : item))}>☆</button>
+                </div>
+                <h3>{note.title}</h3>
+                {note.body && <p>{note.body}</p>}
+                <footer>
+                  <span>{note.date ? formatDate(note.date) : new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short" }).format(new Date(note.updatedAt))}</span>
+                  {note.projectId && <span>{projectPath(projects, note.projectId)}</span>}
+                </footer>
+              </article>
+            ))}
           </div>
         </section>
 
-        <section className={`mobile-module-screen ${mobileSection === "photos" ? "active" : ""}`} aria-hidden={mobileSection !== "photos"}>
-          <div className="module-intro-card">
-            <div className="module-intro-icon">▧</div>
-            <h2>Фото</h2>
-            <p>Отдельное место для фотографий и изображений внутри СФЕРЫ.</p>
+        <section className={`mobile-module-screen photos-screen ${mobileSection === "photos" ? "active" : ""}`} aria-hidden={mobileSection !== "photos"}>
+          <header className="module-page-header">
+            <div><span>Визуальная память</span><h2>Фото</h2></div>
+            <button onClick={() => setToast("Загрузка фото — следующий функциональный шаг")}>＋</button>
+          </header>
+          <div className="section-tabs photo-tabs">
+            {["Все", "Последние", "По проектам", "По сферам", "Альбомы", "Без проекта"].map((label, index) => (
+              <button key={label} className={index === 0 ? "active" : ""}>{label}</button>
+            ))}
           </div>
-          <div className="photo-placeholder-grid">
-            <div /><div /><div /><div /><div /><div />
+          <div className="photo-architecture-card">
+            <div className="photo-architecture-icon">▧</div>
+            <div>
+              <strong>Единая фотогалерея</strong>
+              <p>Фото будет храниться один раз и показываться здесь, внутри проекта и внутри сферы жизни.</p>
+            </div>
           </div>
+          <div className="photo-placeholder-grid photo-structure-grid">
+            {["Последние", "Семья", "Таро", "Путешествия", "Альбомы", "Без проекта"].map((label) => (
+              <button key={label}><span>▧</span><strong>{label}</strong><small>0 фото</small></button>
+            ))}
+          </div>
+        </section>
+
+        <section className={`mobile-module-screen calendar-screen ${mobileSection === "calendar" ? "active" : ""}`} aria-hidden={mobileSection !== "calendar"}>
+          <header className="module-page-header calendar-page-header">
+            <div><span>Время и хронология</span><h2>Календарь</h2></div>
+            <button onClick={() => setCalendarCursor(new Date())}>Сегодня</button>
+          </header>
+
+          <div className="section-tabs calendar-tabs">
+            {([
+              ["day", "День"],
+              ["week", "Неделя"],
+              ["month", "Месяц"],
+              ["history", "История"]
+            ] as Array<[CalendarMode, string]>).map(([value, label]) => (
+              <button key={value} className={calendarMode === value ? "active" : ""} onClick={() => setCalendarMode(value)}>{label}</button>
+            ))}
+          </div>
+
+          {calendarMode === "month" && (
+            <section className="calendar-month-card">
+              <header className="calendar-month-head">
+                <button onClick={() => setMonthOffset(-1)}>←</button>
+                <h3>{calendarTitle}</h3>
+                <button onClick={() => setMonthOffset(1)}>→</button>
+              </header>
+              <div className="calendar-weekdays">{["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map((day) => <span key={day}>{day}</span>)}</div>
+              <div className="calendar-grid">
+                {calendarCells.map((cell) => {
+                  const cellTasks = tasks.filter((task) => task.status === "active" && task.date === cell.iso);
+                  return (
+                    <button className={`calendar-cell ${cell.inMonth ? "" : "muted"} ${cell.iso === isoToday() ? "today" : ""}`} key={cell.iso}>
+                      <strong>{cell.day}</strong>
+                      {cellTasks.length > 0 && <span>{cellTasks.length}</span>}
+                      {cellTasks.slice(0, 1).map((task) => <small key={task.id}>{task.title}</small>)}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {calendarMode === "day" && (
+            <section className="calendar-list-card">
+              <div className="calendar-list-title"><strong>Сегодня</strong><span>{todayTasks.length} задач</span></div>
+              {todayTasks.length === 0 ? <p className="project-empty-row">На сегодня ничего не запланировано.</p> : todayTasks.map((task) => (
+                <button className="calendar-event-row" key={task.id} onClick={() => openDetail(task.id)}>
+                  <time>{task.time ?? "—"}</time><div><strong>{task.title}</strong><small>{task.projectId ? projectPath(projects, task.projectId) : "Без проекта"}</small></div><b>›</b>
+                </button>
+              ))}
+            </section>
+          )}
+
+          {calendarMode === "week" && (
+            <section className="calendar-week-list">
+              {weekDates.map((day) => {
+                const dayTasks = tasks.filter((task) => task.status === "active" && task.date === day.iso);
+                return (
+                  <div className="calendar-week-row" key={day.iso}>
+                    <div><strong>{day.short}</strong><span>{day.day}</span></div>
+                    <div>{dayTasks.length === 0 ? <small>Свободно</small> : dayTasks.map((task) => <button key={task.id} onClick={() => openDetail(task.id)}>{task.time ?? "—"} · {task.title}</button>)}</div>
+                  </div>
+                );
+              })}
+            </section>
+          )}
+
+          {calendarMode === "history" && (
+            <section className="calendar-list-card history-timeline">
+              <div className="calendar-list-title"><strong>История SFERA</strong><span>последние изменения</span></div>
+              {historyEvents.map((event) => (
+                <div className="history-row" key={event.id}>
+                  <span>{event.icon}</span>
+                  <div><strong>{event.title}</strong><small>{event.meta}</small></div>
+                  <time>{new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short" }).format(new Date(event.at))}</time>
+                </div>
+              ))}
+            </section>
+          )}
         </section>
 
         <button
