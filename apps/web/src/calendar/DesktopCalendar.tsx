@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from "react";
 import { Task } from "../tasks-model";
 import { ProjectNode, projectPath } from "../projects-model";
 import { isoDate } from "./calendar-utils";
@@ -38,9 +39,33 @@ export function DesktopCalendar({
   onMovePeriod,
   onSetPeriod
 }: DesktopCalendarProps) {
+  const timeScrollRef = useRef<HTMLDivElement | null>(null);
   const dayMinWidth = dayCount > 7 ? DAY_MIN_WIDTH_COMPACT : DAY_MIN_WIDTH_NORMAL;
   const minGridWidth = dayCount > 7 ? TIME_AXIS_WIDTH + dayCount * dayMinWidth : 760;
   const gridTemplateColumns = `${TIME_AXIS_WIDTH}px repeat(${dayCount}, minmax(${dayMinWidth}px, 1fr))`;
+
+  useLayoutEffect(() => {
+    const scroll = timeScrollRef.current;
+    if (!scroll) return;
+    const todayIndex = dates.indexOf(todayIso);
+    if (todayIndex < 0) {
+      scroll.scrollTop = 0;
+      return;
+    }
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const upcomingToday = tasks
+      .filter((task) => task.status === "active" && task.date === todayIso && task.time)
+      .map((task) => {
+        const [hours, minutes] = task.time!.split(":").map(Number);
+        return hours * 60 + minutes;
+      })
+      .filter((minutes) => minutes >= currentMinutes)
+      .sort((a, b) => a - b)[0];
+    const targetMinutes = upcomingToday ?? currentMinutes;
+    const hourOffset = targetMinutes * (HOUR_HEIGHT / 60);
+    scroll.scrollTop = Math.max(0, hourOffset - 120);
+  }, [dates, todayIso]);
 
   return (
     <div className="desktop-calendar-view">
@@ -101,7 +126,7 @@ export function DesktopCalendar({
             })}
           </div>
 
-          <div className="desktop-calendar-time-scroll">
+          <div className="desktop-calendar-time-scroll" ref={timeScrollRef}>
             <div className="desktop-calendar-time-grid" style={{ gridTemplateColumns }}>
               <div className="desktop-time-axis">
                 {Array.from({ length: 24 }, (_, hour) => (
