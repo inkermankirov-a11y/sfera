@@ -36,15 +36,22 @@ export function seedProjects(): ProjectNode[] {
     createProject({ id: "sphere-family", title: "Семья", kind: "sphere", order: 10 }),
     createProject({ id: "project-home", title: "Мой дом", parentId: "sphere-family", order: 10 }),
     createProject({ id: "project-repair", title: "Ремонт", parentId: "project-home", order: 10 }),
-    createProject({ id: "project-bills", title: "Дом и платежи", parentId: "project-home", order: 20 }),
 
-    createProject({ id: "sphere-business", title: "Бизнес", kind: "sphere", order: 20 }),
-    createProject({ id: "project-practice", title: "Практика", parentId: "sphere-business", order: 10 }),
-    createProject({ id: "project-content", title: "Контент", parentId: "sphere-business", order: 20 }),
+    createProject({ id: "sphere-tarot", title: "Таро и хиромантия", kind: "sphere", order: 20 }),
+    createProject({ id: "project-clients", title: "Клиенты", parentId: "sphere-tarot", order: 10 }),
+    createProject({ id: "project-tarot-content", title: "Контент", parentId: "sphere-tarot", order: 20 }),
 
-    createProject({ id: "sphere-hobbies", title: "Увлечения", kind: "sphere", order: 30 }),
-    createProject({ id: "project-3d", title: "3D-печать", parentId: "sphere-hobbies", order: 10 }),
-    createProject({ id: "project-music", title: "Музыка", parentId: "sphere-hobbies", order: 20 })
+    createProject({ id: "sphere-spiritual", title: "Духовные практики", kind: "sphere", order: 30 }),
+    createProject({ id: "project-practices", title: "Практики", parentId: "sphere-spiritual", order: 10 }),
+
+    createProject({ id: "sphere-work", title: "Работа", kind: "sphere", order: 40 }),
+    createProject({ id: "project-beauty", title: "Beauty / салон", parentId: "sphere-work", order: 10 }),
+
+    createProject({ id: "sphere-travel", title: "Путешествия", kind: "sphere", order: 50 }),
+    createProject({ id: "project-trips", title: "Поездки", parentId: "sphere-travel", order: 10 }),
+
+    createProject({ id: "sphere-personal", title: "Личное", kind: "sphere", order: 60 }),
+    createProject({ id: "project-self", title: "Для себя", parentId: "sphere-personal", order: 10 })
   ];
 }
 
@@ -54,7 +61,18 @@ export function readProjects(): ProjectNode[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        return parsed.map((item) => createProject(item));
+        const current = parsed.map((item) => createProject(item));
+        const seeded = seedProjects();
+        const hasPrototypeRoots = current.some((item) =>
+          ["sphere-family", "sphere-business", "sphere-hobbies"].includes(item.id)
+        );
+        if (hasPrototypeRoots) {
+          const existingIds = new Set(current.map((item) => item.id));
+          for (const item of seeded) {
+            if (!existingIds.has(item.id) && item.kind === "sphere") current.push(item);
+          }
+        }
+        return current;
       }
     }
   } catch {
