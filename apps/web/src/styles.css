@@ -9129,3 +9129,23 @@ html,
   fill: rgba(22, 136, 139, .055);
   stroke: rgba(22, 136, 139, .11);
 }
+
+
+.calendar-create-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: -4px;
+}
+
+.calendar-create-context span {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: #e9f5f4;
+  color: #176f73;
+  font-size: .7rem;
+  font-weight: 760;
+}

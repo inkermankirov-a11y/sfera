@@ -12,6 +12,7 @@ type DesktopCalendarProps = {
   timezoneLabel: string;
   todayIso: string;
   onOpenTask: (taskId: string) => void;
+  onCreateTask: (date: string, time: string | null) => void;
   onToday: () => void;
   onMovePeriod: (direction: -1 | 1) => void;
   onSetPeriod: (start: string, days: number) => void;
@@ -31,6 +32,7 @@ export function DesktopCalendar({
   timezoneLabel,
   todayIso,
   onOpenTask,
+  onCreateTask,
   onToday,
   onMovePeriod,
   onSetPeriod
@@ -86,9 +88,9 @@ export function DesktopCalendar({
             {dates.map((iso) => {
               const allDayTasks = tasks.filter((task) => task.status === "active" && task.date === iso && !task.time);
               return (
-                <div className="all-day-cell" key={iso}>
+                <div className="all-day-cell" key={iso} onClick={() => onCreateTask(iso, null)} title="Добавить задачу на весь день">
                   {allDayTasks.slice(0, 3).map((task) => (
-                    <button className={`calendar-all-day-task p${task.priority}`} key={task.id} onClick={() => onOpenTask(task.id)}>
+                    <button className={`calendar-all-day-task p${task.priority}`} key={task.id} onClick={(event) => { event.stopPropagation(); onOpenTask(task.id); }}>
                       {task.title}
                     </button>
                   ))}
@@ -114,7 +116,21 @@ export function DesktopCalendar({
                   .sort((a, b) => (a.time ?? "").localeCompare(b.time ?? ""));
 
                 return (
-                  <div className={`desktop-time-day ${iso === todayIso ? "today" : ""}`} key={iso}>
+                  <div
+                    className={`desktop-time-day ${iso === todayIso ? "today" : ""}`}
+                    key={iso}
+                    title="Нажми на свободное время, чтобы добавить задачу"
+                    onClick={(event) => {
+                      const rect = event.currentTarget.getBoundingClientRect();
+                      const y = event.clientY - rect.top - TOP_OFFSET;
+                      const rawMinutes = Math.max(0, Math.min(24 * 60 - 15, y / HOUR_HEIGHT * 60));
+                      const snappedMinutes = Math.max(0, Math.min(24 * 60 - 15, Math.round(rawMinutes / 15) * 15));
+                      const hours = Math.floor(snappedMinutes / 60);
+                      const minutes = snappedMinutes % 60;
+                      const time = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+                      onCreateTask(iso, time);
+                    }}
+                  >
                     {timedTasks.map((task) => {
                       const [hours, minutes] = (task.time ?? "00:00").split(":").map(Number);
                       const top = TOP_OFFSET + (hours * 60 + minutes) * (HOUR_HEIGHT / 60);
@@ -125,7 +141,7 @@ export function DesktopCalendar({
                           className={`calendar-timed-task p${task.priority}`}
                           key={task.id}
                           style={{ top, height }}
-                          onClick={() => onOpenTask(task.id)}
+                          onClick={(event) => { event.stopPropagation(); onOpenTask(task.id); }}
                         >
                           <strong>{task.time}</strong>
                           <span>{task.title}</span>

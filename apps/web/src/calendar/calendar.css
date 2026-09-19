@@ -537,3 +537,23 @@
   .desktop-calendar-view { display: none; }
   .mobile-calendar-view { display: block; }
 }
+
+
+/* Click-to-create calendar slots */
+.all-day-cell,
+.desktop-time-day {
+  cursor: cell;
+}
+
+.all-day-cell:hover {
+  background: rgba(23, 125, 125, .035);
+}
+
+.desktop-time-day:hover {
+  box-shadow: inset 0 0 0 1px rgba(23, 125, 125, .08);
+}
+
+.calendar-timed-task,
+.calendar-all-day-task {
+  cursor: pointer;
+}
