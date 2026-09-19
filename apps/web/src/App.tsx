@@ -123,6 +123,7 @@ export function App() {
     return match ? decodeURIComponent(match[1]) : null;
   });
   const [quickTitle, setQuickTitle] = useState("");
+  const [quickPriority, setQuickPriority] = useState<Priority>(4);
   const [subtaskTitle, setSubtaskTitle] = useState("");
   const [commentBody, setCommentBody] = useState("");
   const [query, setQuery] = useState("");
@@ -521,13 +522,14 @@ export function App() {
       time: parsed.time,
       deadline: parsed.deadline,
       recurrence: parsed.recurrence,
-      priority: parsed.priority,
+      priority: quickPriority < 4 ? quickPriority : parsed.priority,
       labels: parsed.labels,
       uncompletable: parsed.uncompletable
     });
 
     setTasks((current) => [...current, task]);
     setQuickTitle("");
+    setQuickPriority(4);
     setQuickProjectId(null);
     setMobileQuickOpen(false);
     setToast("Задача добавлена");
@@ -1573,7 +1575,7 @@ export function App() {
                   <strong>Новая задача</strong>
                   {quickProjectId && <small>{projectPath(projects, quickProjectId)}</small>}
                 </div>
-                <button type="button" onClick={() => { setMobileQuickOpen(false); setQuickProjectId(null); }}>Отмена</button>
+                <button type="button" onClick={() => { setMobileQuickOpen(false); setQuickProjectId(null); setQuickPriority(4); }}>Отмена</button>
               </div>
               <textarea
                 autoFocus
@@ -1585,7 +1587,19 @@ export function App() {
               <div className="mobile-quick-tools">
                 <button type="button" onClick={() => setQuickTitle((value) => value + " сегодня")}>Сегодня</button>
                 <button type="button" onClick={() => setQuickTitle((value) => value + " завтра")}>Завтра</button>
-                <button type="button" className="quick-priority-flag p1" onClick={() => setQuickTitle((value) => value + " p1")} title="Высокий приоритет">⚑</button>
+                <div className="quick-priority-picker" role="group" aria-label="Приоритет">
+                  {([1, 2, 3, 4] as Priority[]).map((priority) => (
+                    <button
+                      type="button"
+                      key={priority}
+                      className={`quick-priority-choice p${priority} ${quickPriority === priority ? "active" : ""}`}
+                      onClick={() => setQuickPriority(priority)}
+                      title={priorityLabels[priority]}
+                      aria-label={`Приоритет: ${priorityLabels[priority]}`}
+                      aria-pressed={quickPriority === priority}
+                    >⚑</button>
+                  ))}
+                </div>
               </div>
               <button className="mobile-add-submit" disabled={!quickTitle.trim()}>Добавить задачу</button>
             </form>
