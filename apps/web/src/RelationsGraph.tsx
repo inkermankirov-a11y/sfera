@@ -487,7 +487,7 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
                 return (
                   <g
                     key={node.key}
-                    className={`graph-node node-${node.ref.type} ${highlighted ? "" : "dimmed"} ${hovered === node.key ? "hovered" : ""}`}
+                    className={`graph-node node-${node.ref.type} depth-${Math.min(depth, 4)} ${highlighted ? "" : "dimmed"} ${hovered === node.key ? "hovered" : ""}`}
                     transform={`translate(${node.x} ${node.y})`}
                     onPointerEnter={() => setHovered(node.key)}
                     onPointerLeave={() => setHovered(null)}
