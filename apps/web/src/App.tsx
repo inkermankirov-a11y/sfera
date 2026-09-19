@@ -871,7 +871,54 @@ export function App() {
           <button className={mobileSection === "tasks" ? "active" : ""} onClick={() => setMobileSection("tasks")}><span>✓</span>Задачи</button>
           <button className={mobileSection === "notes" ? "active" : ""} onClick={() => setMobileSection("notes")}><span>✎</span>Заметки</button>
           <button className={mobileSection === "photos" ? "active" : ""} onClick={() => setMobileSection("photos")}><span>▧</span>Фото</button>
-          <button className={mobileSection === "calendar" ? "active" : ""} onClick={() => openCalendar("month")}><span>▦</span>Календарь</button>
+          <div className={`calendar-nav-group ${mobileSection === "calendar" ? "open" : ""}`}>
+            <button className={mobileSection === "calendar" ? "active" : ""} onClick={() => openCalendar("month")}><span>▦</span>Календарь</button>
+            {mobileSection === "calendar" && (
+              <div className="sidebar-mini-calendar" aria-label="Выбор периода календаря">
+                <div className="sidebar-mini-head">
+                  <button onClick={() => setMonthOffset(-1)} aria-label="Предыдущий месяц">‹</button>
+                  <strong>{calendarTitle}</strong>
+                  <button onClick={() => setMonthOffset(1)} aria-label="Следующий месяц">›</button>
+                </div>
+                <div className="sidebar-mini-weekdays">
+                  {["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map((day) => <span key={day}>{day}</span>)}
+                </div>
+                <div className="sidebar-mini-grid">
+                  {calendarCells.map((cell) => {
+                    const selectedStart = cell.iso === calendarRangeStart;
+                    const selectedEnd = cell.iso === calendarRangeEnd;
+                    const inRange = cell.iso >= calendarRangeStart && cell.iso <= calendarRangeEnd;
+                    return (
+                      <button
+                        key={cell.iso}
+                        className={[
+                          !cell.inMonth ? "outside" : "",
+                          cell.iso === isoToday() ? "today" : "",
+                          inRange ? "in-range" : "",
+                          selectedStart ? "range-start" : "",
+                          selectedEnd ? "range-end" : ""
+                        ].filter(Boolean).join(" ")}
+                        onClick={() => selectMiniCalendarDay(cell.iso)}
+                        title={calendarPickingEnd ? "Выбрать конец периода" : "Выбрать начало периода"}
+                      >
+                        {cell.day}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="sidebar-mini-hint">
+                  {calendarPickingEnd ? "Теперь выбери конец периода" : `Выбрано: ${desktopCalendarDayCount} дн. · максимум 14`}
+                </div>
+                <div className="sidebar-mini-quick">
+                  {[1, 7, 14].map((days) => (
+                    <button key={days} className={desktopCalendarDayCount === days ? "active" : ""} onClick={() => setDesktopCalendarPeriod(calendarRangeStart, days)}>
+                      {days === 1 ? "День" : days + " дней"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </nav>
 
         <div className="sidebar-bottom">
