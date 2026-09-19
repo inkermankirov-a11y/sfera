@@ -562,6 +562,14 @@ export function App() {
     return notes.find((item) => item.id === ref.id)?.title ?? "Удалённая заметка";
   }
 
+  function graphEntityTitle(ref: ObjectRef) {
+    if (ref.type === "project") {
+      return projects.find((item) => item.id === ref.id)?.title ?? "Удалённый проект";
+    }
+    if (ref.type === "task") return tasks.find((item) => item.id === ref.id)?.title ?? "Удалённая задача";
+    return notes.find((item) => item.id === ref.id)?.title ?? "Удалённая заметка";
+  }
+
   function entityTypeLabel(type: EntityType) {
     return type === "project" ? "Проект" : type === "task" ? "Задача" : "Заметка";
   }
@@ -2021,7 +2029,7 @@ export function App() {
                 relations={relations}
                 objects={relationGraphObjects}
                 structureEdges={relationGraphStructureEdges}
-                getTitle={entityTitle}
+                getTitle={graphEntityTitle}
                 getTypeLabel={entityTypeLabel}
                 onOpen={openLinkedObject}
               />
