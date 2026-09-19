@@ -9440,3 +9440,120 @@ html,
     display: none;
   }
 }
+
+
+/* Calendar quick composer: always fit inside the visible viewport */
+@media (min-width: 721px) {
+  .calendar-task-popover {
+    width: 420px;
+    max-height: calc(100vh - 28px);
+    overflow-y: auto;
+    gap: 8px;
+    padding: 10px 14px 12px;
+    border-radius: 20px;
+    overscroll-behavior: contain;
+  }
+
+  .calendar-popover-top {
+    min-height: 22px;
+  }
+
+  .calendar-popover-close {
+    width: 28px;
+    height: 28px;
+    font-size: 1.3rem;
+  }
+
+  .calendar-popover-title {
+    width: calc(100% - 40px);
+    min-height: 36px;
+    margin-left: 40px;
+    font-size: 1.26rem;
+  }
+
+  .calendar-popover-tabs {
+    margin-left: 40px;
+    gap: 4px;
+  }
+
+  .calendar-popover-tabs button {
+    min-height: 30px;
+    padding: 0 9px;
+    font-size: .76rem;
+  }
+
+  .calendar-popover-rows {
+    gap: 0;
+  }
+
+  .calendar-popover-row {
+    min-height: 44px;
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 8px;
+    padding: 4px 0;
+  }
+
+  .calendar-row-icon {
+    width: 26px;
+    min-height: 28px;
+    font-size: .95rem;
+  }
+
+  .calendar-date-controls {
+    gap: 2px 8px;
+  }
+
+  .calendar-date-controls > input[type="date"],
+  .calendar-time-range input {
+    height: 28px;
+    font-size: .82rem;
+  }
+
+  .calendar-time-range {
+    gap: 5px;
+  }
+
+  .calendar-time-range strong {
+    font-size: .82rem;
+  }
+
+  .calendar-date-controls small {
+    font-size: .66rem;
+  }
+
+  .calendar-row-content {
+    gap: 3px;
+  }
+
+  .calendar-row-label {
+    font-size: .70rem;
+  }
+
+  .calendar-task-popover .project-location-summary {
+    min-height: 32px;
+    padding: 4px 7px;
+  }
+
+  .calendar-link-inline select,
+  .calendar-deadline-input {
+    min-height: 32px;
+  }
+
+  .calendar-popover-footer {
+    position: sticky;
+    bottom: 0;
+    margin: 0 -14px -12px;
+    padding: 8px 14px 10px;
+    background: linear-gradient(180deg, rgba(255,255,255,.90), #fff 35%);
+  }
+
+  .calendar-more-settings,
+  .calendar-save-button {
+    min-height: 38px;
+    padding: 0 14px;
+  }
+
+  .calendar-save-button {
+    min-width: 104px;
+  }
+}
