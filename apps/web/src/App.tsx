@@ -98,10 +98,10 @@ function currentWeekDates() {
 }
 
 const priorityLabels: Record<Priority, string> = {
-  1: "P1",
-  2: "P2",
-  3: "P3",
-  4: "P4"
+  1: "Высокий",
+  2: "Средний",
+  3: "Низкий",
+  4: "Без приоритета"
 };
 
 function dateTimeLocalValue(at: string) {
@@ -788,7 +788,7 @@ export function App() {
                 {task.recurrence && <span>↻ {task.recurrence}</span>}
                 {task.deadline && <span>◷ до {formatDate(task.deadline)}</span>}
                 {task.durationMinutes && <span>{formatDuration(task.durationMinutes)}</span>}
-                {task.priority < 4 && <span className={`priority-text p${task.priority}`}>{priorityLabels[task.priority]}</span>}
+                <span className={`priority-flag p${task.priority}`} title={priorityLabels[task.priority]} aria-label={`Приоритет: ${priorityLabels[task.priority]}`}>⚑</span>
                 {task.projectId && <span className="task-project-path">◇ {projectPath(projects, task.projectId)}</span>}
                 {task.labels.map((label) => <span key={label}>%{label}</span>)}
                 {activeChildren.length > 0 && <span>▤ {activeChildren.length}</span>}
@@ -1148,6 +1148,7 @@ export function App() {
           {!selectedProject ? (
             <>
               <header className="projects-header">
+                <button className="module-back-button" onClick={() => setMobileSection("home")} aria-label="Назад">←</button>
                 <div>
                   <span>Сферы жизни</span>
                   <h2>Проекты</h2>
@@ -1356,6 +1357,7 @@ export function App() {
 
         <section className={`mobile-module-screen photos-screen ${mobileSection === "photos" ? "active" : ""}`} aria-hidden={mobileSection !== "photos"}>
           <header className="module-page-header">
+            <button className="module-back-button" onClick={() => setMobileSection("home")} aria-label="Назад">←</button>
             <div><span>Визуальная память</span><h2>Фото</h2></div>
             <button onClick={() => setToast("Загрузка фото — следующий функциональный шаг")}>＋</button>
           </header>
@@ -1395,6 +1397,7 @@ export function App() {
 
           <div className="mobile-calendar-view">
           <header className="module-page-header calendar-page-header">
+            <button className="module-back-button" onClick={() => setMobileSection("home")} aria-label="Назад">←</button>
             <div><span>Время и хронология</span><h2>Календарь</h2></div>
             <button onClick={() => setCalendarCursor(new Date())}>Сегодня</button>
           </header>
@@ -1582,7 +1585,7 @@ export function App() {
               <div className="mobile-quick-tools">
                 <button type="button" onClick={() => setQuickTitle((value) => value + " сегодня")}>Сегодня</button>
                 <button type="button" onClick={() => setQuickTitle((value) => value + " завтра")}>Завтра</button>
-                <button type="button" onClick={() => setQuickTitle((value) => value + " p1")}>P1</button>
+                <button type="button" className="quick-priority-flag p1" onClick={() => setQuickTitle((value) => value + " p1")} title="Высокий приоритет">⚑</button>
               </div>
               <button className="mobile-add-submit" disabled={!quickTitle.trim()}>Добавить задачу</button>
             </form>
@@ -1694,10 +1697,10 @@ export function App() {
                 <label className="task-chip compact">
                   <span>Приоритет</span>
                   <select value={selected.priority} onChange={(event) => patchTask(selected.id, { priority: Number(event.target.value) as Priority })}>
-                    <option value={1}>P1</option>
-                    <option value={2}>P2</option>
-                    <option value={3}>P3</option>
-                    <option value={4}>P4</option>
+                    <option value={1}>🔴 Высокий</option>
+                    <option value={2}>🟠 Средний</option>
+                    <option value={3}>🟢 Низкий</option>
+                    <option value={4}>⚪ Без приоритета</option>
                   </select>
                 </label>
                 <label className="task-chip compact">

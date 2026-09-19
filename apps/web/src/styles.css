@@ -6689,3 +6689,148 @@ html,
     color: #445d70;
   }
 }
+
+
+/* Mobile controls QA: true circles, flag priorities and visible back navigation */
+.priority-flag {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  font-size: .86rem;
+  line-height: 1;
+}
+.priority-flag.p1, .quick-priority-flag.p1 { color: #d84a4a; }
+.priority-flag.p2, .quick-priority-flag.p2 { color: #d9902f; }
+.priority-flag.p3, .quick-priority-flag.p3 { color: #4f9a67; }
+.priority-flag.p4, .quick-priority-flag.p4 { color: #8b98a2; }
+
+.quick-priority-flag {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.module-back-button,
+.mobile-shell-back {
+  border: 0;
+  background: transparent;
+  color: #17384d;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+@media (max-width: 720px) {
+  /* Safari must never stretch task completion controls into ellipses. */
+  .check-button,
+  .priority-ring,
+  .dashboard-task-row .check-button,
+  .section-home .dashboard-task-row .check-button,
+  .section-tasks .check-button,
+  .subtask-line .check-button,
+  .detail-title-row .check-button {
+    box-sizing: border-box;
+    width: 20px !important;
+    min-width: 20px !important;
+    max-width: 20px !important;
+    height: 20px !important;
+    min-height: 20px !important;
+    max-height: 20px !important;
+    padding: 0 !important;
+    margin-left: 0 !important;
+    border-radius: 50% !important;
+    aspect-ratio: 1 / 1;
+    flex: 0 0 20px !important;
+    justify-self: center;
+    align-self: center;
+    line-height: 16px;
+  }
+
+  .section-home .dashboard-task-row {
+    grid-template-columns: 28px 39px minmax(0, 1fr) auto;
+  }
+
+  .section-tasks .tree-node > .task-row {
+    grid-template-columns: 22px 30px minmax(0, 1fr) 26px;
+  }
+
+  .priority-flag {
+    width: 16px;
+    height: 16px;
+    flex-basis: 16px;
+    font-size: .78rem;
+  }
+
+  .priority-text {
+    display: none !important;
+  }
+
+  .module-back-button,
+  .mobile-shell-back {
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid #dbe5ea;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 3px 10px rgba(45,65,80,.05);
+    color: #17384d;
+    font-size: 1.15rem;
+  }
+
+  .mobile-topbar.mobile-appbar {
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+  }
+
+  .module-page-header {
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+    gap: 9px;
+  }
+
+  .module-page-header > .module-back-button {
+    grid-column: 1;
+  }
+
+  .module-page-header > div {
+    grid-column: 2;
+  }
+
+  .module-page-header > button:last-child:not(.module-back-button) {
+    grid-column: 3;
+  }
+
+  .projects-header {
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+    gap: 9px;
+  }
+
+  .projects-header > .module-back-button {
+    grid-column: 1;
+  }
+
+  .projects-header > div {
+    grid-column: 2;
+  }
+
+  .projects-header > button:last-child:not(.module-back-button) {
+    grid-column: 3;
+  }
+
+  .detail-header .back-button,
+  .project-detail-header .project-back {
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid #dbe5ea;
+    border-radius: 12px;
+    background: #fff;
+    color: #17384d;
+    font-size: 1.12rem;
+  }
+}
