@@ -1,23 +1,3 @@
-Y��x-���jם��i��+��j[h��ܢ���N8�:-jZ.����)޳V���'B�f�&�WfV�B�W6TVffV7B�W6T���WDVffV7B�W6T�V���W6U&Vb�W6U7FFR�g&��'&V7B#�����'B��f��FW"��&��&�G���5D�$tU��U���F6���F6�6���V�B��6���G&V��b��7&VFUF6���FWF��b��FW66V�F�G4�b��f�&�DFFR��f�&�DGW&F������6�F�F����W�D�&FW"���W�E&V7W'&��tFFR����t�6���'6UV�6�FB��&VEF6�0��g&��"��F6�2���FV�#�����'B��$��T5E5�5D�$tU��U���&��V7D��FR��7&VFU&��V7B��f�GFV�&��V7G2���W�E&��V7D�&FW"��&��V7D6���G&V���&��V7DFW66V�F�G2��&��V7EF���&VE&��V7G0��g&��"��&��V7G2���FV�#�����'B����DU5�5D�$tU��U�����FR����FT���B��7&VFT��FR��&VD��FW0��g&��"����FW2���FV�#�����'B��t��5�5D�$tU��U���v����7&VFTv����&VDv��0��g&��"��v��2���FV�#�����'B��$T�D���5�5D�$tU��U���V�F�G�G�R���&�V7E&Vb��&V�F�����&TƖ�VB��7&VFU&V�F������F�W%&Vb��&VE&V�F���2��&V�F���4f�"��&V��fU&V�F���4f� ��g&��"��&V�F���2���FV�#�����'B��ED4��T�E5�5D�$tU��U���GF6��V�B��GF6��V�G4f�"��&VDGF6��V�G2��&V��fTGF6��V�DƖ氧�g&��"��GF6��V�G2���FV�#�����'B�6�V�F$֖����F��g&��"��6�V�F"�6�V�F$֖����F�#�����'B�FW6�F�6�V�F"�g&��"��6�V�F"�FW6�F�6�V�F"#�����'B�&V�F���4w&��g&��"��&V�F���4w&�#�����'B��FDF�4�6���6�V�F%&�vT�&V�����6�W6�fTF�6�V�B���6�FFR���6�&�vR�����F�6V��0��g&��"��6�V�F"�6�V�F"�WF��2#���6��7B$�d��U���U�5D�$tU��U��'6fW&�&�f��R���R#��6��7BD�ŕ�d�5U5�5D�$tU��U��'6fW&�F6�&�&B�F�ǒ�f�7W2#���6��7Bf��FW$�&V�3�&V6�&C�f��FW"�7G&��s�����â-	-R"��F�F��-
-]=�M��"����&���-	]r
-M
--�"���fW&GVS�-	�
-�
-�}]��"��F��S�-	-�����]�� �Ӱ��G�R6V7F����&���R"�'&��V7G2"�'F6�2"�&��FW2"�'��F�2"�&6�V�F""�'&V�F���2#��G�RF6�f�Wr�f��FW"�'vVV�#��G�R��FUf�Wr�&��"�&�FV2"�&F�'�"�&6���V7F���2"�&Ɨ7G2"�&ff�&�FW2#��G�R&��V7EF"�&�fW'f�Wr"�'F6�2"�&��FW2"�'��F�2"�&v��2"�&��7F�'�#��G�R6�V�F$��FR�&F�"�'vVV�"�&���F�"�&��7F�'�#���6��7B��FT���D�&V�3�&V6�&C���FT���B�7G&��s������FS�-	}
-�]-�"���FV�-	�M]�"��F�'��-	M�]-���"��6���V7F���-	����]�m��"��Ɨ7C�-
-���� �Ӱ��gV�7F�����6ė6�FFS�FFR���6��7B�fg6WB�FFR�vWEF��W���T�fg6WB����&WGW&��WrFFR�FFR�vWEF��R����fg6WB�c���F��4�7G&��r���6Ɩ6R�����Р�gV�7F���7W'&V�EvVV�FFW2����6��7B��r��WrFFR����6��7BF����r�vWDF�����s��6��7B���F���WrFFR���r������F��6WD��W'2�"���������F��6WDFFR���r�vWDFFR���F�����&WGW&�'&��g&�҇��V�wF��r�������FW������6��7BFFR��WrFFR����F����FFR�6WDFFR����F��vWDFFR�����FW����&WGW&����6���6ė6�FFR���6��'C��Wr��F��FFUF��Tf�&�B�''R�%R"��vVV�F��'6��'B"Ғ�f�&�B�FFR��&W�6R�"�"�""���F��FFR�vWDFFR���Ӱ�ғ��Р�6��7B&��&�G��&V�3�&V6�&C�&��&�G��7G&��s�����-	-�����"��#�-
-
-]M���"��3�-	��}���"��C�-	]r
-�
-��
-�-]- �Ӱ��gV�7F���'W76���W&6�V�C��V�&W"���S�7G&��r�fWs�7G&��r��瓢7G&��r���6��7B��C�6�V�BR��6��7B��C�6�V�BR���b���C���bb��C���&WGW&���S���b���C��"bb��C��Bbb���C�"����C�B��&WGW&�fWs��&WGW&��瓰�Р�6��7B�����6W2�����6��/	��"���S�-	��-��=��R"�����6��/	��""���S�-
-
-
--=���
-]
-�"�����6��/	��2"���S�-	�]
--
-�
 import { FormEvent, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   Filter,
@@ -1833,1871 +1813,6 @@ export function App() {
 
           <div className="home-function-strip">
             <button onClick={() => { chooseTaskView("week"); setMobileSection("tasks"); }}>
-              <span>▦</span><strong>Неделя</strong><small>{weekTaskCount} {russianPlural(weekTaskCount, "задача", "задачи", "задач")}</small>
-            </button>
-            <button onClick={() => { setSelectedProjectId(rootSpheres[0]?.id ?? null); setProjectTab("goals"); setMobileSection("projects"); }}>
-              <span>◎</span><strong>Цели</strong><small>{goals.length} активных</small>
-            </button>
-            <button onClick={() => openCalendar("month")}>
-              <span>◫</span><strong>Календарь</strong><small>Даты и история</small>
-            </button>
-          </div>
-
-        </section>
-
-        <div className={`tasks-module-content ${mobileSection === "tasks" ? "mobile-section-active" : "mobile-section-hidden"}`}>
-        <div className="page-header">
-          <div>
-            <p className="eyebrow">Модуль</p>
-            <h1>Задачи</h1>
-            <p className="subtitle">{activeCount} активных · иерархия и подзадачи</p>
-          </div>
-
-          <div className="desktop-actions">
-            <button className="icon-button" aria-label="Поиск" onClick={() => setSearchOpen((value) => !value)}>⌕</button>
-            <button className="primary-button" onClick={() => document.getElementById("quick-add")?.focus()}>
-              ＋ Добавить
-            </button>
-          </div>
-        </div>
-
-        {searchOpen && (
-          <div className="search-row">
-            <input
-              autoFocus
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Название, описание или метка"
-              aria-label="Поиск по задачам"
-            />
-            <button className="ghost-button" onClick={() => { setQuery(""); setSearchOpen(false); }}>Закрыть</button>
-          </div>
-        )}
-
-        <div className="filter-strip task-view-strip" role="tablist" aria-label="Режим задач">
-          <button className={taskView === "today" ? "active" : ""} onClick={() => chooseTaskView("today")}>Сегодня</button>
-          <button className={taskView === "week" ? "active" : ""} onClick={() => chooseTaskView("week")}>Неделя</button>
-          <button className={taskView === "all" ? "active" : ""} onClick={() => chooseTaskView("all")}>Все</button>
-          <button className={taskView === "inbox" ? "active" : ""} onClick={() => chooseTaskView("inbox")}>Без даты</button>
-          <button className={taskView === "overdue" ? "active" : ""} onClick={() => chooseTaskView("overdue")}>Просрочено</button>
-          <button className={taskView === "done" ? "active" : ""} onClick={() => chooseTaskView("done")}>Выполнено</button>
-        </div>
-
-        <div className="simple-quick-add">
-          <form className="quick-add advanced" onSubmit={addTask}>
-            <span className="quick-plus">＋</span>
-            <input
-              id="quick-add"
-              value={quickTitle}
-              onChange={(event) => setQuickTitle(event.target.value)}
-              placeholder="Добавить задачу…"
-              aria-label="Новая задача"
-            />
-            <button
-              type="button"
-              className={quickOptionsOpen ? "quick-options-toggle active" : "quick-options-toggle"}
-              onClick={() => setQuickOptionsOpen((value) => !value)}
-              aria-label="Параметры задачи"
-              title="Параметры"
-            >•••</button>
-            <button type="submit" disabled={!quickTitle.trim()}>Добавить</button>
-          </form>
-
-          {quickOptionsOpen && (
-            <div className="quick-options-panel">
-              <label><span>Дата</span><input type="date" value={quickDate} onChange={(event) => setQuickDate(event.target.value)} /></label>
-              <label><span>Время</span><input type="time" value={quickTime} onChange={(event) => setQuickTime(event.target.value)} /></label>
-              <label><span>Дедлайн</span><input type="date" value={quickDeadline} onChange={(event) => setQuickDeadline(event.target.value)} /></label>
-              <div className="quick-options-project">
-                <span>Проект</span>
-                {renderProjectLocationPicker(quickProjectId ?? "", (value) => setQuickProjectId(value || null), "Без проекта")}
-              </div>
-              <div className="quick-options-priority">
-                <span>Приоритет</span>
-                <div className="quick-priority-picker" role="group" aria-label="Приоритет">
-                  {([1, 2, 3, 4] as Priority[]).map((priority) => (
-                    <button
-                      type="button"
-                      key={priority}
-                      className={`quick-priority-choice p${priority} ${quickPriority === priority ? "active" : ""}`}
-                      onClick={() => setQuickPriority(priority)}
-                      title={priorityLabels[priority]}
-                    >⚑</button>
-                  ))}
-                </div>
-              </div>
-              <div className="quick-options-link">
-                <span>Связь</span>
-                <select value={quickRelationType} onChange={(event) => { setQuickRelationType(event.target.value as EntityType); setQuickRelationTargetId(""); }}>
-                  <option value="project">Проект</option>
-                  <option value="task">Задача</option>
-                  <option value="note">Заметка</option>
-                </select>
-                <select value={quickRelationTargetId} onChange={(event) => setQuickRelationTargetId(event.target.value)}>
-                  <option value="">Не выбрана</option>
-                  {relationTargetOptions(quickRelationType, { type: "task", id: "__new__" }).map((option) => (
-                    <option key={option.id} value={option.id}>{option.label}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {taskView === "week" ? (
-          <section className="week-planner" aria-label="Недельное планирование">
-            <div className="week-board">
-              {weekDates.map((day) => {
-                const dayTasks = tasks
-                  .filter((task) => task.status === "active" && task.date === day.iso)
-                  .sort((a, b) => (a.time ?? "99:99").localeCompare(b.time ?? "99:99") || a.order - b.order);
-                return (
-                  <div
-                    className={`week-day ${day.iso === isoToday() ? "today" : ""}`}
-                    key={day.iso}
-                    onDragOver={(event) => event.preventDefault()}
-                    onDrop={() => {
-                      if (!draggedId) return;
-                      patchTask(draggedId, { date: day.iso });
-                      setDraggedId(null);
-                      setToast("Задача перенесена");
-                    }}
-                  >
-                    <header><span>{day.short}</span><strong>{day.day}</strong></header>
-                    <div className="week-day-tasks">
-                      {dayTasks.length === 0 ? (
-                        <span className="week-empty">Свободно</span>
-                      ) : dayTasks.map((task) => (
-                        <button
-                          className={`week-task p${task.priority}`}
-                          key={task.id}
-                          draggable
-                          onDragStart={() => setDraggedId(task.id)}
-                          onDragEnd={() => setDraggedId(null)}
-                          onClick={() => openDetail(task.id)}
-                        >
-                          <strong>{task.time ?? "Без времени"}</strong>
-                          <span>{task.title}</span>
-                          {task.projectId && <small>{projectPath(projects, task.projectId)}</small>}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            <div
-              className="week-inbox"
-              onDragOver={(event) => event.preventDefault()}
-              onDrop={() => {
-                if (!draggedId) return;
-                patchTask(draggedId, { date: null });
-                setDraggedId(null);
-                setToast("Задача перенесена в «Без даты»");
-              }}
-            >
-              <div className="week-inbox-head"><strong>Без даты</strong><span>Перетащи сюда задачу, если день ещё не выбран</span></div>
-              <div className="week-inbox-items">
-                {tasks.filter((task) => task.status === "active" && !task.date).slice(0, 8).map((task) => (
-                  <button key={task.id} draggable onDragStart={() => setDraggedId(task.id)} onDragEnd={() => setDraggedId(null)} onClick={() => openDetail(task.id)}>
-                    <span>○</span><strong>{task.title}</strong>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </section>
-        ) : (
-          <section className="task-list todo-tree" aria-live="polite">
-            {visibleCount === 0 ? (
-              <div className="empty-state">
-                <div className="empty-icon">✓</div>
-                <h2>{query ? "Ничего не найдено" : "Здесь пока нет задач"}</h2>
-                <p>{query ? "Измени запрос или сбрось фильтр." : "Добавь первую задачу. Внутри неё можно создавать подзадачи любого уровня."}</p>
-                {query && <button className="secondary-button" onClick={() => setQuery("")}>Сбросить поиск</button>}
-              </div>
-            ) : (
-              <div className="task-rows tree-rows">{renderTree(null)}</div>
-            )}
-          </section>
-        )}
-
-        </div>
-
-        <section className={`mobile-module-screen projects-screen ${mobileSection === "projects" ? "active" : ""}`} aria-hidden={mobileSection !== "projects"}>
-          {!selectedProject ? (
-            <>
-              <header className="projects-header">
-                <button className="module-back-button" onClick={() => setMobileSection("home")} aria-label="Назад">←</button>
-                <div>
-                  <span>Сферы жизни</span>
-                  <h2>Сферы</h2>
-                </div>
-                <div className="projects-header-actions">
-                  <div className="project-view-toggle" role="group" aria-label="Вид сфер">
-                    <button className={projectView === "grid" ? "active" : ""} onClick={() => setProjectViewMode("grid")} aria-label="Плитка" title="Плитка">▦</button>
-                    <button className={projectView === "list" ? "active" : ""} onClick={() => setProjectViewMode("list")} aria-label="Список" title="Список">☷</button>
-                  </div>
-                  <button className="projects-add-root" aria-label="Создать сферу жизни" onClick={() => { setProjectParentId(""); setProjectCreateOpen(true); }}>＋</button>
-                </div>
-              </header>
-              {projectView === "grid" ? renderProjectGrid(null) : (
-                <div className="project-tree-card">
-                  {renderProjectTree(null)}
-                </div>
-              )}
-            </>
-          ) : (
-            <>
-              <header className="project-detail-header">
-                <button
-                  className="project-back"
-                  onClick={() => setSelectedProjectId(selectedProject.parentId)}
-                  aria-label="Назад"
-                >←</button>
-                <div>
-                  <span>{projectPath(projects, selectedProject.parentId) || "Сферы жизни"}</span>
-                  <h2>{selectedProject.title}</h2>
-                </div>
-                <div className="project-detail-actions">
-                  <button
-                    className="project-edit-button"
-                    aria-label="Редактировать проект"
-                    onClick={() => openProjectEditor(selectedProject)}
-                  >✎</button>
-                  <button
-                    className="project-add-folder"
-                    aria-label="Добавить подпроект"
-                    onClick={() => { setProjectParentId(selectedProject.id); setProjectCreateOpen(true); }}
-                  >＋</button>
-                </div>
-              </header>
-
-              <div className="project-summary-grid">
-                <div><strong>{projectTaskCount(selectedProject.id, false)}</strong><span>задач</span></div>
-                <div><strong>{projectChildren(projects, selectedProject.id).length}</strong><span>{russianPlural(projectChildren(projects, selectedProject.id).length, "подпроект", "подпроекта", "подпроектов")}</span></div>
-                <div><strong>{projectNoteCount(selectedProject.id)}</strong><span>заметок</span></div>
-                <div><strong>{attachmentsFor(attachments, { type: "project", id: selectedProject.id }).filter((item) => item.mime.startsWith("image/")).length}</strong><span>фото</span></div>
-              </div>
-
-              <div className="project-detail-tabs" role="tablist" aria-label="Раздел проекта">
-                {([
-                  ["overview", "Обзор"],
-                  ["tasks", "Задачи"],
-                  ["notes", "Заметки"],
-                  ["photos", "Фото"],
-                  ["goals", "Цели"],
-                  ["history", "История"]
-                ] as Array<[ProjectTab, string]>).map(([value, label]) => (
-                  <button key={value} className={projectTab === value ? "active" : ""} onClick={() => setProjectTab(value)}>{label}</button>
-                ))}
-              </div>
-
-              {projectTab === "overview" && (
-                <>
-                  <section className="project-overview-actions">
-                    <button onClick={() => { setProjectParentId(selectedProject.id); setProjectCreateOpen(true); }}>＋ Подпроект</button>
-                    <button onClick={() => { setQuickProjectId(selectedProject.id); setMobileQuickOpen(true); }}>＋ Задача</button>
-                    <button onClick={() => { setNoteKind("note"); setNoteProjectId(selectedProject.id); setNoteCreateOpen(true); }}>＋ Заметка</button>
-                  </section>
-                  {projectChildren(projects, selectedProject.id).length > 0 && (
-                    <section className="project-section-card project-children-section">
-                      <div className="project-section-title-row">
-                        <div className="project-section-title">Подпроекты</div>
-                        <div className="project-view-toggle compact" role="group" aria-label="Вид подпроектов">
-                          <button aria-label="Плитка" title="Плитка" className={projectView === "grid" ? "active" : ""} onClick={() => setProjectViewMode("grid")}>▦</button>
-                          <button aria-label="Список" title="Список" className={projectView === "list" ? "active" : ""} onClick={() => setProjectViewMode("list")}>☷</button>
-                        </div>
-                      </div>
-                      {projectView === "grid" ? renderProjectGrid(selectedProject.id) : <div className="project-subtree-list">{renderProjectTree(selectedProject.id)}</div>}
-                    </section>
-                  )}
-                  <section className="project-overview-cards">
-                    <button onClick={() => setProjectTab("tasks")}><span>✓</span><strong>Задачи</strong><small>{tasks.filter((task) => task.status === "active" && taskInProjectScope(task, selectedProject.id)).length} активных</small></button>
-                    <button onClick={() => setProjectTab("notes")}><span>✎</span><strong>Заметки</strong><small>{projectNoteCount(selectedProject.id)} записей</small></button>
-                    <button onClick={() => setProjectTab("goals")}><span>◎</span><strong>Цели</strong><small>{goals.filter((goal) => goal.projectId === selectedProject.id).length} целей</small></button>
-                    <button onClick={() => setProjectTab("history")}><span>◴</span><strong>История</strong><small>Хронология проекта</small></button>
-                  </section>
-                  {renderRelationsPanel({ type: "project", id: selectedProject.id })}
-                  {renderAttachmentsPanel({ type: "project", id: selectedProject.id })}
-                </>
-              )}
-
-              {projectTab === "tasks" && (
-                <section className="project-section-card">
-                  <div className="project-section-title">Задачи</div>
-                  {tasks.filter((task) => task.status === "active" && taskInProjectScope(task, selectedProject.id)).length === 0 ? (
-                    <div className="project-empty-row">В этом проекте и его подпроектах пока нет задач.</div>
-                  ) : tasks
-                    .filter((task) => task.status === "active" && taskInProjectScope(task, selectedProject.id))
-                    .sort((a, b) => a.order - b.order)
-                    .map((task) => (
-                      <button className="project-task-row" key={task.id} onClick={() => openDetail(task.id)}>
-                        <span className={`project-task-check p${task.priority}`} />
-                        <span><strong>{task.title}</strong><small>{task.date ? formatDate(task.date) : "Без даты"}</small></span>
-                        <b>›</b>
-                      </button>
-                    ))}
-                  <button className="project-add-task" onClick={() => { setQuickProjectId(selectedProject.id); setMobileQuickOpen(true); }}>＋ Добавить задачу</button>
-                </section>
-              )}
-
-              {projectTab === "notes" && (
-                <section className="project-section-card">
-                  <div className="project-section-title">Заметки</div>
-                  {notes.filter((note) => noteInProjectScope(note, selectedProject.id)).length === 0 ? (
-                    <div className="project-empty-row">У проекта пока нет заметок.</div>
-                  ) : notes.filter((note) => noteInProjectScope(note, selectedProject.id)).map((note) => (
-                    <button className="project-note-row" key={note.id} onClick={() => setSelectedNoteId(note.id)}>
-                      <span>{note.kind === "diary" ? "☼" : note.kind === "idea" ? "✦" : "✎"}</span>
-                      <div><strong>{note.title}</strong><small>{noteKindLabels[note.kind]}{note.projectId ? " · " + projectPath(projects, note.projectId) : ""}</small></div>
-                    </button>
-                  ))}
-                  <button className="project-add-task" onClick={() => { setNoteKind("note"); setNoteProjectId(selectedProject.id); setNoteCreateOpen(true); }}>＋ Добавить заметку</button>
-                </section>
-              )}
-
-              {projectTab === "photos" && (
-                <section className="project-section-card">
-                  <div className="project-section-title">Фото и файлы</div>
-                  {renderAttachmentsPanel({ type: "project", id: selectedProject.id })}
-                </section>
-              )}
-
-              {projectTab === "goals" && (
-                <section className="project-section-card">
-                  <div className="project-section-title">Цели проекта</div>
-                  {goals.filter((goal) => goal.projectId === selectedProject.id).map((goal) => (
-                    <div className="goal-row" key={goal.id}>
-                      <div><strong>{goal.title}</strong><small>{goal.progress}% выполнено</small></div>
-                      <div className="goal-progress"><span style={{ width: goal.progress + "%" }} /></div>
-                      <input aria-label="Прогресс цели" type="range" min="0" max="100" value={goal.progress} onChange={(event) => patchGoal(goal.id, { progress: Number(event.target.value) })} />
-                    </div>
-                  ))}
-                  <form className="goal-add-form" onSubmit={addGoal}>
-                    <input value={goalTitle} onChange={(event) => setGoalTitle(event.target.value)} placeholder="Новая цель проекта" />
-                    <button disabled={!goalTitle.trim()}>Добавить</button>
-                  </form>
-                </section>
-              )}
-
-              {projectTab === "history" && (
-                <section className="project-section-card">
-                  <div className="project-section-title">История проекта</div>
-                  {[
-                    ...tasks.filter((task) => task.projectId === selectedProject.id).map((task) => ({ id: "t-" + task.id, at: task.updatedAt, icon: "✓", title: task.title, meta: task.status === "done" ? "Задача выполнена" : "Задача изменена" })),
-                    ...notes.filter((note) => note.projectId === selectedProject.id).map((note) => ({ id: "n-" + note.id, at: note.updatedAt, icon: "✎", title: note.title, meta: noteKindLabels[note.kind] })),
-                    ...goals.filter((goal) => goal.projectId === selectedProject.id).map((goal) => ({ id: "g-" + goal.id, at: goal.updatedAt, icon: "◎", title: goal.title, meta: "Цель · " + goal.progress + "%" }))
-                  ].sort((a, b) => b.at.localeCompare(a.at)).map((event) => (
-                    <div className="history-row" key={event.id}>
-                      <span>{event.icon}</span>
-                      <div><strong>{event.title}</strong><small>{event.meta}</small></div>
-                      <time>{new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short" }).format(new Date(event.at))}</time>
-                    </div>
-                  ))}
-                </section>
-              )}
-            </>
-          )}
-        </section>
-
-        <section className={`mobile-module-screen notes-screen ${mobileSection === "notes" ? "active" : ""}`} aria-hidden={mobileSection !== "notes"}>
-          <header className="module-page-header">
-            <div><span>Личная база знаний</span><h2>Заметки</h2></div>
-            <button aria-label="Создать заметку" onClick={openNewNote}>＋</button>
-          </header>
-
-          <div className="section-tabs notes-tabs" role="tablist" aria-label="Типы заметок">
-            {([
-              ["all", "Все"],
-              ["ideas", "Идеи"],
-              ["diary", "Дневник"],
-              ["collections", "Коллекции"],
-              ["lists", "Списки"],
-              ["favorites", "Важное"]
-            ] as Array<[NoteView, string]>).map(([value, label]) => (
-              <button key={value} className={noteView === value ? "active" : ""} onClick={() => setNoteView(value)}>{label}</button>
-            ))}
-          </div>
-
-          {noteView === "collections" && (
-            <div className="collection-presets">
-              {["Рецепты", "Книги", "Фильмы", "Клиенты"].map((name, index) => (
-                <button key={name} onClick={() => { setNoteKind("collection"); setNoteTitle(name); setNoteProjectId(null); setNoteCreateOpen(true); }}>
-                  <span>{["⌑","▤","▷","◎"][index]}</span><strong>{name}</strong><small>Коллекция</small>
-                </button>
-              ))}
-            </div>
-          )}
-
-          <div className="notes-grid">
-            {visibleNotes.length === 0 ? (
-              <div className="module-empty-card"><strong>Здесь пока пусто</strong><span>Создай первую запись через кнопку «+».</span></div>
-            ) : visibleNotes.map((note) => (
-              <article className={`note-card note-kind-${note.kind}`} key={note.id} onClick={() => setSelectedNoteId(note.id)}>
-                <div className="note-card-top">
-                  <span>{note.kind === "diary" ? "☼" : note.kind === "idea" ? "✦" : note.kind === "collection" ? "▦" : note.kind === "list" ? "☷" : "✎"}</span>
-                  <small>{noteKindLabels[note.kind]}</small>
-                  <button className={note.favorite ? "favorite active" : "favorite"} aria-label={note.favorite ? "Убрать из важного" : "Добавить в важное"} onClick={(event) => { event.stopPropagation(); setNotes((current) => current.map((item) => item.id === note.id ? { ...item, favorite: !item.favorite, updatedAt: nowIso() } : item)); }}>☆</button>
-                </div>
-                <h3>{note.title}</h3>
-                {note.body && <p>{note.body}</p>}
-                <footer>
-                  <span>{note.date ? formatDate(note.date) : new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short" }).format(new Date(note.updatedAt))}</span>
-                  {note.projectId && <span>{projectPath(projects, note.projectId)}</span>}
-                </footer>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className={`mobile-module-screen photos-screen ${mobileSection === "photos" ? "active" : ""}`} aria-hidden={mobileSection !== "photos"}>
-          <header className="module-page-header">
-            <button className="module-back-button" onClick={() => setMobileSection("home")} aria-label="Назад">←</button>
-            <div><span>Визуальная память</span><h2>Фото</h2></div>
-            <button aria-label="Добавить фото" onClick={() => setToast("Загрузка фото — следующий функциональный шаг")}>＋</button>
-          </header>
-          <div className="section-tabs photo-tabs">
-            {["Все", "Последние", "По проектам", "По сферам", "Альбомы", "Без проекта"].map((label, index) => (
-              <button key={label} className={index === 0 ? "active" : ""}>{label}</button>
-            ))}
-          </div>
-          <div className="photo-architecture-card">
-            <div className="photo-architecture-icon">▧</div>
-            <div>
-              <strong>Единая фотогалерея</strong>
-              <p>Фото хранится один раз и может быть прикреплено к проекту, задаче или заметке.</p>
-            </div>
-          </div>
-          {attachments.filter((item) => item.mime.startsWith("image/")).length === 0 ? (
-            <div className="module-empty-card">
-              <strong>Фото пока нет</strong>
-              <span>Прикрепи фото внутри сферы, задачи или заметки — оно появится здесь автоматически.</span>
-            </div>
-          ) : (
-            <div className="global-photo-grid">
-              {attachments.filter((item) => item.mime.startsWith("image/")).map((item) => (
-                <article key={item.id}>
-                  <img src={item.dataUrl} alt={item.name} />
-                  <div><strong>{item.name}</strong><small>{item.links.map((ref) => entityTitle(ref)).join(" · ")}</small></div>
-                </article>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section className={`mobile-module-screen calendar-screen ${mobileSection === "calendar" ? "active" : ""}`} aria-hidden={mobileSection !== "calendar"}>
-          <DesktopCalendar
-            tasks={tasks}
-            projects={projects}
-            dates={desktopCalendarDates}
-            title={desktopCalendarTitle}
-            dayCount={desktopCalendarDayCount}
-            timezoneLabel={timezoneLabel}
-            todayIso={isoToday()}
-            onOpenTask={openDetail}
-            onCreateTask={openCalendarTaskCreator}
-            onToday={chooseTodayPeriod}
-            onMovePeriod={moveDesktopCalendarPeriod}
-            onSetPeriod={setDesktopCalendarPeriod}
-          />
-
-          <div className="mobile-calendar-view">
-          <header className="module-page-header calendar-page-header">
-            <button className="module-back-button" onClick={() => setMobileSection("home")} aria-label="Назад">←</button>
-            <div><span>Время и хронология</span><h2>Календарь</h2></div>
-            <button onClick={() => setCalendarCursor(new Date())}>Сегодня</button>
-          </header>
-
-          <div className="section-tabs calendar-tabs">
-            {([
-              ["day", "День"],
-              ["week", "Неделя"],
-              ["month", "Месяц"],
-              ["history", "История"]
-            ] as Array<[CalendarMode, string]>).map(([value, label]) => (
-              <button key={value} className={calendarMode === value ? "active" : ""} onClick={() => setCalendarMode(value)}>{label}</button>
-            ))}
-          </div>
-
-          {calendarMode === "month" && (
-            <section className="calendar-month-card">
-              <header className="calendar-month-head">
-                <button aria-label="Предыдущий месяц" onClick={() => setMonthOffset(-1)}>←</button>
-                <h3>{calendarTitle}</h3>
-                <button aria-label="Следующий месяц" onClick={() => setMonthOffset(1)}>→</button>
-              </header>
-              <div className="calendar-weekdays">{["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map((day) => <span key={day}>{day}</span>)}</div>
-              <div className="calendar-grid">
-                {calendarCells.map((cell) => {
-                  const cellTasks = tasks.filter((task) => task.status === "active" && task.date === cell.iso);
-                  return (
-                    <button className={`calendar-cell ${cell.inMonth ? "" : "muted"} ${cell.iso === isoToday() ? "today" : ""}`} key={cell.iso}>
-                      <strong>{cell.day}</strong>
-                      {cellTasks.length > 0 && <span>{cellTasks.length}</span>}
-                      {cellTasks.slice(0, 1).map((task) => <small key={task.id}>{task.title}</small>)}
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-          )}
-
-          {calendarMode === "day" && (
-            <section className="calendar-list-card">
-              <div className="calendar-list-title"><strong>Сегодня</strong><span>{todayTasks.length} {russianPlural(todayTasks.length, "задача", "задачи", "задач")}</span></div>
-              {todayTasks.length === 0 ? <p className="project-empty-row">На сегодня ничего не запланировано.</p> : todayTasks.map((task) => (
-                <button className="calendar-event-row" key={task.id} onClick={() => openDetail(task.id)}>
-                  <time>{task.time ?? "—"}</time><div><strong>{task.title}</strong><small>{task.projectId ? projectPath(projects, task.projectId) : "Без проекта"}</small></div><b>›</b>
-                </button>
-              ))}
-            </section>
-          )}
-
-          {calendarMode === "week" && (
-            <section className="calendar-week-list">
-              {weekDates.map((day) => {
-                const dayTasks = tasks.filter((task) => task.status === "active" && task.date === day.iso);
-                return (
-                  <div className="calendar-week-row" key={day.iso}>
-                    <div><strong>{day.short}</strong><span>{day.day}</span></div>
-                    <div>{dayTasks.length === 0 ? <small>Свободно</small> : dayTasks.map((task) => <button key={task.id} onClick={() => openDetail(task.id)}>{task.time ?? "—"} · {task.title}</button>)}</div>
-                  </div>
-                );
-              })}
-            </section>
-          )}
-
-          {calendarMode === "history" && (
-            <section className="calendar-list-card history-timeline">
-              <div className="calendar-list-title"><strong>История СФЕРЫ</strong><span>последние изменения</span></div>
-              {historyEvents.map((event) => (
-                <div className="history-row" key={event.id}>
-                  <span>{event.icon}</span>
-                  <div><strong>{event.title}</strong><small>{event.meta}</small></div>
-                  <time>{new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short" }).format(new Date(event.at))}</time>
-                </div>
-              ))}
-            </section>
-          )}
-
-          </div>
-        </section>
-
-        <section className={`mobile-module-screen relations-screen ${mobileSection === "relations" ? "active" : ""}`} aria-hidden={mobileSection !== "relations"}>
-          <header className="module-page-header">
-            <button className="module-back-button" onClick={() => setMobileSection("home")} aria-label="Назад">←</button>
-            <div><span>Связанные объекты</span><h2>Связи</h2></div>
-            <span className="relations-count">{relationGraphObjects.length}</span>
-          </header>
-
-          {relationGraphObjects.length === 0 ? (
-            <div className="module-empty-card">
-              <strong>Объектов пока нет</strong>
-              <span>Создай сферу, проект, задачу или заметку — они сразу появятся на карте.</span>
-            </div>
-          ) : (
-            <>
-              <RelationsGraph
-                relations={relations}
-                objects={relationGraphObjects}
-                structureEdges={relationGraphStructureEdges}
-                getTitle={graphEntityTitle}
-                getTypeLabel={entityTypeLabel}
-                onOpen={openLinkedObject}
-              />
-              <details className="relations-list-disclosure">
-                <summary>Ручные связи · {relations.length}</summary>
-                {relations.length === 0 ? (
-                  <div className="relations-list-empty">Ручных связей пока нет. Пунктирные связи на карте строятся автоматически из структуры проектов.</div>
-                ) : (
-                  <div className="relations-page-list">
-                    {relations.map((relation) => (
-                      <article className="relations-page-card" key={relation.id}>
-                        <button onClick={() => openLinkedObject(relation.a)}>
-                          <small>{entityTypeLabel(relation.a.type)}</small>
-                          <strong>{entityTitle(relation.a)}</strong>
-                        </button>
-                        <span className="relation-arrow">↔</span>
-                        <button onClick={() => openLinkedObject(relation.b)}>
-                          <small>{entityTypeLabel(relation.b.type)}</small>
-                          <strong>{entityTitle(relation.b)}</strong>
-                        </button>
-                        <button
-                          className="relation-delete"
-                          aria-label="Удалить связь"
-                          onClick={() => setRelations((current) => current.filter((item) => item.id !== relation.id))}
-                        >×</button>
-                      </article>
-                    ))}
-                  </div>
-                )}
-              </details>
-            </>
-          )}
-        </section>
-
-        <button className="fab" aria-label="Быстрое добавление" onClick={() => setQuickMenuOpen(true)}>＋</button>
-
-        <nav className="bottom-nav mobile-tabbar" aria-label="Основная навигация">
-          <button className={mobileSection === "projects" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("projects"); setSettingsOpen(false); }}><span>◇</span>Сферы</button>
-          <button className={mobileSection === "tasks" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("tasks"); setSettingsOpen(false); }}><span>✓</span>Задачи</button>
-          <button className={mobileSection === "notes" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("notes"); setSettingsOpen(false); }}><span>✎</span>Заметки</button>
-          <button className={mobileSection === "photos" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("photos"); setSettingsOpen(false); }}><span>▧</span>Фото</button>
-        </nav>
-
-        {quickMenuOpen && (
-          <div className="mobile-quick-backdrop" onClick={() => setQuickMenuOpen(false)}>
-            <div className="mobile-quick-sheet quick-type-sheet" onClick={(event) => event.stopPropagation()}>
-              <div className="mobile-sheet-handle" />
-              <div className="mobile-quick-head"><strong>Что добавить?</strong><button onClick={() => setQuickMenuOpen(false)}>Отмена</button></div>
-              <div className="quick-type-grid">
-                <button onClick={() => {
-                  setQuickMenuOpen(false);
-                  setQuickProjectId(mobileSection === "projects" && selectedProject ? selectedProject.id : null);
-                  setMobileQuickOpen(true);
-                }}><span>✓</span><strong>Задачу</strong><small>Дело, дата, приоритет</small></button>
-                <button onClick={() => { setQuickMenuOpen(false); setNoteKind("note"); setNoteProjectId(mobileSection === "projects" && selectedProject ? selectedProject.id : null); setNoteCreateOpen(true); }}><span>✎</span><strong>Заметку</strong><small>Мысль или запись</small></button>
-                <button onClick={() => { setQuickMenuOpen(false); setNoteKind("diary"); setNoteProjectId(mobileSection === "projects" && selectedProject ? selectedProject.id : null); setNoteCreateOpen(true); }}><span>☼</span><strong>Дневник</strong><small>Запись сегодняшнего дня</small></button>
-                <button onClick={() => { setQuickMenuOpen(false); setMobileSection("photos"); setToast("Открыт раздел фото"); }}><span>▧</span><strong>Фото</strong><small>Визуальные материалы</small></button>
-                <button onClick={() => { setQuickMenuOpen(false); setProjectParentId(selectedProject?.id ?? ""); setProjectCreateOpen(true); }}><span>◇</span><strong>Проект</strong><small>Сфера или подпроект</small></button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {noteCreateOpen && (
-          <div className="mobile-quick-backdrop" onClick={() => setNoteCreateOpen(false)}>
-            <form className="mobile-quick-sheet note-create-sheet" onSubmit={addNote} onClick={(event) => event.stopPropagation()}>
-              <div className="mobile-sheet-handle" />
-              <div className="mobile-quick-head">
-                <strong>Новая запись</strong>
-                <button type="button" onClick={() => setNoteCreateOpen(false)}>Отмена</button>
-              </div>
-              <div className="note-kind-picker">
-                {([
-                  ["note", "Заметка"],
-                  ["idea", "Идея"],
-                  ["diary", "Дневник"],
-                  ["collection", "Коллекция"],
-                  ["list", "Список"]
-                ] as Array<[NoteKind, string]>).map(([value, label]) => (
-                  <button type="button" key={value} className={noteKind === value ? "active" : ""} onClick={() => setNoteKind(value)}>{label}</button>
-                ))}
-              </div>
-              <input className="project-title-input" autoFocus value={noteTitle} onChange={(event) => setNoteTitle(event.target.value)} placeholder="Название" />
-              <textarea value={noteBody} onChange={(event) => setNoteBody(event.target.value)} placeholder="Текст, мысль, список..." rows={5} />
-              <div className="project-parent-select">
-                <span>Основное расположение</span>
-                {renderProjectLocationPicker(noteProjectId ?? "", (value) => setNoteProjectId(value || null), "Без проекта")}
-              </div>
-              <button className="mobile-add-submit" disabled={!noteTitle.trim()}>Сохранить</button>
-            </form>
-          </div>
-        )}
-
-        {projectCreateOpen && (
-          <div className="mobile-quick-backdrop" onClick={() => setProjectCreateOpen(false)}>
-            <form className="mobile-quick-sheet project-create-sheet" onSubmit={addProject} onClick={(event) => event.stopPropagation()}>
-              <div className="mobile-sheet-handle" />
-              <div className="mobile-quick-head">
-                <strong>{projectParentId ? "Новый подпроект" : "Новая сфера жизни"}</strong>
-                <button type="button" onClick={() => setProjectCreateOpen(false)}>Отмена</button>
-              </div>
-              <input
-                className="project-title-input"
-                autoFocus
-                value={projectTitle}
-                onChange={(event) => setProjectTitle(event.target.value)}
-                placeholder={projectParentId ? "Название проекта" : "Например: Семья"}
-              />
-              <div className="project-parent-select">
-                <span>Расположение</span>
-                {renderProjectLocationPicker(projectParentId, setProjectParentId, "Корень · новая сфера жизни")}
-              </div>
-              <button className="mobile-add-submit" disabled={!projectTitle.trim()}>
-                {projectParentId ? "Создать проект" : "Создать сферу"}
-              </button>
-            </form>
-          </div>
-        )}
-
-        {projectEditOpen && selectedProject && (
-          <div className="mobile-quick-backdrop" onClick={() => setProjectEditOpen(false)}>
-            <form className="mobile-quick-sheet project-create-sheet" onSubmit={saveProjectEdit} onClick={(event) => event.stopPropagation()}>
-              <div className="mobile-sheet-handle" />
-              <div className="mobile-quick-head">
-                <strong>Редактировать проект</strong>
-                <button type="button" onClick={() => setProjectEditOpen(false)}>Отмена</button>
-              </div>
-              <input className="project-title-input" autoFocus value={editProjectTitle} onChange={(event) => setEditProjectTitle(event.target.value)} placeholder="Название" />
-              <div className="project-parent-select">
-                <span>Расположение</span>
-                {renderProjectLocationPicker(
-                  editProjectParentId,
-                  setEditProjectParentId,
-                  "Корень · сфера жизни",
-                  new Set([selectedProject.id, ...projectDescendants(projects, selectedProject.id).map((item) => item.id)])
-                )}
-              </div>
-              <button className="mobile-add-submit" disabled={!editProjectTitle.trim()}>Сохранить</button>
-              <button type="button" className="danger-sheet-button" onClick={() => deleteProjectNode(selectedProject)}>Удалить проект</button>
-            </form>
-          </div>
-        )}
-
-        {calendarComposerOpen && (
-          <div className="calendar-popover-layer" onClick={closeCalendarTaskComposer}>
-            <form
-              ref={calendarComposerRef}
-              className="calendar-task-popover"
-              style={{ left: calendarComposerPosition.left, top: calendarComposerPosition.top }}
-              onSubmit={addTask}
-              onClick={(event) => event.stopPropagation()}
-            >
-              <div className="calendar-popover-top">
-                <span className="calendar-drag-mark">≡</span>
-                <button type="button" className="calendar-popover-close" onClick={closeCalendarTaskComposer} aria-label="Закрыть">×</button>
-              </div>
-
-              <input
-                className="calendar-popover-title"
-                autoFocus
-                value={quickTitle}
-                onChange={(event) => setQuickTitle(event.target.value)}
-                placeholder="Добавьте название"
-              />
-
-              <div className="calendar-popover-tabs">
-                <button type="button" className="active">Задача</button>
-                <button type="button" onClick={() => setToast("События добавим отдельным типом объекта")}>Событие</button>
-                <button type="button" onClick={() => setToast("Расписание встреч — следующий слой календаря")}>Расписание встреч</button>
-              </div>
-
-              <div className="calendar-popover-rows">
-                <div className="calendar-popover-row calendar-date-row">
-                  <span className="calendar-row-icon">◷</span>
-                  <div className="calendar-date-controls">
-                    <input type="date" value={quickDate} onChange={(event) => setQuickDate(event.target.value)} />
-                    {quickTime ? (
-                      <div className="calendar-time-range">
-                        <input type="time" value={quickTime} onChange={(event) => setQuickTime(event.target.value)} />
-                        <span>–</span>
-                        <strong>{calendarEndTime()}</strong>
-                      </div>
-                    ) : (
-                      <button type="button" className="calendar-all-day-pill">Весь день</button>
-                    )}
-                    <small>{timezoneLabel} · не повторять</small>
-                  </div>
-                </div>
-
-                <div className="calendar-popover-row">
-                  <span className="calendar-row-icon">◇</span>
-                  <div className="calendar-row-content">
-                    <span className="calendar-row-label">Проект</span>
-                    {renderProjectLocationPicker(quickProjectId ?? "", (value) => setQuickProjectId(value || null), "Без проекта")}
-                  </div>
-                </div>
-
-                <div className="calendar-popover-row">
-                  <span className="calendar-row-icon">⚑</span>
-                  <div className="calendar-row-content">
-                    <span className="calendar-row-label">Приоритет</span>
-                    <div className="quick-priority-picker calendar-priority-picker" role="group" aria-label="Приоритет">
-                      {([1, 2, 3, 4] as Priority[]).map((priority) => (
-                        <button
-                          type="button"
-                          key={priority}
-                          className={`quick-priority-choice p${priority} ${quickPriority === priority ? "active" : ""}`}
-                          onClick={() => setQuickPriority(priority)}
-                          title={priorityLabels[priority]}
-                        >⚑</button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="calendar-popover-row">
-                  <span className="calendar-row-icon">↔</span>
-                  <div className="calendar-row-content calendar-link-inline">
-                    <span className="calendar-row-label">Связь</span>
-                    <select value={quickRelationType} onChange={(event) => { setQuickRelationType(event.target.value as EntityType); setQuickRelationTargetId(""); }}>
-                      <option value="project">Проект</option>
-                      <option value="task">Задача</option>
-                      <option value="note">Заметка</option>
-                    </select>
-                    <select value={quickRelationTargetId} onChange={(event) => setQuickRelationTargetId(event.target.value)}>
-                      <option value="">Не выбрана</option>
-                      {relationTargetOptions(quickRelationType, { type: "task", id: "__new__" }).map((option) => (
-                        <option key={option.id} value={option.id}>{option.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {quickOptionsOpen && (
-                  <div className="calendar-popover-row">
-                    <span className="calendar-row-icon">▦</span>
-                    <div className="calendar-row-content">
-                      <span className="calendar-row-label">Дедлайн</span>
-                      <input className="calendar-deadline-input" type="date" value={quickDeadline} onChange={(event) => setQuickDeadline(event.target.value)} />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <footer className="calendar-popover-footer">
-                <button type="button" className="calendar-more-settings" onClick={() => setQuickOptionsOpen((value) => !value)}>
-                  {quickOptionsOpen ? "Скрыть параметры" : "Другие параметры"}
-                </button>
-                <button type="submit" className="calendar-save-button" disabled={!quickTitle.trim()}>Сохранить</button>
-              </footer>
-            </form>
-          </div>
-        )}
-
-        {mobileQuickOpen && (
-          <div className="mobile-quick-backdrop" onClick={() => setMobileQuickOpen(false)}>
-            <form className="mobile-quick-sheet" onSubmit={addTask} onClick={(event) => event.stopPropagation()}>
-              <div className="mobile-sheet-handle" />
-              <div className="mobile-quick-head">
-                <div>
-                  <strong>Новая задача</strong>
-                  {quickProjectId && <small>{projectPath(projects, quickProjectId)}</small>}
-                </div>
-                <button type="button" onClick={() => { setMobileQuickOpen(false); setQuickProjectId(null); setQuickPriority(4); setQuickDate(""); setQuickTime(""); setQuickDeadline(""); setQuickRelationType("project"); setQuickRelationTargetId(""); setQuickOptionsOpen(false); }}>Отмена</button>
-              </div>
-              <textarea
-                autoFocus
-                value={quickTitle}
-                onChange={(event) => setQuickTitle(event.target.value)}
-                placeholder="Что нужно сделать?"
-                rows={3}
-              />
-              {(quickDate || quickTime) && (
-                <div className="calendar-create-context">
-                  {quickDate && <span>▦ {new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long" }).format(isoDate(quickDate))}</span>}
-                  {quickTime && <span>◴ {quickTime}</span>}
-                </div>
-              )}
-              <button
-                type="button"
-                className="mobile-more-options"
-                onClick={() => setQuickOptionsOpen((value) => !value)}
-              >{quickOptionsOpen ? "Скрыть параметры" : "Параметры"}</button>
-              {quickOptionsOpen && (
-                <div className="mobile-quick-options">
-                  <label><span>Дата</span><input type="date" value={quickDate} onChange={(event) => setQuickDate(event.target.value)} /></label>
-                  <label><span>Время</span><input type="time" value={quickTime} onChange={(event) => setQuickTime(event.target.value)} /></label>
-                  <label><span>Дедлайн</span><input type="date" value={quickDeadline} onChange={(event) => setQuickDeadline(event.target.value)} /></label>
-                  <div className="quick-options-project">
-                    <span>Проект</span>
-                    {renderProjectLocationPicker(quickProjectId ?? "", (value) => setQuickProjectId(value || null), "Без проекта")}
-                  </div>
-                  <div className="quick-options-priority">
-                    <span>Приоритет</span>
-                    <div className="quick-priority-picker" role="group" aria-label="Приоритет">
-                      {([1, 2, 3, 4] as Priority[]).map((priority) => (
-                        <button
-                          type="button"
-                          key={priority}
-                          className={`quick-priority-choice p${priority} ${quickPriority === priority ? "active" : ""}`}
-                          onClick={() => setQuickPriority(priority)}
-                          title={priorityLabels[priority]}
-                        >⚑</button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="quick-options-link">
-                    <span>Связь</span>
-                    <select value={quickRelationType} onChange={(event) => { setQuickRelationType(event.target.value as EntityType); setQuickRelationTargetId(""); }}>
-                      <option value="project">Проект</option>
-                      <option value="task">Задача</option>
-                      <option value="note">Заметка</option>
-                    </select>
-                    <select value={quickRelationTargetId} onChange={(event) => setQuickRelationTargetId(event.target.value)}>
-                      <option value="">Не выбрана</option>
-                      {relationTargetOptions(quickRelationType, { type: "task", id: "__new__" }).map((option) => (
-                        <option key={option.id} value={option.id}>{option.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              )}
-              <button className="mobile-add-submit" disabled={!quickTitle.trim()}>Добавить задачу</button>
-            </form>
-          </div>
-        )}
-      </main>
-
-      <section className={`mobile-settings-screen ${settingsOpen ? "open" : ""}`} aria-hidden={!settingsOpen}>
-        <header className="mobile-settings-header">
-          <div />
-          <h2>Настройки</h2>
-          <button onClick={() => setSettingsOpen(false)}>Готово</button>
-        </header>
-        <div className="mobile-settings-content">
-          <div className="settings-card">
-            <button><span className="settings-icon">◎</span><span>Аккаунт</span><b>›</b></button>
-            <button><span className="settings-icon">⚙</span><span>Основное</span><b>›</b></button>
-            <button onClick={() => { setSettingsOpen(false); openCalendar("month"); }}><span className="settings-icon">▦</span><span>Календарь</span><b>›</b></button>
-          </div>
-
-          <p className="settings-section-label">ПОЛЬЗОВАТЕЛЬСКИЕ НАСТРОЙКИ</p>
-          <div className="settings-card">
-            <button><span className="settings-icon">◐</span><span>Тема</span><em>Системная</em><b>›</b></button>
-            <button><span className="settings-icon">▤</span><span>Навигация</span><b>›</b></button>
-            <button><span className="settings-icon">⊞</span><span>Быстрое добавление</span><b>›</b></button>
-          </div>
-
-          <p className="settings-section-label">ПРОДУКТИВНОСТЬ</p>
-          <div className="settings-card">
-            <button><span className="settings-icon">↗</span><span>Продуктивность</span><b>›</b></button>
-            <button><span className="settings-icon">◴</span><span>Напоминания</span><b>›</b></button>
-            <button><span className="settings-icon">♢</span><span>Уведомления</span><b>›</b></button>
-          </div>
-
-          <div className="settings-card settings-spaced">
-            <button><span className="settings-icon">?</span><span>Поддержка и обратная связь</span><b>›</b></button>
-            <button><span className="settings-icon">i</span><span>О СФЕРЕ</span><b>›</b></button>
-            <button><span className="settings-icon">↻</span><span>Синхронизация</span><small>Локальные данные</small><b>›</b></button>
-          </div>
-        </div>
-      </section>
-
-      <aside className={`detail-pane note-detail ${selectedNote ? "open" : ""}`} aria-hidden={!selectedNote}>
-        {selectedNote && (
-          <>
-            <header className="detail-header">
-              <button className="back-button" onClick={() => setSelectedNoteId(null)} aria-label="Назад">←</button>
-              <div className="detail-breadcrumb"><span>Заметка</span></div>
-              <button className="icon-button danger-text" onClick={() => deleteNote(selectedNote)} aria-label="Удалить заметку">⌫</button>
-            </header>
-            <div className="detail-content">
-              <input
-                className="note-detail-title"
-                value={selectedNote.title}
-                onChange={(event) => patchNote(selectedNote.id, { title: event.target.value })}
-              />
-              <textarea
-                className="note-detail-body"
-                value={selectedNote.body}
-                onChange={(event) => patchNote(selectedNote.id, { body: event.target.value })}
-                placeholder="Текст заметки..."
-                rows={8}
-              />
-              <div className="note-detail-properties">
-                <label>
-                  <span>Тип</span>
-                  <select value={selectedNote.kind} onChange={(event) => patchNote(selectedNote.id, { kind: event.target.value as NoteKind })}>
-                    {Object.entries(noteKindLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-                  </select>
-                </label>
-                <div className="project-property-picker">
-                  <span>Основное расположение</span>
-                  {renderProjectLocationPicker(selectedNote.projectId ?? "", (value) => patchNote(selectedNote.id, { projectId: value || null }), "Без проекта")}
-                </div>
-              </div>
-              {renderRelationsPanel({ type: "note", id: selectedNote.id })}
-              {renderAttachmentsPanel({ type: "note", id: selectedNote.id })}
-            </div>
-          </>
-        )}
-      </aside>
-      {selectedNote && <button className="detail-backdrop note-backdrop" aria-label="Закрыть заметку" onClick={() => setSelectedNoteId(null)} />}
-
-      <aside className={`detail-pane todo-detail ${selected ? "open" : ""}`} aria-hidden={!selected}>
-        {selected && (
-          <>
-            <header className="detail-header">
-              <button className="back-button" onClick={closeDetail} aria-label="Назад к задачам">←</button>
-              <div className="detail-breadcrumb">
-                {selectedParent ? (
-                  <button onClick={() => openDetail(selectedParent.id)}>{selectedParent.title}</button>
-                ) : (
-                  <span>Задача</span>
-                )}
-              </div>
-              <details className="task-menu">
-                <summary className="icon-button" aria-label="Меню задачи">⋯</summary>
-                <div className="task-menu-popover">
-                  <button onClick={() => duplicateTask(selected)}>Дублировать</button>
-                  <button onClick={() => copyTaskLink(selected)}>Копировать ссылку</button>
-                  {selected.recurrence && <button onClick={() => completeTask(selected, true)}>Выполнить навсегда</button>}
-                  <button className="danger" onClick={() => deleteTask(selected)}>Удалить</button>
-                </div>
-              </details>
-            </header>
-
-            <div className="detail-content">
-              <div className="detail-title-row">
-                {selected.uncompletable ? (
-                  <span className="uncompletable-mark large">◆</span>
-                ) : (
-                  <button
-                    className={`check-button priority-ring p${selected.priority} ${selected.status === "done" ? "checked" : ""}`}
-                    onClick={() => completeTask(selected)}
-                    aria-label="Изменить статус"
-                  >
-                    {selected.status === "done" ? "✓" : ""}
-                  </button>
-                )}
-                <textarea
-                  id="task-title"
-                  className="detail-title"
-                  value={selected.title}
-                  onChange={(event) => patchTask(selected.id, { title: event.target.value })}
-                  rows={2}
-                />
-              </div>
-
-              <textarea
-                className="detail-description"
-                value={selected.description}
-                onChange={(event) => patchTask(selected.id, { description: event.target.value })}
-                placeholder="Описание"
-                rows={3}
-              />
-
-              <div className="task-chips">
-                <label className="task-chip">
-                  <span>Дата</span>
-                  <input type="date" value={selected.date ?? ""} onChange={(event) => patchTask(selected.id, { date: event.target.value || null })} />
-                </label>
-                <label className="task-chip">
-                  <span>Время</span>
-                  <input type="time" value={selected.time ?? ""} onChange={(event) => patchTask(selected.id, { time: event.target.value || null })} />
-                </label>
-                <label className="task-chip">
-                  <span>Дедлайн</span>
-                  <input type="date" value={selected.deadline ?? ""} onChange={(event) => patchTask(selected.id, { deadline: event.target.value || null })} />
-                </label>
-                <label className="task-chip compact">
-                  <span>Приоритет</span>
-                  <div className="detail-priority-picker" role="group" aria-label="Приоритет">
-                    {([1, 2, 3, 4] as Priority[]).map((priority) => (
-                      <button
-                        type="button"
-                        key={priority}
-                        className={`detail-priority-option p${priority} ${selected.priority === priority ? "active" : ""}`}
-                        onClick={() => patchTask(selected.id, { priority })}
-                        aria-pressed={selected.priority === priority}
-                      >
-                        <span className="priority-dot" aria-hidden="true" />
-                        <span>{priorityLabels[priority]}</span>
-                      </button>
-                    ))}
-                  </div>
-                </label>
-                <label className="task-chip compact">
-                  <span>Длительность</span>
-                  <select
-                    value={selected.durationMinutes ?? ""}
-                    onChange={(event) => patchTask(selected.id, { durationMinutes: event.target.value ? Number(event.target.value) : null })}
-                    disabled={!selected.date || !selected.time}
-                    title={!selected.date || !selected.time ? "Сначала укажи дату и время" : ""}
-                  >
-                    <option value="">—</option>
-                    <option value="15">15 мин</option>
-                    <option value="30">30 мин</option>
-                    <option value="45">45 мин</option>
-                    <option value="60">1 ч</option>
-                    <option value="90">1,5 ч</option>
-                    <option value="120">2 ч</option>
-                    <option value="240">4 ч</option>
-                    <option value="480">8 ч</option>
-                  </select>
-                </label>
-              </div>
-
-              <section className="detail-section property-section project-property">
-                <div className="project-property-picker">
-                  <span>Проект</span>
-                  {renderProjectLocationPicker(selected.projectId ?? "", (value) => setTaskProject(selected, value || null), "Без проекта")}
-                </div>
-                {selected.projectId && (
-                  <button className="open-project-button" onClick={() => { setSelectedProjectId(selected.projectId); setMobileSection("projects"); closeDetail(); }}>
-                    ◇ {projectPath(projects, selected.projectId)}
-                  </button>
-                )}
-              </section>
-
-              {renderRelationsPanel({ type: "task", id: selected.id })}
-              {renderAttachmentsPanel({ type: "task", id: selected.id })}
-
-              <section className="detail-section property-section">
-                <label>
-                  <span>Повтор</span>
-                  <input
-                    value={selected.recurrence ?? ""}
-                    onChange={(event) => patchTask(selected.id, { recurrence: event.target.value || null })}
-                    placeholder="каждый день, каждую неделю, every monday…"
-                  />
-                </label>
-                {selected.recurrence && (
-                  <label className="switch-line">
-                    <input
-                      type="checkbox"
-                      checked={selected.resetSubtasks}
-                      onChange={(event) => patchTask(selected.id, { resetSubtasks: event.target.checked })}
-                    />
-                    <span>Сбрасывать прямые подзадачи при новом повторе</span>
-                  </label>
-                )}
-              </section>
-
-              <section className="detail-section property-section">
-                <label>
-                  <span>Метки</span>
-                  <input
-                    value={selected.labels.join(", ")}
-                    onChange={(event) => patchTask(selected.id, {
-                      labels: event.target.value.split(",").map((item) => item.trim()).filter(Boolean)
-                    })}
-                    placeholder="работа, звонки, дом"
-                  />
-                </label>
-              </section>
-
-              <section className="detail-section subtasks-section">
-                <div className="section-heading">
-                  <h3>Подзадачи</h3>
-                  <span>{childrenOf(tasks, selected.id).filter((item) => item.status === "active").length} активных</span>
-                </div>
-
-                <div className="selected-subtasks">
-                  {childrenOf(tasks, selected.id)
-                    .filter((item) => item.status === "active" || selected.showCompletedSubtasks)
-                    .map((subtask) => (
-                      <div className="subtask-line" key={subtask.id}>
-                        {subtask.uncompletable ? (
-                          <span className="uncompletable-mark">◆</span>
-                        ) : (
-                          <button
-                            className={`check-button priority-ring p${subtask.priority} ${subtask.status === "done" ? "checked" : ""}`}
-                            aria-label={subtask.status === "done" ? `Вернуть подзадачу «${subtask.title}»` : `Выполнить подзадачу «${subtask.title}»`}
-                            onClick={() => completeTask(subtask)}
-                          >
-                            {subtask.status === "done" ? "✓" : ""}
-                          </button>
-                        )}
-                        <button className={subtask.status === "done" ? "done" : ""} onClick={() => openDetail(subtask.id)}>
-                          {subtask.title}
-                        </button>
-                        <button className="mini-action" onClick={() => moveSibling(subtask, -1)} title="Выше">↑</button>
-                        <button className="mini-action" onClick={() => moveSibling(subtask, 1)} title="Ниже">↓</button>
-                      </div>
-                    ))}
-                </div>
-
-                {childrenOf(tasks, selected.id).some((item) => item.status === "done") && (
-                  <button
-                    className="text-button"
-                    onClick={() => patchTask(selected.id, { showCompletedSubtasks: !selected.showCompletedSubtasks })}
-                  >
-                    {selected.showCompletedSubtasks ? "Скрыть выполненные" : "Показать выполненные подзадачи"}
-                  </button>
-                )}
-
-                <form className="subtask-add" onSubmit={(event) => { event.preventDefault(); addSubtask(selected); }}>
-                  <span>＋</span>
-                  <input
-                    value={subtaskTitle}
-                    onChange={(event) => setSubtaskTitle(event.target.value)}
-                    placeholder="Добавить подзадачу"
-                  />
-                  <button disabled={!subtaskTitle.trim()}>Добавить</button>
-                </form>
-              </section>
-
-              <section className="detail-section hierarchy-section">
-                <h3>Положение в дереве</h3>
-                <div className="hierarchy-actions">
-                  <button onClick={() => moveSibling(selected, -1)}>↑ Выше</button>
-                  <button onClick={() => moveSibling(selected, 1)}>↓ Ниже</button>
-                  <button onClick={() => indentTask(selected)} disabled={childrenOf(tasks, selected.parentId).findIndex((item) => item.id === selected.id) <= 0}>→ Сделать подзадачей</button>
-                  <button onClick={() => outdentTask(selected)} disabled={!selected.parentId}>← На уровень выше</button>
-                </div>
-              </section>
-
-              <section className="detail-section reminders-section">
-                <div className="section-heading">
-                  <h3>Напоминания</h3>
-                  <button className="text-button" onClick={() => addReminder(selected)}>＋ Добавить</button>
-                </div>
-                {selected.reminders.length === 0 ? (
-                  <p className="muted">Напоминаний нет.</p>
-                ) : (
-                  <div className="reminder-list">
-                    {selected.reminders.map((reminder) => (
-                      <div key={reminder.id}>
-                        <input
-                          type="datetime-local"
-                          value={dateTimeLocalValue(reminder.at)}
-                          onChange={(event) => patchTask(selected.id, {
-                            reminders: selected.reminders.map((item) =>
-                              item.id === reminder.id ? { ...item, at: dateTimeLocalToIso(event.target.value) } : item
-                            )
-                          })}
-                        />
-                        <button
-                          aria-label="Удалить напоминание"
-                          onClick={() => patchTask(selected.id, {
-                            reminders: selected.reminders.filter((item) => item.id !== reminder.id)
-                          })}
-                        >×</button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </section>
-
-              <section className="detail-section comments-section">
-                <div className="section-heading">
-                  <h3>Комментарии</h3>
-                  <span>{selected.comments.length}</span>
-                </div>
-                <div className="comments-list">
-                  {selected.comments.map((comment) => (
-                    <article key={comment.id}>
-                      <p>{comment.body}</p>
-                      <time>{new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(comment.createdAt))}</time>
-                    </article>
-                  ))}
-                </div>
-                <form className="comment-add" onSubmit={(event) => { event.preventDefault(); addComment(selected); }}>
-                  <textarea value={commentBody} onChange={(event) => setCommentBody(event.target.value)} placeholder="Добавить комментарий…" rows={2} />
-                  <button disabled={!commentBody.trim()}>Отправить</button>
-                </form>
-              </section>
-
-              <section className="detail-section history">
-                <h3>Сведения</h3>
-                <div><span>Создано</span><strong>{new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short" }).format(new Date(selected.createdAt))}</strong></div>
-                <div><span>Изменено</span><strong>{new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(selected.updatedAt))}</strong></div>
-                <div><span>Уровень</span><strong>{depthOf(tasks, selected)}</strong></div>
-              </section>
-            </div>
-          </>
-        )}
-      </aside>
-
-      {selected && <button className="detail-backdrop" aria-label="Закрыть детали" onClick={closeDetail} />}
-      {toast && <div className="toast" role="status">{toast}</div>}
-    </div>
-  );
-}
-}]--]
--�"�����6��/	��B"���S�-
-
-
--=�
-�
-	�=�"�����6��/	��R"���S�-	������=��R"�����6��/	��b"���S�-
-=�-
-��
-�
-	�=�"�����6��/	��r"���S�-	���]M���
-}]--]
--�"�����6��/	�ɂ"���S�-
-=�-
-����
-]
-�"Х�26��7C���gV�7F��������6Tf�"�FFS�FFR���6��7B7���F�4���F��#��S3S���S3��6��7B���v��Wt����WF2�FFR�UD2�#��b���B���6��7B��6�����WF2�FFR�UD2�FFR�vWDgV�ŖV"���FFR�vWD���F����FFR�vWDFFR���"���6��7BF�56��6T�Wt��������6�����WF2����v��Wt����WF2���e�C���6��7BvR���F�56��6T�Wt����R7���F�4���F���7���F�4���F��R7���F�4���F���6��7B�6T��FW���F��f���"��vR�7���F�4���F������R�R���&WGW&������6W5��6T��FW�Ӱ�Р�gV�7F���&V6V�D7F�f�G��&VC�7G&��r���6��7BFFR��WrFFR�B����b��V�&W"�4��FFR�vWEF��R����&WGW&�-�]M
--��#��6��7B7F�f�G�F����6ė6�FFR���6��7BF�F���6�F�F������b�7F�f�G�F����F�F��&WGW&�-]=�M��#���b�7F�f�G�F����FDF�4�6�F�F�����&WGW&�--}]
-#��&WGW&��Wr��F��FFUF��Tf�&�B�''R�%R"��F��&�V�W&�2"����F��'6��'B"Ґ��f�&�B�FFR���&W�6R�"�"�""���Р�gV�7F���&��E7�W&T�B�&��V7G3�&��V7D��FU���&��V7D�C�7G&��r��V���V�FVf��VB����b�&��V7D�B�&WGW&��V�ð��WB7W'&V�B�&��V7G2�f��B���FVҒ���FV��B���&��V7D�B���6��7B6VV���Wr6WC�7G&��sₓ��v���R�7W'&V�C��&V�D�Bbb6VV��2�7W'&V�B�B����6VV��FB�7W'&V�B�B���7W'&V�B�&��V7G2�f��B���FVҒ���FV��B���7W'&V�B�&V�D�B���Т&WGW&�7W'&V�C��B���V�ð�Р�gV�7F���7�W&UF��R�&��V7G3�&��V7D��FU���&��V7D�C�7G&��r��V���V�FVf��VB���6��7B&��D�B�&��E7�W&T�B�&��V7G2�&��V7D�B����b�&��D�B�&WGW&�&�WWG&�#��6��7B&��G2�&��V7D6���G&V�&��V7G2��V���6��7B��FW���F������&��G2�f��D��FW����FVҒ���FV��B���&��D�B����&WGW&��'FV�"�&w&VV�"�'f���WB"�&6�&�"�&�&W""�&&�VR%ն��FW�ReӰ�Р�gV�7F���FFUF��T��6�f�VR�C�7G&��r���6��7BB��WrFFR�B���6��7B�fg6WB�B�vWEF��W���T�fg6WB����&WGW&��WrFFR�B�vWEF��R����fg6WB�c���F��4�7G&��r���6Ɩ6R��b���Р�gV�7F���FFUF��T��6�F��6�f�VS�7G&��r���&WGW&�f�VR��WrFFR�f�VR��F��4�7G&��r���"#��Р�W��'BgV�7F�������6��7B�F6�2�6WEF6�5��W6U7FFS�F6���₂���&VEF6�2�����6��7B�f��FW"�6WDf��FW%��W6U7FFS�f��FW#�&��"���6��7B�F6�f�Wr�6WEF6�f�Wu��W6U7FFS�F6�f�Ws�&��"���6��7B�6V�V7FVD�B�6WE6V�V7FVD�E��W6U7FFS�7G&��r��V��₂�����6��7B�F6����6F����6���F6����7F6�҂ⲒB򓰢&WGW&��F6��FV6�FUU$�6����V�B��F6��Ғ��V�ð�ғ��6��7B�V�6�F�F�R�6WEV�6�F�F�U��W6U7FFR�""���6��7B�V�6�&��&�G��6WEV�6�&��&�G���W6U7FFS�&��&�G��B���6��7B�V�6��F���4�V��6WEV�6��F���4�V���W6U7FFR�f�6R���6��7B�V�6�FFR�6WEV�6�FFU��W6U7FFR�""���6��7B�V�6�F��R�6WEV�6�F��U��W6U7FFR�""���6��7B�V�6�FVFƖ�R�6WEV�6�FVFƖ�U��W6U7FFR�""���6��7B�6�V�F$6���6W$�V��6WD6�V�F$6���6W$�V���W6U7FFR�f�6R���6��7B�6�V�F$6���6W%�6�F����6WD6�V�F$6���6W%�6�F�����W6U7FFR���VgC�3c�F��#ғ��6��7B6�V�F$6���6W%&Vb�W6U&VcąD��f�&�V�V�V�B��V����V���6��7B�V�6�&V�F���G�R�6WEV�6�&V�F���G�U��W6U7FFS�V�F�G�G�S�'&��V7B"���6��7B�V�6�&V�F���F&vWD�B�6WEV�6�&V�F���F&vWD�E��W6U7FFR�""���6��7B�&��V7Ef�Wr�6WE&��V7Ef�Wu��W6U7FFS�&w&�B"�&Ɨ7B#₂�����G'��&WGW&���6�7F�&vR�vWD�FV҂'6fW&�&��V7Ef�Wr"����&Ɨ7B"�&Ɨ7B"�&w&�B#��6F6��&WGW&�&w&�B#�Тғ��6��7B�&V�F���2�6WE&V�F���5��W6U7FFS�&V�F����₂���&VE&V�F���2�����6��7B�GF6��V�G2�6WDGF6��V�G5��W6U7FFS�GF6��V�E��₂���&VDGF6��V�G2�����6��7B�Ɩ�G�R�6WDƖ�G�U��W6U7FFS�V�F�G�G�S�'&��V7B"���6��7B�Ɩ�F&vWD�B�6WDƖ�F&vWD�E��W6U7FFR�""���6��7B�6V�V7FVD��FT�B�6WE6V�V7FVD��FT�E��W6U7FFS�7G&��r��V����V���6��7B�&��V7DVF�D�V��6WE&��V7DVF�D�V���W6U7FFR�f�6R���6��7B�VF�E&��V7EF�F�R�6WDVF�E&��V7EF�F�U��W6U7FFR�""���6��7B�VF�E&��V7E&V�D�B�6WDVF�E&��V7E&V�D�E��W6U7FFR�""���6��7B�7V'F6�F�F�R�6WE7V'F6�F�F�U��W6U7FFR�""���6��7B�6���V�D&�G��6WD6���V�D&�G���W6U7FFR�""���6��7B�VW'��6WEVW'���W6U7FFR�""���6��7B�6V&6��V��6WE6V&6��V���W6U7FFR�f�6R���6��7B�F�7B�6WEF�7E��W6U7FFR�""���6��7B�G&vvVD�B�6WDG&vvVD�E��W6U7FFS�7G&��r��V����V���6��7B���&��UV�6��V��6WD��&��UV�6��V���W6U7FFR�f�6R���6��7B�V�6��V�T�V��6WEV�6��V�T�V���W6U7FFR�f�6R���6��7B�6WGF��w4�V��6WE6WGF��w4�V���W6U7FFR�f�6R���6��7B���&��U6V7F����6WD��&��U6V7F�����W6U7FFS�6V7F����&���R"���6��7B�&��V7G2�6WE&��V7G5��W6U7FFS�&��V7D��FU��₂���&VE&��V7G2�����6��7B�6V�V7FVE&��V7D�B�6WE6V�V7FVE&��V7D�E��W6U7FFS�7G&��r��V����V���6��7B�&��V7D7&VFT�V��6WE&��V7D7&VFT�V���W6U7FFR�f�6R���6��7B�&��V7EF�F�R�6WE&��V7EF�F�U��W6U7FFR�""���6��7B�&��V7E&V�D�B�6WE&��V7E&V�D�E��W6U7FFR�""���6��7B�V�6�&��V7D�B�6WEV�6�&��V7D�E��W6U7FFS�7G&��r��V����V���6��7B���FW2�6WD��FW5��W6U7FFS���FU��₂���&VD��FW2�����6��7B�v��2�6WDv��5��W6U7FFS�v�ŵ�₂���&VDv��2�����6��7B���FUf�Wr�6WD��FUf�Wu��W6U7FFS���FUf�Ws�&��"���6��7B���FT7&VFT�V��6WD��FT7&VFT�V���W6U7FFR�f�6R���6��7B���FUF�F�R�6WD��FUF�F�U��W6U7FFR�""���6��7B���FT&�G��6WD��FT&�G���W6U7FFR�""���6��7B���FT���B�6WD��FT���E��W6U7FFS���FT���C�&��FR"���6��7B���FU&��V7D�B�6WD��FU&��V7D�E��W6U7FFS�7G&��r��V����V���6��7B�&��V7EF"�6WE&��V7EF%��W6U7FFS�&��V7EF#�&�fW'f�Wr"���6��7B�v��F�F�R�6WDv��F�F�U��W6U7FFR�""���6��7B�6�V�F$��FR�6WD6�V�F$��FU��W6U7FFS�6�V�F$��FS�&���F�"���6��7B�6�V�F$7W'6�"�6WD6�V�F$7W'6�%��W6U7FFR������WrFFR�����6��7B�6�V�F%&�vU7F'B�6WD6�V�F%&�vU7F'E��W6U7FFR������6�F�F������6��7B�6�V�F%&�vTV�B�6WD6�V�F%&�vTV�E��W6U7FFR�����FDF�4�6�6�F�F����b����6��7B�6�V�F%�6���tV�B�6WD6�V�F%�6���tV�E��W6U7FFR�f�6R���6��7B�&�f��T��R�6WE&�f��T��U��W6U7FFR�������G'���&WGW&���6�7F�&vR�vWD�FV҅$�d��U���U�5D�$tU��U����G&�҂���-	�
-=
-#���6F6���&WGW&�-	�
-=
-#��Тғ��6��7B�&�f��TG&gB�6WE&�f��TG&gE��W6U7FFR�&�f��T��R���6��7B�&�f��T�V�T�V��6WE&�f��T�V�T�V���W6U7FFR�f�6R���6��7B�F�ǔf�7W2�6WDF�ǔf�7W5��W6U7FFR�������G'���6��7B7F�&VB��4���'6R���6�7F�&vR�vWD�FV҄D�ŕ�d�5U5�5D�$tU��U����&�V��"�2�FFS�7G&��s�FW�C�7G&��r���V�ð�&WGW&�7F�&VC��FFR����6�F�F���bbG�V�b7F�&VB�FW�B���'7G&��r"�7F�&VB�FW�B�"#���6F6���&WGW&�"#��Тғ���W6TVffV7B�������G'�����6�7F�&vR�6WD�FV҅$�d��U���U�5D�$tU��U��&�f��T��R����6F6��Т���&�f��T��Uғ���W6TVffV7B�������G'�����6�7F�&vR�6WD�FV҄D�ŕ�d�5U5�5D�$tU��U���4���7G&��v�g���FFS��6�F�F����FW�C�F�ǔf�7W2Ғ����6F6��Т���F�ǔf�7W5ғ���W6TVffV7B���������6�7F�&vR�6WD�FV҅5D�$tU��U���4���7G&��v�g��F6�2�������F6�5ғ���W6TVffV7B���������6�7F�&vR�6WD�FV҅$��T5E5�5D�$tU��U���4���7G&��v�g��&��V7G2�������&��V7G5ғ���W6TVffV7B���������6�7F�&vR�6WD�FV҄��DU5�5D�$tU��U���4���7G&��v�g����FW2���������FW5ғ���W6TVffV7B���������6�7F�&vR�6WD�FV҄t��5�5D�$tU��U���4���7G&��v�g��v��2�������v��5ғ���W6TVffV7B���������6�7F�&vR�6WD�FV҅$T�D���5�5D�$tU��U���4���7G&��v�g��&V�F���2�������&V�F���5ғ���W6TVffV7B�������G'�����6�7F�&vR�6WD�FV҄ED4��T�E5�5D�$tU��U���4���7G&��v�g��GF6��V�G2�����6F6���6WEF�7B�-	�R
-=M
-���
-�]
-
-��-�
--��m]��S�
-���
-����R
-]
-
-�����R
-}
-����]��"���Т���GF6��V�G5ғ���W6TVffV7B��������b�6V�V7FVE&��V7D�B�6WE&��V7EF"�&�fW'f�Wr"������6V�V7FVE&��V7D�Eғ���W6TVffV7B��������b�F�7B�&WGW&㰢6��7BF��W"�v��F�r�6WEF��V�WB�����6WEF�7B�""��#c���&WGW&�����v��F�r�6�V%F��V�WB�F��W"������F�7Eғ���W6TVffV7B�������6��7B��6��������6��7B�F6����6F����6���F6����7F6�҂ⲒB򓰢6WE6V�V7FVD�B��F6��FV6�FUU$�6����V�B��F6��Ғ��V���Ӱ�v��F�r�FDWfV�DƗ7FV�W"�&�6�6��vR"���6����&WGW&�����v��F�r�&V��fTWfV�DƗ7FV�W"�&�6�6��vR"���6�������ғ���W6TVffV7B�������6��7B��W���WfV�C��W�&�&DWfV�B�����6��7BV��WfV�B�F&vWB2�D��V�V�V�B��V�ð�6��7BG���r�V���Ft��R���$��UB"��V���Ft��R���%DU�D$T"��V���Ft��R���%4T�T5B#���b�G���rbbWfV�B�W��F���vW$66R�����'"���WfV�B�&WfV�DFVfV�B����F�7V�V�B�vWDV�V�V�D'��B�'V�6��FB"���f�7W2����Т�b�WfV�B�W����$W66R"bb6V�V7FVD�B�6��6TFWF����Ӱ�v��F�r�FDWfV�DƗ7FV�W"�&�W�F�v�"���W����&WGW&�����v��F�r�&V��fTWfV�DƗ7FV�W"�&�W�F�v�"���W�������6V�V7FVD�Eғ���6��7B6V�V7FVB�F6�2�f��B��F6����F6��B���6V�V7FVD�B����V�ð�6��7B6V�V7FVE&V�B�6V�V7FVC��&V�D�@��F6�2�f��B��F6����F6��B���6V�V7FVB�&V�D�B����V�����V�ð��6��7B7F�fT6�V�B�F6�2�f��FW"��F6����F6��7FGW2���&7F�fR"���V�wF���6��7B6V�V7FVE&��V7B�6V�V7FVE&��V7D�@��&��V7G2�f��B��&��V7B���&��V7B�B���6V�V7FVE&��V7D�B����V�����V�ð�6��7B6V�V7FVD��FR�6V�V7FVD��FT�@����FW2�f��B����FR�����FR�B���6V�V7FVD��FT�B����V�����V�ð�6��7Bf�GFV�VE&��V7G2�W6T�V�򂂒��f�GFV�&��V7G2�&��V7G2���&��V7G5ғ��6��7BF�F�F6�2�W6T�V������F6�0��f��FW"��F6����F6��7FGW2���&7F�fR"bbF6��FFR����6�F�F������6�'B���"�����F��R��#�����"����6�T6��&R�"�F��R��#�����"�����&FW"�"��&FW"����F6�5Т���6��7B�fW&GVUF6�2�W6T�V������F6�0��f��FW"��F6����F6��7FGW2���&7F�fR"bbF6��FFRbbF6��FFR��6�F�F������6�'B���"�����FFR��""����6�T6��&R�"�FFR��""�����F6�5Т���6��7B&��E7�W&W2�W6T�V�򂂒��&��V7D6���G&V�&��V7G2��V���&��V7G5ғ��6��7BF6�&�&DFFR��Wr��F��FFUF��Tf�&�B�''R�%R"���vVV�F��&���r"��F��&�V�W&�2"�����F��&���r �Ғ�f�&�B��WrFFR�����6��7B�����6R������6Tf�"��WrFFR�����6��7B��W"��WrFFR���vWD��W'2����6��7Bw&VWF��r���W"�"�-	M�
-�R
-=-
-�"���W"���-	M�
-��
-M]��"�-	M�
-��
--]}]#��6��7BF�'B���W"�b�&�v�B"���W"�"�&��&��r"���W"���&F�"�&WfV��r#��6��7BvVV�FFW2�W6T�V�򂂒��7W'&V�EvVV�FFW2����ғ��6��7BvVV�F6�2�W6T�V������F6�2�f��FW"��F6����F6��FFRbbvVV�FFW2�6��R��F����F��6����F6��FFR�����F6�2�vVV�FFW5Т���6��7BvVV�F6�6�V�B�vVV�F6�2�f��FW"��F6����F6��7FGW2���&7F�fR"���V�wF���6��7BvVV�6���WFVD6�V�B�vVV�F6�2�f��FW"��F6����F6��7FGW2���&F��R"���V�wF���6��7BvVV�&�w&W72�vVV�F6�2��V�wF���F��&�V�B��vVV�6���WFVD6�V�B�vVV�F6�2��V�wF�������6��7B6���WFVEF�F�6�V�B�W6T�V������F6�2�f��FW"��F6����F6��7FGW2���&F��R"bbF6��FFR����6�F�F������V�wF����F6�5Т���6��7BF�F�F6�6�V�B�F�F�F6�2��V�wF��6���WFVEF�F�6�V�C��6��7BF�F�&�w&W72�F�F�F6�6�V�B��F��&�V�B��6���WFVEF�F�6�V�B�F�F�F6�6�V�B������6��7BW6�֖�uF6��W6T�V�򂂒����6��7BF�F���6�F�F�����6��7B7W'&V�EF��R��WrFFR���F�F��U7G&��r���6Ɩ6R��R���6��7B6�F�FFW2�F6�0��f��FW"��F6����F6��7FGW2���&7F�fR"bbF6��FFRbbF6��FFR��F�F����6�'B���"�����FFR��""����6�T6��&R�"�FFR��""������F��R��#�����"����6�T6��&R�"�F��R��#�����"������&FW"�"��&FW ����&WGW&�6�F�FFW2�f��B��F6����F6��FFR��F�F���F6��F��R��F6��F��R��7W'&V�EF��R���6�F�FFW5�����V�ð����F6�5ғ��6��7B7�W&U7V��&�W2�W6T�V�򂂒����6��7BF�F���6�F�F�����&WGW&�&��E7�W&W2����7�W&R�����6��7BFW66V�F�G2�&��V7DFW66V�F�G2�&��V7G2�7�W&R�B���6��7B66�T�G2��Wr6WB��7�W&R�B����FW66V�F�G2����&��V7B���&��V7B�B�ғ��6��7B7�W&UF6�2�F6�2�f��FW"��F6����F6��&��V7D�Bbb66�T�G2�2�F6��&��V7D�B����6��7B7F�fUF6�2�7�W&UF6�2�f��FW"��F6����F6��7FGW2���&7F�fR"���6��7B6���WFVD6�V�B�7�W&UF6�2�f��FW"��F6����F6��7FGW2���&F��R"���V�wF���6��7B7�W&T��FW2���FW2�f��FW"����FR�����FR�&��V7D�Bbb66�T�G2�2���FR�&��V7D�B����6��7BFFVD7F�fUF6�2�7F�fUF6�0��f��FW"��F6����F6��FFRbbF6��FFR��F�F����6�'B���"�����FFR��""����6�T6��&R�"�FFR��""������F��R��#�����"����6�T6��&R�"�F��R��#�����"������&FW"�"��&FW ����6��7B�W�EF6��FFVD7F�fUF6�5��������7F�fUF6�5��6�'B���"���"�WFFVDB���6�T6��&R��WFFVDB�������V�ð�6��7B7F�f�G�FFW2���7�W&R�WFFVDB�����FW66V�F�G2����&��V7B���&��V7B�WFFVDB������7�W&UF6�2����F6����F6��WFFVDB������7�W&T��FW2������FR�����FR�WFFVDB����6�'B�����&WGW&���7�W&R��7F�fT6�V�C�7F�fUF6�2��V�wF�����FT6�V�C�7�W&T��FW2��V�wF���F�F�6�V�C�7�W&UF6�2��V�wF���6���WFVD6�V�B��&�w&W73�7�W&UF6�2��V�wF���F��&�V�B��6���WFVD6�V�B�7�W&UF6�2��V�wF��������W�EF6����7D7F�f�G��7F�f�G�FFW2�B�����7�W&R�WFFVD@�Ӱ�ғ�����&��E7�W&W2�&��V7G2�F6�2���FW5ғ��6��7Bf�6�&�T��FW2�W6T�V�򂂒�����b���FUf�Wr���&�FV2"�&WGW&���FW2�f��FW"����FR�����FR涖�B���&�FV"����b���FUf�Wr���&F�'�"�&WGW&���FW2�f��FW"����FR�����FR涖�B���&F�'�"����b���FUf�Wr���&6���V7F���2"�&WGW&���FW2�f��FW"����FR�����FR涖�B���&6���V7F���"����b���FUf�Wr���&Ɨ7G2"�&WGW&���FW2�f��FW"����FR�����FR涖�B���&Ɨ7B"����b���FUf�Wr���&ff�&�FW2"�&WGW&���FW2�f��FW"����FR�����FR�ff�&�FR���&WGW&���FW3�������FW2���FUf�Wuғ��6��7B6�V�F$6V��2�W6T�V�򂂒�����F�6V��2�6�V�F$7W'6�"���6�V�F$7W'6�%ғ��6��7B6�V�F%F�F�R��Wr��F��FFUF��Tf�&�B�''R�%R"�����F��&���r"��V#�&�V�W&�2"Ғ�f�&�B�6�V�F$7W'6�"���6��7BFW6�F�6�V�F$FFW2�W6T�V�򂂒���6�&�vR�6�V�F%&�vU7F'B�6�V�F%&�vTV�B���6�V�F%&�vU7F'B�6�V�F%&�vTV�Eғ��6��7BFW6�F�6�V�F%F�F�R�6�V�F%&�vT�&V6�V�F%&�vU7F'B�6�V�F%&�vTV�B���6��7BFW6�F�6�V�F$F�6�V�B�FW6�F�6�V�F$FFW2��V�wF���6��7BF��W���T��W'2���WrFFR���vWEF��W���T�fg6WB���c��6��7BF��W���T�&V��$t�B"��F��W���T��W'2���"�"�""����V�&W"�4��FVvW"�F��W���T��W'2��F��W���T��W'2�F��W���T��W'2�F�f��VB�����6��7B��7F�'�WfV�G2�W6T�V�򂂒����6��7BF6�WfV�G2�F6�2�f�D���F6������6��7BWfV�G2�����C�'F6��7&VFVB�"�F6��B�C�F6��7&VFVDB��6��.)�2"�F�F�S�F6��F�F�R��WF�-	}
-M
-}
-�}M
-�"ТӰ��b�F6��6���WFVDB�WfV�G2�W6����C�'F6��F��R�"�F6��B�C�F6��6���WFVDB��6��.)�2"�F�F�S�F6��F�F�R��WF�-	}
-M
-}
--�����]�"ғ��&WGW&�WfV�G3��ғ��6��7B��FTWfV�G2���FW2������FR�������C�&��FR�"���FR�B��C���FR�7&VFVDB���6��.)��"��F�F�S���FR�F�F�R���WF���FT���D�&V�5���FR涖�EТҒ���6��7Bv��WfV�G2�v��2����v�������C�&v���"�v���B��C�v���7&VFVDB���6��.)x�"��F�F�S�v���F�F�R���WF�-
-m]�� �Ғ���&WGW&�����F6�WfV�G2������FTWfV�G2����v��WfV�G5Т�f��FW"��WfV�B���WfV�B�B���6�'B���"���"�B���6�T6��&R��B����6Ɩ6R��C������F6�2���FW2�v��5ғ���gV�7F����F6�W4f��FW"�F6��F6����6��7B��&�Ɨ�VB�VW'��G&�҂��F���vW$66R�����b���&�Ɨ�VB���6��7B��7F6����F6��F�F�R��F6��FW67&�F�����F6���&V�2����""�������""��F���vW$66R�����b���7F6���6�VFW2���&�Ɨ�VB��&WGW&�f�6S��Р��b�f��FW"���'F�F�"�&WGW&�F6��7FGW2���&7F�fR"bbF6��FFR����6�F�F������b�f��FW"���&��&��"�&WGW&�F6��7FGW2���&7F�fR"bbF6��FFR����V�ð��b�f��FW"���&�fW&GVR"�&WGW&�F6��7FGW2���&7F�fR"bbF6��FFRbbF6��FFR��6�F�F������b�f��FW"���&F��R"�&WGW&�F6��7FGW2���&F��R#��&WGW&�F6��7FGW2���&7F�fR#��Р�gV�7F����4�F6���tFW66V�F�B�F6��F6����&WGW&�FW66V�F�G4�b�F6�2�F6��B��6��R��F6�W4f��FW"���Р�6��7BF��WfV�f�%f�Wr�W6T�V�򂂒����&WGW&�6���G&V��b�F6�2��V��f��FW"��F6�����F6�W4f��FW"�F6�����4�F6���tFW66V�F�B�F6��������F6�2�f��FW"�VW'�ғ���gV�7F���F6�F6���C�7G&��r�F6��'F���F6����6WEF6�2��7W'&V�B���7W'&V�B����F6����F6��B����B�����F6�����F6��WFFVDC���t�6���F6�������Р�gV�7F���F6�&��V7B��C�7G&��r�F6��'F���&��V7D��FS���6WE&��V7G2��7W'&V�B���7W'&V�B����&��V7B���&��V7B�B����@������&��V7B����F6��WFFVDC���t�6�Т�&��V7@������Р�gV�7F���FE&��V7B�WfV�C�f�&�WfV�B���WfV�C��&WfV�DFVfV�B����6��7BF�F�R�&��V7EF�F�R�G&�҂����b�F�F�R�&WGW&㰢6��7B&V�D�B�&��V7E&V�D�B���V�ð�6��7B&��V7B�7&VFU&��V7B���F�F�R��&V�D�B�����C�&V�D�B�'&��V7B"�'7�W&R"���&FW#��W�E&��V7D�&FW"�&��V7G2�&V�D�B��ғ��6WE&��V7G2��7W'&V�B�������7W'&V�B�&��V7Eғ��6WE&��V7EF�F�R�""���6WE&��V7D7&VFT�V�f�6R���6WE&��V7E&V�D�B�""���6WE6V�V7FVE&��V7D�B�&��V7B�B���6WEF�7B�&V�D�B�-	�
-�]�"
-�}M
-�"�-
-M]
-
-m�}��
-�}M
-�"���Р�gV�7F���6���6UF6�f�Wr�f�Ws�F6�f�Wr���6WEF6�f�Wr�f�Wr����b�f�Wr���'vVV�"�&WGW&㰢6WDf��FW"�f�Wr���Р�gV�7F���FD��FR�WfV�C�f�&�WfV�B���WfV�C��&WfV�DFVfV�B����6��7BF�F�R���FUF�F�R�G&�҂����b�F�F�R�&WGW&㰢6��7B��FR�7&VFT��FR���F�F�R��&�G����FT&�G��G&�҂������C���FT���B��&��V7D�C���FU&��V7D�B��FFS���FT���B���&F�'�"��6�F�F�����V���ғ��6WD��FW2��7W'&V�B������FR����7W'&V�Eғ��6WD��FUF�F�R�""���6WD��FT&�G��""���6WD��FT���B�&��FR"���6WD��FU&��V7D�B��V���6WD��FT7&VFT�V�f�6R���6WD��FUf�Wr���FR涖�B���&�FV"�&�FV2"���FR涖�B���&F�'�"�&F�'�"���FR涖�B���&6���V7F���"�&6���V7F���2"���FR涖�B���&Ɨ7B"�&Ɨ7G2"�&��"���6WD��&��U6V7F���&��FW2"���6WEF�7B�-	}
-���
-�]
-
-�]�"���Р�gV�7F���FDv�WfV�C�f�&�WfV�B���WfV�C��&WfV�DFVfV�B����6��7BF�F�R�v��F�F�R�G&�҂����b�F�F�R��6V�V7FVE&��V7B�&WGW&㰢6��7Bv���7&VFTv���F�F�R��&��V7D�C�6V�V7FVE&��V7B�B��&�w&W73� �ғ��6WDv��2��7W'&V�B����v������7W'&V�Eғ��6WDv��F�F�R�""���6WEF�7B�-
-m]��
-M�
--�]�"���Р�gV�7F���F6�v��C�7G&��r�F6��'F���v�����6WDv��2��7W'&V�B���7W'&V�B����v���v���B����B�����v������F6��WFFVDC���t�6���v�������Р�gV�7F����V�6�V�F"���FS�6�V�F$��FR�&���F�"���6WD6�V�F$��FR���FR���6WD��&��U6V7F���&6�V�F""���Р�gV�7F���6WD���F��fg6WB�FV�F��V�&W"���6WD6�V�F$7W'6�"��7W'&V�B����WrFFR�7W'&V�B�vWDgV�ŖV"���7W'&V�B�vWD���F����FV�F�����Р�gV�7F���6WDFW6�F�6�V�F%W&��B�7F'C�7G&��r�F�3��V�&W"���6��7B6fTF�2��F�������F��֖�B�F�2����6WD6�V�F%&�vU7F'B�7F'B���6WD6�V�F%&�vTV�B�FDF�4�6�7F'B�6fTF�2�����6WD6�V�F%�6���tV�B�f�6R���6WD6�V�F$7W'6�"��6�FFR�7F'B����Р�gV�7F���6V�V7D֖�6�V�F$F���6�7G&��r����b�6�V�F%�6���tV�B���6WD6�V�F%&�vU7F'B��6򓰢6WD6�V�F%&�vTV�B��6򓰢6WD6�V�F%�6���tV�B�G'VR���6WD6�V�F$7W'6�"��6�FFR��6򒓰�&WGW&㰢Р�6��7B�6��"�6�V�F%&�vU7F'C���WB7F'B��6��"���6���6��"��6��WBV�B��6��"���6���6���6��#���b���6�W6�fTF�6�V�B�7F'B�V�B��B����b��6����6��"�V�B�FDF�4�6��6��"�2���V�6R7F'B�FDF�4�6��6��"��2���Т6WD6�V�F%&�vU7F'B�7F'B���6WD6�V�F%&�vTV�B�V�B���6WD6�V�F%�6���tV�B�f�6R���6WD6�V�F$7W'6�"��6�FFR�7F'B����Р�gV�7F�����fTFW6�F�6�V�F%W&��B�F�&V7F��������6��7BF�2���6�W6�fTF�6�V�B�6�V�F%&�vU7F'B�6�V�F%&�vTV�B���6��7B�W�E7F'B�FDF�4�6�6�V�F%&�vU7F'B�F�2�F�&V7F��⓰�6WDFW6�F�6�V�F%W&��B��W�E7F'B�F�2���Р�gV�7F���6���6UF�F�W&��B����6WDFW6�F�6�V�F%W&��B��6�F�F����FW6�F�6�V�F$F�6�V�B���Р�gV�7F���6WEF6�&��V7B�F6��F6��&��V7D�C�7G&��r��V���6��7B�G2��Wr6WB��F6��B����FW66V�F�G4�b�F6�2�F6��B������FVҒ���FV��B�ғ��6WEF6�2��7W'&V�B���7W'&V�B�����FVҒ���G2�2��FV��B�������FV��&��V7D�B�WFFVDC���t�6�Т��FVТ�����6WEF�7B�&��V7D�B�-	�
-�]�"
-�
-}�
-}]�"�-	}
-M
-}
-]r
-�
-�]�-"���Р�gV�7F���&��V7EF6�6�V�B�&��V7D�C�7G&��r���6�VFT6���G&V��G'VR���6��7B�G2��Wr6WB��&��V7D�Eғ���b���6�VFT6���G&V���&��V7DFW66V�F�G2�&��V7G2�&��V7D�B��f�$V6���&��V7B����G2�FB�&��V7B�B����Т&WGW&�F6�2�f��FW"��F6����F6��7FGW2���&7F�fR"bbF6��&��V7D�Bbb�G2�2�F6��&��V7D�B����V�wF���Р�gV�7F���&��V7E66�T�G2�&��V7D�C�7G&��r���&WGW&��Wr6WB��&��V7D�B����&��V7DFW66V�F�G2�&��V7G2�&��V7D�B�����&��V7B���&��V7B�B�ғ��Р�gV�7F���F6���&��V7E66�R�F6��F6��&��V7D�C�7G&��r���6��7B�G2�&��V7E66�T�G2�&��V7D�B����b�F6��&��V7D�Bbb�G2�2�F6��&��V7D�B��&WGW&�G'VS��&WGW&�'&��g&�҆�G2��6��R���B���&TƖ�VB�&V�F���2��G�S�'F6�"��C�F6��B���G�S�'&��V7B"��BҒ���Р�gV�7F�����FT��&��V7E66�R���FS���FR�&��V7D�C�7G&��r���6��7B�G2�&��V7E66�T�G2�&��V7D�B����b���FR�&��V7D�Bbb�G2�2���FR�&��V7D�B��&WGW&�G'VS��&WGW&�'&��g&�҆�G2��6��R���B���&TƖ�VB�&V�F���2��G�S�&��FR"��C���FR�B���G�S�'&��V7B"��BҒ���Р�gV�7F���&��V7D��FT6�V�B�&��V7D�C�7G&��r���&WGW&���FW2�f��FW"����FR�����FT��&��V7E66�R���FR�&��V7D�B����V�wF���Р�gV�7F���V�F�G�F�F�R�&Vc��&�V7E&Vb����b�&Vb�G�R���'&��V7B"���6��7B&��V7B�&��V7G2�f��B���FVҒ���FV��B���&Vb�B���&WGW&�&��V7B�&��V7EF��&��V7G2�&��V7B�B��-
-=M
-�����
-�
-�]�"#��Т�b�&Vb�G�R���'F6�"�&WGW&�F6�2�f��B���FVҒ���FV��B���&Vb�B���F�F�R��-
-=M
-���
-�
-}
-M
-}#��&WGW&���FW2�f��B���FVҒ���FV��B���&Vb�B���F�F�R��-
-=M
-���
-�
-}
-�]-�#��Р�gV�7F���w&�V�F�G�F�F�R�&Vc��&�V7E&Vb����b�&Vb�G�R���'&��V7B"���&WGW&�&��V7G2�f��B���FVҒ���FV��B���&Vb�B���F�F�R��-
-=M
-�����
-�
-�]�"#��Т�b�&Vb�G�R���'F6�"�&WGW&�F6�2�f��B���FVҒ���FV��B���&Vb�B���F�F�R��-
-=M
-���
-�
-}
-M
-}#��&WGW&���FW2�f��B���FVҒ���FV��B���&Vb�B���F�F�R��-
-=M
-���
-�
-}
-�]-�#��Р�gV�7F���V�F�G�G�T�&VG�S�V�F�G�G�R���&WGW&�G�R���'&��V7B"�-
-M]
-�
-�
-�]�""�G�R���'F6�"�-	}
-M
-}"�-	}
-�]-�#��Р�gV�7F���&V�F���F&vWD�F���2�G�S�V�F�G�G�R�6�W&6S��&�V7E&Vb����b�G�R���'&��V7B"���&WGW&�f�GFV�VE&��V7G0��f��FW"���&��V7BҒ���6�W&6R�G�R���'&��V7B"bb6�W&6R�B���&��V7B�B��������&��V7B�F�Ғ�����C�&��V7B�B��&VâF�Ғ���Т�b�G�R���'F6�"���&WGW&�F6�0��f��FW"��F6�����6�W&6R�G�R���'F6�"bb6�W&6R�B���F6��B�������F6�������C�F6��B��&VâF6��F�F�RҒ���Т&WGW&���FW0��f��FW"����FR����6�W&6R�G�R���&��FR"bb6�W&6R�B�����FR�B���������FR������C���FR�B��&Vâ��FR�F�F�RҒ���Р�gV�7F���FD�&�V7E&V�F���6�W&6S��&�V7E&Vb����b�Ɩ�F&vWD�B�&WGW&㰢6��7BF&vWC��&�V7E&Vb��G�S�Ɩ�G�R��C�Ɩ�F&vWD�BӰ��b�6�W&6R�G�R���F&vWB�G�Rbb6�W&6R�B���F&vWB�B�&WGW&㰢�b�&TƖ�VB�&V�F���2�6�W&6R�F&vWB����6WEF�7B�-
-�-
--�}�
-=mR
-=�]--=]""���&WGW&㰢Т6WE&V�F���2��7W'&V�B�������7W'&V�B�7&VFU&V�F���6�W&6R�F&vWB�ғ��6WDƖ�F&vWD�B�""���6WEF�7B�-
--�}�
-M�
--�]�"���Р�gV�7F����V�Ɩ�VD�&�V7B�&Vc��&�V7E&Vb����b�&Vb�G�R���'&��V7B"���6WE6V�V7FVE&��V7D�B�&Vb�B���6WD��&��U6V7F���'&��V7G2"���6WE6V�V7FVD��FT�B��V����b�6V�V7FVD�B�6��6TFWF����&WGW&㰢Т�b�&Vb�G�R���'F6�"���6WE6V�V7FVD��FT�B��V����V�FWF�&Vb�B���&WGW&㰢Т6WE6V�V7FVD��FT�B�&Vb�B����b�6V�V7FVD�B�6��6TFWF����Р�gV�7F���&V�FW%&V�F���5�V6�W&6S��&�V7E&Vb���6��7BƖ�VB�&V�F���4f�"�&V�F���2�6�W&6R���6��7B�F���2�&V�F���F&vWD�F���2�Ɩ�G�R�6�W&6R���&WGW&����6V7F���6�74��S�&FWF���6V7F���Ɩ�VB��&�V7G2�6V7F���#��F�b6�74��S�'6V7F���ֆVF��r#�ƃ3�
--�}����3��7��Ɩ�VB��V�wF����7����F�c��Ɩ�VB��V�wF��bb���F�b6�74��S�&Ɩ�VB��&�V7B�Ɨ7B#��Ɩ�VB����&V�F�������6��7B&Vb��F�W%&Vb�&V�F����6�W&6R���&WGW&����F�b6�74��S�&Ɩ�VB��&�V7B�6��"�W�׷&V�F����G���'WGF����6Ɩ6�ײ�����V�Ɩ�VD�&�V7B�&Vb����6����V�F�G�G�T�&V&Vb�G�R����6�����7G&��s�V�F�G�F�F�R�&Vb����7G&��s���'WGF����'WGF��6�74��S�&Ɩ�VB�&V��fR �&���&V��-
-=M
-��-�
--�}� ���6Ɩ6�ײ����6WE&V�F���2��7W'&V�B���7W'&V�B�f��FW"���FVҒ���FV��B��&V�F����B��Т�9s��'WGF�����F�c����җТ��F�c��Т�F�b6�74��S�&Ɩ���&�V7B�f�&�#��6V�V7Bf�VS׶Ɩ�G�W���6��vSײ�WfV�B����6WDƖ�G�R�WfV�B�F&vWB�f�VR2V�F�G�G�R��6WDƖ�F&vWD�B�""�������F���f�VS�'&��V7B#�
-M]
-�
-�
-�]�#���F������F���f�VS�'F6�#�	}
-M
-}���F������F���f�VS�&��FR#�	}
-�]-����F������6V�V7C��6V�V7Bf�VS׶Ɩ�F&vWD�G���6��vSײ�WfV�B���6WDƖ�F&vWD�B�WfV�B�F&vWB�f�VR�����F���f�VS�"#�	-�
-
--�
-��]�.(
-c���F������F���2�����F�������F���f�VS׶�F����G��W�׶�F����G���F�����&V�����F����Т��6V�V7C��'WGF��F�6&�VCײƖ�F&vWD�G���6Ɩ6�ײ����FD�&�V7E&V�F���6�W&6R���
--�}
--���'WGF�����F�c���6V7F�������Р�7��2gV�7F���GF6�f��W2�&Vc��&�V7E&Vb�f��TƗ7C�f��TƗ7B��V����b�f��TƗ7C���V�wF��&WGW&㰢6��7Bf��W2�'&��g&�҆f��TƗ7B���6��7B66WFVC�GF6��V�E����Ӱ�f�"�6��7Bf��R�bf��W2����b�f��R�6��R��#����6WEF�7B�-
-M
-��
-������
-������
-M��
-���
-����=�
-�
-�-�-��(	B
-�
-���=��"
-	�	"���6��F��VS��Т6��7BFFW&��v�B�Wr&�֗6S�7G&��s₇&W6��fR�&V�V7B�����6��7B&VFW"��Wrf��U&VFW"����&VFW"�����B�����&W6��fR�7G&��r�&VFW"�&W7V�B��""����&VFW"���W'&�"�����&V�V7B�&VFW"�W'&�"���&VFW"�&VD4FFU$f��R���ғ��66WFVB�W6�����C�7'�F��&�F��UT�B������S�f��R���R��֖�S�f��R�G�R��&Ɩ6F�����7FWB�7G&V�"��6��S�f��R�6��R��FFW&���Ɩ�3��&Ve���7&VFVDC��WrFFR���F��4�7G&��r���ғ��Т�b�66WFVB��V�wF����6WDGF6��V�G2��7W'&V�B�������66WFVB����7W'&V�Eғ��6WEF�7B�66WFVB��V�wF�����-
-M
-��
-�
-��
-]���"�-
-M
-���
-�
-��
-]��]��"���ТР�gV�7F���&V��fTGF6��V�Dg&�҇&Vc��&�V7E&Vb�GF6��V�D�C�7G&��r���6WDGF6��V�G2��7W'&V�B���7W'&V�@�����GF6��V�B���GF6��V�B�B���GF6��V�D�B�&V��fTGF6��V�DƖ沆GF6��V�B�&Vb��GF6��V�B���f��FW"��GF6��V�B���GF6��V�B�Ɩ�2��V�wF������Р�gV�7F���&V�FW$GF6��V�G5�V&Vc��&�V7E&Vb���6��7B�FV�2�GF6��V�G4f�"�GF6��V�G2�&Vb���&WGW&����6V7F���6�74��S�&FWF���6V7F����&�V7B�GF6��V�G2�6V7F���#��F�b6�74��S�'6V7F���ֆVF��r#�ƃ3�
-M
-���
-�
-M�-����3��7�綗FV�2��V�wF����7����F�c���FV�2��V�wF��bb���F�b6�74��S�&�&�V7B�GF6��V�B�w&�B#���FV�2����GF6��V�B������'F�6�R6�74��S�&�&�V7B�GF6��V�B"�W�׶GF6��V�B�G���GF6��V�B�֖�R�7F'G5v�F��&��vR�"����Ɩ�r7&3׶GF6��V�B�FFW&���C׶GF6��V�B���W��������7�6�74��S�&GF6��V�B�f��R֖6��#�)jC��7���Т�F�c��7G&��s�GF6��V�B���W���7G&��s��6�����F�������F��&�V�B�GF6��V�B�6��R�#B���
-	�	��6������F�c���&Vc׶GF6��V�B�FFW&��F�v���C׶GF6��V�B���W�&���&V��-	�-�
-�-�
-M
-��#�(is����'WGF����6Ɩ6�ײ����&V��fTGF6��V�Dg&�҇&Vb�GF6��V�B�B��&���&V��-	�-�
-]��-�
-M
-��#�9s��'WGF�����'F�6�S���Т��F�c��Т��&V�6�74��S�&GF6��V�B�W��B#��7���Ȳ
-	�
-��
-]��-�
-M�-�
-���
-M
-����7��Ɩ�W@�G�S�&f��R ��V�F��P�66WC�&��vR���Fb��G�B��F�2��F�7����2���7��禗 ���6��vSײ�WfV�B����f��BGF6�f��W2�&Vb�WfV�B�7W'&V�EF&vWB�f��W2��WfV�B�7W'&V�EF&vWB�f�VR�"#��Т�����&V���6���6�74��S�&GF6��V�B�Ɩ֗B#�
-]�}
-
-���
-����
-M��"
-	�	
-�
-M
-���
-	=����-�R
-
-
-
-��M
-�-���(	B
-�]M=����
-���
-�-��
-��M]�����6������6V7F�������Р�gV�7F���F6���FR��C�7G&��r�F6��'F�����FS���6WD��FW2��7W'&V�B���7W'&V�B������FR�����FR�B����B�������FR����F6��WFFVDC���t�6�����FR����Р�gV�7F���FV�WFT��FR���FS���FR����b�v��F�r�6��f�&҆
-=M
-��-�
-}
-�]-�2*�G���FR�F�F�W�+����&WGW&㰢6��7B&Vc��&�V7E&Vb��G�S�&��FR"��C���FR�BӰ�6WD��FW2��7W'&V�B���7W'&V�B�f��FW"���FVҒ���FV��B����FR�B����6WE&V�F���2��7W'&V�B���&V��fU&V�F���4f�"�7W'&V�B�&Vb����6WDGF6��V�G2��7W'&V�B���7W'&V�@�����GF6��V�B���&V��fTGF6��V�DƖ沆GF6��V�B�&Vb����f��FW"��GF6��V�B���GF6��V�B�Ɩ�2��V�wF������6WE6V�V7FVD��FT�B��V���6WEF�7B�-	}
-�]-�
-=M
-�]�"���Р�gV�7F����V�&��V7DVF�F�"�&��V7C�&��V7D��FR���6WDVF�E&��V7EF�F�R�&��V7B�F�F�R���6WDVF�E&��V7E&V�D�B�&��V7B�&V�D�B��""���6WE&��V7DVF�D�V�G'VR���Р�gV�7F���6fU&��V7DVF�B�WfV�C�f�&�WfV�B���WfV�C��&WfV�DFVfV�B�����b�6V�V7FVE&��V7B�&WGW&㰢6��7BF�F�R�VF�E&��V7EF�F�R�G&�҂����b�F�F�R�&WGW&㰢6��7B��fƖE&V�G2��Wr6WB��6V�V7FVE&��V7B�B����&��V7DFW66V�F�G2�&��V7G2�6V�V7FVE&��V7B�B������FVҒ���FV��B�ғ��6��7B&V�D�B�VF�E&��V7E&V�D�Bbb��fƖE&V�G2�2�VF�E&��V7E&V�D�B��VF�E&��V7E&V�D�B��V�ð�F6�&��V7B�6V�V7FVE&��V7B�B���F�F�R��&V�D�B�����C�&V�D�B�'&��V7B"�'7�W&R �ғ��6WE&��V7DVF�D�V�f�6R���6WEF�7B�-	�
-�]�"
-���-��"���Р�gV�7F���FV�WFU&��V7D��FR�&��V7C�&��V7D��FR����b�v��F�r�6��f�&҆
-=M
-��-�*�G�&��V7B�F�F�W�+��
-	��M�
-�]�-�
-=M="
-��M��-�
-�
-=
-�-]��
--��R���&WGW&㰢6��7B&Vc��&�V7E&Vb��G�S�'&��V7B"��C�&��V7B�BӰ�6��7B&V�D�B�&��V7B�&V�D�C��6WE&��V7G2��7W'&V�B���7W'&V�@��f��FW"���FVҒ���FV��B��&��V7B�B�������FVҒ���FV��&V�D�B���&��V7B�B�����FV��&V�D�B�WFFVDC���t�6����FVҒ���6WEF6�2��7W'&V�B���7W'&V�B����F6����F6��&��V7D�B���&��V7B�B�����F6��&��V7D�C�&V�D�B�WFFVDC���t�6���F6�����6WD��FW2��7W'&V�B���7W'&V�B������FR�����FR�&��V7D�B���&��V7B�B�������FR�&��V7D�C�&V�D�B�WFFVDC���t�6�����FR����6WE&V�F���2��7W'&V�B���&V��fU&V�F���4f�"�7W'&V�B�&Vb����6WDGF6��V�G2��7W'&V�B���7W'&V�@�����GF6��V�B���&V��fTGF6��V�DƖ沆GF6��V�B�&Vb����f��FW"��GF6��V�B���GF6��V�B�Ɩ�2��V�wF������6WE6V�V7FVE&��V7D�B�&V�D�B���6WE&��V7DVF�D�V�f�6R���6WEF�7B�-	�
-�]�"
-=M
-��"���Р�gV�7F���6WE&��V7Ef�Wt��FR���FS�&w&�B"�&Ɨ7B"���6WE&��V7Ef�Wr���FR���G'����6�7F�&vR�6WD�FV҂'6fW&�&��V7Ef�Wr"���FR���6F6��ТР�gV�7F���&V�FW%&��V7D��6F����6�W"��f�VS�7G&��r����6��vS��f�VS�7G&��r���f��B��&��D�&V��-	]r
-�
-�]�-�
-��
-]��"��W�6�VFT�G3�6WC�7G&��s���Wr6WB������6��7B6V�V7FVE&��V7B�f�VR�&��V7G2�f��B��&��V7B���&��V7B�B���f�VR����V����V�ð�6��7B6V�V7FVEF��R�6V�V7FVE&��V7B�7�W&UF��R�&��V7G2�6V�V7FVE&��V7B�B��&�WWG&�#��&WGW&����FWF��26�74��S�'&��V7B���6F�����6�W"#��7V��'�6�74��S׶&��V7B���6F����7V��'�F��R�G�6V�V7FVEF��W�G�6V�V7FVE&��V7B�&�2�&��V7B"�&�2�&��B'����7�6�74��S�'&��V7B���6F����7vF6�"���7���7G&��s�6V�V7FVE&��V7B�6V�V7FVE&��V7B�F�F�R�&��D�&V����7G&��s��6V�V7FVE&��V7Bbb�6����&��V7EF��&��V7G2�6V�V7FVE&��V7B�B����6����Т��7���#�(�C��#���7V��'���F�b6�74��S�'&��V7B���6F�����V�R#��'WGF��G�S�&'WGF�� �6�74��S׶&��V7B���6F�����F���F��R��WWG&�FWF��G�f�VR�'6V�V7FVB"�"'�Т��6Ɩ6�ײ�WfV�B�������6��vR�""���WfV�B�7W'&V�EF&vWB�6��6W7B�&FWF��2"���&V��fTGG&�'WFR�&�V�"����Т��7�6�74��S�'&��V7B���6F����7vF6�"���7�6�74��S�'&��V7B���6F����6��#��7G&��s�&��D�&V����7G&��s��6����	-]
-]���
-=
-�-]����6������7���f�VRbb�#�)�3��#�Т��'WGF����f�GFV�VE&��V7G0��f��FW"���&��V7BҒ��W�6�VFT�G2�2�&��V7B�B��������&��V7B�FWF��F�Ғ����6��7BF��R�7�W&UF��R�&��V7G2�&��V7B�B���&WGW&����'WGF��G�S�&'WGF�� ��W�׷&��V7B�GТ6�74��S׶&��V7B���6F�����F���F��R�G�F��W�FWF��G��F��֖�FWF��B��G�f�VR���&��V7B�B�'6V�V7FVB"�"'�Т��6Ɩ6�ײ�WfV�B�������6��vR�&��V7B�B���WfV�B�7W'&V�EF&vWB�6��6W7B�&FWF��2"���&V��fTGG&�'WFR�&�V�"����Т��7�6�74��S�'&��V7B���6F����7vF6�"���7�6�74��S�'&��V7B���6F����6��#��7G&��s�&��V7B�F�F�W���7G&��s��6����FWF�����-
-M]
-
-m�}��"�F����6������7���f�VR���&��V7B�Bbb�#�)�3��#�Т��'WGF������җТ��F�c���FWF��3����Р�gV�7F���&V�FW%&��V7Dw&�B�&V�D�C�7G&��r��V���6��7B�FV�2�&��V7D6���G&V�&��V7G2�&V�D�B���&WGW&����F�b6�74��S�'&��V7B�w&�B#���FV�2����&��V7B�����6��7B6���G&V��&��V7D6���G&V�&��V7G2�&��V7B�B���6��7BF��R�7�W&UF��R�&��V7G2�&��V7B�B���&WGW&����'WGF��6�74��S׶&��V7B�F��R7�W&R�F��R�G�F��W�G�&��V7B涖�B���'7�W&R"�'7�W&R�&��B�F��R"�'7�W&R�6���B�F��R'�Т�W�׷&��V7B�GТ��6Ɩ6�ײ����6WE6V�V7FVE&��V7D�B�&��V7B�B�Т��7�6�74��S�'&��V7B�F��R֖6��#�&��V7B涖�B���'7�W&R"�.)xr"�.)k'���7���7G&��s�&��V7B�F�F�W���7G&��s��6����&��V7EF6�6�V�B�&��V7B�B��
-}
-M
-r+r�6���G&V���V�wF���'W76���W&6���G&V���V�wF��-��M�
-�]�""�-��M�
-�]�-"�-��M�
-�]�-�""����6�����#�(���#���'WGF������җТ��F�c����Р�gV�7F���&V�FW%&��V7EG&VR�&V�D�C�7G&��r��V���FWF����&V7B�&V7D��FR��&WGW&�&��V7D6���G&V�&��V7G2�&V�D�B�����&��V7B�����6��7B6���G&V��&��V7D6���G&V�&��V7G2�&��V7B�B���&WGW&����F�b6�74��S�'&��V7B�G&VR���FR"�W�׷&��V7B�G���F�b6�74��S׶&��V7B�G&VR�&�r&��V7B�FWF��G��F��֖�FWF��B��7�W&R�F��R�G�7�W&UF��R�&��V7G2�&��V7B�B��G�FWF�����'7�W&R�&��B�&�r"�'7�W&R�6���B�&�r'����'WGF��6�74��S�'&��V7B�F�vv�R �F�6&�VC׶6���G&V���V�wF����Т��6Ɩ6�ײ����F6�&��V7B�&��V7B�B��6���6VC�&��V7B�6���6VBҗТ&���&V�׷&��V7B�6���6VB�-
-
-
-}-]
-�=-�"�-
--]
-�=-�'Т��6���G&V���V�wF���&��V7B�6���6VB�.(�"�.(�B"��"'Т��'WGF����'WGF��6�74��S�'&��V7B����"��6Ɩ6�ײ����6WE6V�V7FVE&��V7D�B�&��V7B�B����7�6�74��S�'&��V7B�f��FW"֖6��#�&��V7B涖�B���'7�W&R"�.)xr"�.)k'���7���7���7G&��s�&��V7B�F�F�W���7G&��s��6����&��V7EF6�6�V�B�&��V7B�B��
-
-�-�-��R
-}
-M
-s��6������7����'WGF����'WGF��6�74��S�'&��V7B��V�"&���&V�׶
-	�-�
-�-�G�&��V7B涖�B���'7�W&R"�-M]
-2"�-�
-�]�"'�*�G�&��V7B�F�F�W�+����6Ɩ6�ײ����6WE6V�V7FVE&��V7D�B�&��V7B�B���(���'WGF�����F�c��&��V7B�6���6VBbb6���G&V���V�wF��bb���F�b6�74��S�'&��V7B�7V'G&VR#�&V�FW%&��V7EG&VR�&��V7B�B�FWF������F�c��Т��F�c����ғ��Р�gV�7F���6fU&�f��T��R�WfV�C�f�&�WfV�B���WfV�C��&WfV�DFVfV�B����6��7B�W�D��R�&�f��TG&gB�G&�҂����b��W�D��R�&WGW&㰢6WE&�f��T��R��W�D��R���6WE&�f��TG&gB��W�D��R���6WE&�f��T�V�T�V�f�6R���Р�gV�7F����V�&�f��T��U�6�W"����6WE&�f��TG&gB�&�f��T��R���6WE&�f��T�V�T�V₇f�VR���f�VR���Р�gV�7F���7F'D�WuF6��&��V7D�C�7G&��r��V���6WEV�6�F�F�R�""���6WEV�6�FFR��6�F�F������6WEV�6�F��R�""���6WEV�6�FVFƖ�R�""���6WEV�6�&��V7D�B�&��V7D�B���6WEV�6�&��&�G��B���6WEV�6��F���4�V�f�6R���6WDf��FW"�'F�F�"���6WEF6�f�Wr�'F�F�"���6WD��&��U6V7F���'F6�2"���v��F�r�6WEF��V�WB�����F�7V�V�B�vWDV�V�V�D'��B�'V�6��FB"���f�7W2������Р�gV�7F����V��WuF6�����7F'D�WuF6���V���Р�gV�7F����V��Wt��FR����6WD��FT���B�&��FR"���6WD��FUF�F�R�""���6WD��FT&�G��""���6WD��FU&��V7D�B��V���6WD��FT7&VFT�V�G'VR���Р�gV�7F����V�FWF��C�7G&��r�&W�6R�f�6R���6��7B�6��"7F6��"�V�6�FUU$�6����V�B��B����b�&W�6R���7F�'��&W�6U7FFR��V���""��6����V�6R��7F�'��W6�7FFR��V���""��6����6WE6V�V7FVD�B��B���Р�gV�7F���6��6TFWF�����b���6F����6��7F'G5v�F��"7F6��"������7F�'��W6�7FFR��V���""���6F����F���R���6F����6V&6����Т6WE6V�V7FVD�B��V���Р�gV�7F���FEF6��WfV�C�f�&�WfV�B���WfV�C��&WfV�DFVfV�B����6��7B'6VB�'6UV�6�FB�V�6�F�F�R����b�'6VB�F�F�R�&WGW&㰠�6��7BF6��7&VFUF6����F�F�S�'6VB�F�F�R��&V�D�C��V����&��V7D�C�V�6�&��V7D�B���&FW#��W�D�&FW"�F6�2��V���FFS�V�6�FFR���f��FW"���'F�F�"bb'6VB�FFR��6�F�F����'6VB�FFR���F��S�V�6�F��R��'6VB�F��R��FVFƖ�S�V�6�FVFƖ�R��'6VB�FVFƖ�R��&V7W'&V�6S�'6VB�&V7W'&V�6R��&��&�G��V�6�&��&�G��B�V�6�&��&�G��'6VB�&��&�G����&V�3�'6VB��&V�2��V�6���WF&�S�'6VB�V�6���WF&�P�ғ���6WEF6�2��7W'&V�B�������7W'&V�B�F6�ғ���b�V�6�&V�F���F&vWD�B���6WE&V�F���2��7W'&V�B��������7W'&V�B��7&VFU&V�F��•�G�S�'F6�"��C�F6��B����G�S�V�6�&V�F���G�R��C�V�6�&V�F���F&vWD�BТ��ғ��Т6WEV�6�F�F�R�""���6WEV�6�&��&�G��B���6WEV�6�FFR�""���6WEV�6�F��R�""���6WEV�6�FVFƖ�R�""���6WEV�6�&V�F���G�R�'&��V7B"���6WEV�6�&V�F���F&vWD�B�""���6WEV�6��F���4�V�f�6R���6WEV�6�&��V7D�B��V���6WD��&��UV�6��V�f�6R���6WD6�V�F$6���6W$�V�f�6R���6WEF�7B�-	}
-M
-}
-M�
--�]�"���Р�gV�7F���&W6WEV�6�F6�G&gB����6WEV�6�F�F�R�""���6WEV�6�&��V7D�B��V���6WEV�6�&��&�G��B���6WEV�6�FFR�""���6WEV�6�F��R�""���6WEV�6�FVFƖ�R�""���6WEV�6�&V�F���G�R�'&��V7B"���6WEV�6�&V�F���F&vWD�B�""���6WEV�6��F���4�V�f�6R���Р�gV�7F���6��6T6�V�F%F6�6���6W"����6WD6�V�F$6���6W$�V�f�6R���&W6WEV�6�F6�G&gB����Р�gV�7F����V�6�V�F%F6�7&VF�"�FFS�7G&��r�F��S�7G&��r��V����6�F�������V�&W#����V�&W"Ғ��&W6WEV�6�F6�G&gB����6WEV�6�FFR�FFR���6WEV�6�F��R�F��R��""����6��7Bv�GF��C#��6��7B�V�v�DW7F��FR�S#��6��7Bf�Ww�'D�&v���C��6��7B6�FV&%6fT�VgB�v��F�r���W%v�GF��s#�#sB�f�Ww�'D�&v�㰢6��7B�VgB��F������6�FV&%6fT�VgB���F��֖�v��F�r���W%v�GF��v�GF��f�Ww�'D�&v����6�F�����3B�����6��7BF���F������f�Ww�'D�&v�����F��֖�v��F�r���W$�V�v�B��V�v�DW7F��FR�f�Ww�'D�&v����6�F�����c�������6WD6�V�F$6���6W%�6�F��⇲�VgB�F�ғ��6WD6�V�F$6���6W$�V�G'VR���Р�W6T���WDVffV7B��������b�6�V�F$6���6W$�V�&WGW&㰠�6��7BV�V�V�B�6�V�F$6���6W%&Vb�7W'&V�C���b�V�V�V�B�&WGW&㰠�6��7Bf�Ww�'D�&v���C��6��7B6�FV&%6fT�VgB�v��F�r���W%v�GF��s#�#sB�f�Ww�'D�&v�㰢6��7B&V7B�V�V�V�B�vWD&�V�F��t6ƖV�E&V7B����6��7B���VgB��F�����6�FV&%6fT�VgB�v��F�r���W%v�GF��&V7B�v�GF��f�Ww�'D�&v�⓰�6��7B��F���F�����f�Ww�'D�&v���v��F�r���W$�V�v�B�&V7B�V�v�B�f�Ww�'D�&v�⓰��6��7B�W�D�VgB��F��֖��F�����6�V�F$6���6W%�6�F�����VgB�6�FV&%6fT�VgB�����VgB���6��7B�W�EF���F��֖��F�����6�V�F$6���6W%�6�F����F��f�Ww�'D�&v�����F������b��F��'2��W�D�VgB�6�V�F$6���6W%�6�F�����VgB���R���F��'2��W�EF��6�V�F$6���6W%�6�F����F����R���6WD6�V�F$6���6W%�6�F��⇲�VgC��W�D�VgB�F���W�EF�ғ��Т���6�V�F$6���6W$�V��V�6��F���4�V��6�V�F$6���6W%�6�F�����VgB�6�V�F$6���6W%�6�F����F�ғ���gV�7F���6�V�F$V�EF��R�����b�V�6�F��R�&WGW&�"#��6��7B���W'2�֖�WFW5��V�6�F��R�7ƗB�#�"�����V�&W"���6��7BF�F�����W'2�c�֖�WFW2�c�R�#B�c���&WGW&�G�7G&��r��F��f���"�F�F��c���E7F'B�"�#"�ӢG�7G&��r�F�F�Rc��E7F'B�"�#"����Р�gV�7F���FE7V'F6��&V�C�F6����6��7B'6VB�'6UV�6�FB�7V'F6�F�F�R����b�'6VB�F�F�R�&WGW&㰢6��7BFWF��FWF��b�F6�2�&V�B����b�FWF���r���6WEF�7B�-	M�-�=�="
-�
-]M]�
--��m]���-�"���&WGW&㰢Р�6��7BF6��7&VFUF6����F�F�S�'6VB�F�F�R��&V�D�C�&V�B�B��&��V7D�C�&V�B�&��V7D�B���&FW#��W�D�&FW"�F6�2�&V�B�B���FFS�'6VB�FFR��F��S�'6VB�F��R��FVFƖ�S�'6VB�FVFƖ�R��&V7W'&V�6S�'6VB�&V7W'&V�6R��&��&�G��'6VB�&��&�G����&V�3�'6VB��&V�2��V�6���WF&�S�'6VB�V�6���WF&�P�ғ���6WEF6�2��7W'&V�B���7W'&V�@������FVҒ���FV��B���&V�B�B�����FV��6���6VC�f�6R���FVҐ��6��6B�F6������6WE7V'F6�F�F�R�""���6WEF�7B�-	��M}
-M
-}
-M�
--�]�"���Р�gV�7F���&V�V�F�&V7E7V'F6�2�&V�D�C�7G&��r���6WEF6�2��7W'&V�B���7W'&V�B����F6����F6��&V�D�B���&V�D�@������F6��7FGW3�&7F�fR"�6���WFVDC��V���WFFVDC���t�6�Т�F6�������Р�gV�7F���6���WFUF6��F6��F6��f�&WfW"�f�6R����b�F6��V�6���WF&�R�&WGW&㰠��b�F6��7FGW2���&F��R"���F6�F6��F6��B��7FGW3�&7F�fR"�6���WFVDC��V��ғ��6WEF�7B�-	}
-M
-}
--�}-
-
-�]�"���&WGW&㰢Р��b�F6��&V7W'&V�6Rbbf�&WfW"���6��7B�W�DFFR��W�E&V7W'&��tFFR�F6��FFR�F6��&V7W'&V�6R����b��W�DFFR���F6�F6��F6��B��FFS��W�DFFR�6���WFVDC��V���7FGW3�&7F�fR"ғ���b�F6��&W6WE7V'F6�2�&V�V�F�&V7E7V'F6�2�F6��B���6WEF�7B�-	-�����]��+r
-�
-}�
-}]�
-�]M=����
-��--�"���&WGW&㰢ТР�6��7B�G2��Wr6WB��F6��B����FW66V�F�G4�b�F6�2�F6��B������FVҒ���FV��B�ғ��6��7B6���WFVDB���t�6򂓰�6WEF6�2��7W'&V�B���7W'&V�B�����FVҒ���G2�2��FV��B�������FV��7FGW3�&F��R"�6���WFVDB�WFFVDC�6���WFVDBТ��FVТ�����6WEF�7B�-	}
-M
-}
--�����]�"���Р�gV�7F���GWƖ6FUF6��F6��F6����6��7B����F6�����FW66V�F�G4�b�F6�2�F6��B�Ӱ�6��7B�D���Wr��7G&��r�7G&��sₓ�����f�$V6����FVҒ���D��6WB��FV��B�7'�F��&�F��UT�B������6��7B��r���t�6򂓰��6��7B6��W2��������FV����FW����������FV����C��D��vWB��FV��B���F�F�S���FW������FV��F�F�R�"(	B
-�����"��FV��F�F�R��&V�D�C��FV��B���F6��@��F6��&V�D�@���FV��&V�D�@���D��vWB��FV��&V�D�B���F6��&V�D�@���V�����&FW#��FV��B���F6��B��W�D�&FW"�F6�2�F6��&V�D�B���FV���&FW"��7FGW3�&7F�fR"26��7B��6���WFVDC��V����6���V�G3�����7&VFVDC���r��WFFVDC���p�Ғ����6WEF6�2��7W'&V�B�������7W'&V�B����6��W5ғ���V�FWF�6��W5���B���6WEF�7B�-	}
-M
-}
-�
-�M=��
-�-
-�"���Р�gV�7F���FV�WFUF6��F6��F6�����b�v��F�r�6��f�&҆
-=M
-��-�*�G�F6��F�F�W�+�
-�
--R
--��m]���R
-��M}
-M
-}����&WGW&㰢6��7B�G2��Wr6WB��F6��B����FW66V�F�G4�b�F6�2�F6��B������FVҒ���FV��B�ғ��6WEF6�2��7W'&V�B���7W'&V�B�f��FW"���FVҒ���G2�2��FV��B�����6��6TFWF����6WEF�7B�-	}
-M
-}
-=M
-�]�"���Р�gV�7F���6��F6�Ɩ沇F6��F6����6��7BW&����6F�����&�v�����6F����F���R���6F����6V&6��"7F6��"�V�6�FUU$�6����V�B�F6��B����f�vF�"�6Ɨ&�&C��w&�FUFW�B�W&�F�V•����6WEF�7B�-
-���
-����
-�-
-�"�������6WEF�7B�-	�R
-=M
-���
-����
-�-
--�
-���2"�����Р�gV�7F�����fU6�&Ɩ�r�F6��F6��FV�F������6��7B6�&Ɩ�w2�6���G&V��b�F6�2�F6��&V�D�B���6��7B��FW��6�&Ɩ�w2�f��D��FW����FVҒ���FV��B���F6��B���6��7B�F�W$��FW����FW��FV�F���b���FW�����F�W$��FW�����F�W$��FW���6�&Ɩ�w2��V�wF��&WGW&㰢6��7B�F�W"�6�&Ɩ�w5��F�W$��FW�Ӱ��6WEF6�2��7W'&V�B���7W'&V�B�����FVҒ�����b��FV��B���F6��B�&WGW&�����FV���&FW#��F�W"��&FW"�WFFVDC���t�6�Ӱ��b��FV��B����F�W"�B�&WGW&�����FV���&FW#�F6���&FW"�WFFVDC���t�6�Ӱ�&WGW&��FVӰ�Ґ����Р�gV�7F�����FV�EF6��F6��F6����6��7B6�&Ɩ�w2�6���G&V��b�F6�2�F6��&V�D�B���6��7B��FW��6�&Ɩ�w2�f��D��FW����FVҒ���FV��B���F6��B����b���FW����&WGW&㰢6��7B�Wu&V�B�6�&Ɩ�w5���FW��Ӱ��b�FWF��b�F6�2��Wu&V�B���r�&WGW&㰢F6�F6��F6��B���&V�D�C��Wu&V�B�B��&��V7D�C��Wu&V�B�&��V7D�B���&FW#��W�D�&FW"�F6�2��Wu&V�B�B��ғ��F6�F6���Wu&V�B�B��6���6VC�f�6Rғ��6WEF�7B�-	}
-M
-}
--
-�
-��M}
-M
-}]�"���Р�gV�7F����WFFV�EF6��F6��F6�����b�F6��&V�D�B�&WGW&㰢6��7B&V�B�F6�2�f��B���FVҒ���FV��B���F6��&V�D�B����b�&V�B�&WGW&㰢F6�F6��F6��B���&V�D�C�&V�B�&V�D�B���&FW#��W�D�&FW"�F6�2�&V�B�&V�D�B��ғ��6WEF�7B�-
-=
-�-]��
--��m]���-�
-=�]���]�"���Р�gV�7F���G&�&Vf�&R�F&vWC�F6�����b�G&vvVD�B��G&vvVD�B���F&vWB�B�&WGW&㰢6��7BG&vvVB�F6�2�f��B���FVҒ���FV��B���G&vvVD�B����b�G&vvVB��G&vvVB�&V�D�B��F&vWB�&V�D�B���6WEF�7B�-	�]
-]-
-��-
--�
-��m��
-�]mM2
-�]M���
-�M��=�
-=
-�-��"���&WGW&㰢Р�6��7B6�&Ɩ�w2�6���G&V��b�F6�2�F&vWB�&V�D�B��f��FW"���FVҒ���FV��B��G&vvVB�B���6��7BF&vWD��FW��6�&Ɩ�w2�f��D��FW����FVҒ���FV��B���F&vWB�B���6�&Ɩ�w2�7Ɩ6R��F������F&vWD��FW����G&vvVB���6��7B�&FW$���Wr��6�&Ɩ�w2�����FV����FW������FV��B����FW����Ғ���6WEF6�2��7W'&V�B���7W'&V�B�����FVҒ���&FW$��2��FV��B�������FV���&FW#��&FW$��vWB��FV��B��WFFVDC���t�6�Т��FVТ�����6WDG&vvVD�B��V���Р�gV�7F���FE&V֖�FW"�F6��F6����6��7BB��WrFFR�FFR���r���c�c���F��4�7G&��r����F6�F6��F6��B���&V֖�FW'3�����F6��&V֖�FW'2���C�7'�F��&�F��UT�B���B�Тғ��Р�gV�7F���FD6���V�B�F6��F6����6��7B&�G��6���V�D&�G��G&�҂����b�&�G��&WGW&㰢6��7B6���V�C�F6�6���V�B����C�7'�F��&�F��UT�B����&�G���7&VFVDC���t�6򂐢Ӱ�F6�F6��F6��B��6���V�G3�����F6��6���V�G2�6���V�E�ғ��6WD6���V�D&�G��""���Р�gV�7F���&V�FW%G&VR�&V�D�C�7G&��r��V���FWF����&V7B�&V7D��FR��6��7B6���G&V��6���G&V��b�F6�2�&V�D�B��f��FW"��F6�������b�&V�D�Bbbf��FW"��&F��R"���6��7B&V�B�F6�2�f��B���FVҒ���FV��B���&V�D�B����b�F6��7FGW2���&F��R"bb&V�C��6��t6���WFVE7V'F6�2�&WGW&�f�6S��Т&WGW&��F6�W4f��FW"�F6�����4�F6���tFW66V�F�B�F6����ғ���&WGW&�6���G&V�����F6������6��7BF�&V7D6���G&V��6���G&V��b�F6�2�F6��B���6��7B7F�fT6���G&V��F�&V7D6���G&V��f��FW"���FVҒ���FV��7FGW2���&7F�fR"���6��7B6���WFVD6���G&V��F�&V7D6���G&V���V�wF��7F�fT6���G&V���V�wF���6��7B6��t�W7FVB�F6��6���6VC���&WGW&����F�b6�74��S�'G&VR���FR"�W�׷F6��G���'F�6�P�6�74��S׶F6��&�rF6��FWF��G��F��֖�FWF��B��G�6V�V7FVD�B���F6��B�'6V�V7FVB"�"'�ТG&vv&�P���G&u7F'Cײ����6WDG&vvVD�B�F6��B�Т��G&tV�Cײ����6WDG&vvVD�B��V�Т��G&t�fW#ײ�WfV�B���WfV�B�&WfV�DFVfV�B��Т��G&�ײ����G&�&Vf�&R�F6��Т��'WGF��6�74��S�'G&VR�F�vv�R �F�6&�VC׶F�&V7D6���G&V���V�wF����Т��6Ɩ6�ײ����F6�F6��F6��B��6���6VC�F6��6���6VBҗТ&���&V�׷F6��6���6VB�-
-
-
-}-]
-�=-�
-��M}
-M
-}�"�-
--]
-�=-�
-��M}
-M
-}�'Т��F�&V7D6���G&V���V�wF���F6��6���6VB�.(�"�.(�B"��"'Т��'WGF��ࠢ�F6��V�6���WF&�R����7�6�74��S�'V�6���WF&�R��&�"&���&V��-	�]}
--]
-�
-]�
-�
-}
-M
-}#�)xc��7�������'WGF��6�74��S׶6�V6��'WGF��&��&�G��&��rG�F6��&��&�G��G�F6��7FGW2���&F��R"�&6�V6�VB"�"'�Т&���&V�׷F6��7FGW2���&F��R"�
-	-]
-�=-�
-}
-M
-}2*�G�F6��F�F�W�+��
-	-������-�
-}
-M
-}2*�G�F6��F�F�W�+�Т��6Ɩ6�ײ����6���WFUF6��F6��Т��F6��7FGW2���&F��R"�.)�2"�"'Т��'WGF����Р��'WGF��6�74��S�'F6�����"��6Ɩ6�ײ�����V�FWF�F6��B����7�6�74��S׶F6��F�F�RG�F6��7FGW2���&F��R"�&F��R"�"'����F6��F�F�WТ��7���7�6�74��S�'F6���WF#��F6��FFRbb�7�6�74��S׷F6��FFR��6�F�F����&�fW&GVR"�"'��f�&�DFFR�F6��FFR�׷F6��F��R�"+r"�F6��F��R�"'���7��Т�F6��&V7W'&V�6Rbb�7��(k��F6��&V7W'&V�6W���7��Т�F6��FVFƖ�Rbb�7��){r
-M��f�&�DFFR�F6��FVFƖ�R����7��Т�F6��GW&F���֖�WFW2bb�7��f�&�DGW&F���F6��GW&F���֖�WFW2����7��Т�7�6�74��S׶&��&�G��f�rG�F6��&��&�G���F�F�S׷&��&�G��&V�5�F6��&��&�G���&���&V�׶
-	�
-��
-�-]#�G�&��&�G��&V�5�F6��&��&�G�����)���7���F6��&��V7D�Bbb�7�6�74��S�'F6��&��V7B�F�#�)xr�&��V7EF��&��V7G2�F6��&��V7D�B����7��Т�F6���&V�2�����&V���7��W�׶�&V���W��&V����7��Т�7F�fT6���G&V���V�wF��bb�7��)jB�7F�fT6���G&V���V�wF����7��Т�6���WFVD6���G&V��bb�7��)�2�6���WFVD6���G&V����7��Т��7����'WGF��ࠢ�'WGF��6�74��S�'&�r���&R"&���&V�׶
-	�-�
-�-�
-}
-M
-}2*�G�F6��F�F�W�+����6Ɩ6�ײ�����V�FWF�F6��B���(���'WGF�����'F�6�Sࠢ�6��t�W7FVBbbF�&V7D6���G&V���V�wF��bb���F�b6�74��S�'7V'G&VR#�&V�FW%G&VR�F6��B�FWF������F�c��Т��F�c����ғ��Р�6��7B&V�F���w&��&�V7G3��&�V7E&Ve��������&��V7G2����&��V7B�����G�S�'&��V7B"26��7B��C�&��V7B�BҒ������F6�2�f��FW"��F6����F6��7FGW2���&7F�fR"�����F6������G�S�'F6�"26��7B��C�F6��BҒ��������FW2������FR�����G�S�&��FR"26��7B��C���FR�BҒ��Ӱ��6��7B&V�F���w&�7G'V7GW&TVFvW2������&��V7G0��f��FW"��&��V7B���&��V7B�&V�D�B������&��V7B�������C�&��V7B�&V�C�G�&��V7B�G�����G�S�'&��V7B"26��7B��C�&��V7B�&V�D�B���#��G�S�'&��V7B"26��7B��C�&��V7B�BТҒ������F6�0��f��FW"��F6����F6��7FGW2���&7F�fR"bbF6��&��V7D�B������F6��������C�F6��&��V7C�G�F6��G�����G�S�'&��V7B"26��7B��C�F6��&��V7D�B���#��G�S�'F6�"26��7B��C�F6��BТҒ��������FW0��f��FW"����FR�����FR�&��V7D�B��������FR�������C���FR�&��V7C�G���FR�G�����G�S�'&��V7B"26��7B��C���FR�&��V7D�B���#��G�S�&��FR"26��7B��C���FR�BТҒ��Ӱ��6��7Bf�6�&�T6�V�B�F��WfV�f�%f�Wr��V�wF����&WGW&����F�b6�74��S׶�6�V��6V7F����G���&��U6V7F����G�6V�V7FVB�&�2�FWF��"�"'����6�FR6�74��S�'6�FV&""&���&V��-	�
--�=
-m��
-
-M	]
-
-	#��'WGF��6�74��S�&'&�B'&�B�'WGF��"��6Ɩ6�ײ����6WD��&��U6V7F���&���R"��&���&V��-	=�
--�
-�
-
-M	]
-
-	#�Ɩ�r6�74��S�&'&�B���v�"7&3�"�6fW&�6fW&���v��vV'�c�##c�#�6�V�"�C�-
-
-M	]
-
-	"����'WGF��ࠢ��b6�74��S�'6�FR��b#��'WGF��6�74��S׶��&��U6V7F������&���R"�&7F�fR"�"'���6Ɩ6�ײ����6WD��&��U6V7F���&���R"����7��(�#��7��	=�
--�
-���'WGF����'WGF��6�74��S׶��&��U6V7F������'&��V7G2"�&7F�fR"�"'���6Ɩ6�ײ����6WD��&��U6V7F���'&��V7G2"����7��)xs��7��
-M]
-���'WGF����'WGF��6�74��S׶��&��U6V7F������'F6�2"�&7F�fR"�"'���6Ɩ6�ײ����6WD��&��U6V7F���'F6�2"����7��)�3��7��	}
-M
-}���'WGF����'WGF��6�74��S׶��&��U6V7F������&��FW2"�&7F�fR"�"'���6Ɩ6�ײ����6WD��&��U6V7F���&��FW2"����7��)����7��	}
-�]-����'WGF����'WGF��6�74��S׶��&��U6V7F������'��F�2"�&7F�fR"�"'���6Ɩ6�ײ����6WD��&��U6V7F���'��F�2"����7��)js��7��
-M�-���'WGF����F�b6�74��S׶6�V�F"��b�w&�WG���&��U6V7F������&6�V�F""�&�V�"�"'����'WGF��6�74��S׶��&��U6V7F������&6�V�F""�&7F�fR"�"'���6Ɩ6�ײ�����V�6�V�F"�&���F�"����7��)jc��7��	�
-�]�M
-
-���'WGF������&��U6V7F������&6�V�F""bb���6�V�F$֖����F��F�F�S׶6�V�F%F�F�WТ6V��3׶6�V�F$6V��7Т&�vU7F'C׶6�V�F%&�vU7F'GТ&�vTV�C׶6�V�F%&�vTV�GТ�6���tV�C׶6�V�F%�6���tV�GТF�6�V�C׶FW6�F�6�V�F$F�6�V�GТF�F��6�׶�6�F�F���Т��&Wf��W4���F�ײ����6WD���F��fg6WB���Т���W�D���F�ײ����6WD���F��fg6WB��Т��6V�V7DF�׷6V�V7D֖�6�V�F$F�Т��6WDF�3ײ�F�2���6WDFW6�F�6�V�F%W&��B�6�V�F%&�vU7F'B�F�2�Т���Т��F�c��'WGF��6�74��S׶��&��U6V7F������'&V�F���2"�&7F�fR"�"'���6Ɩ6�ײ����6WD��&��U6V7F���'&V�F���2"����7��(iC��7��
--�}���'WGF������cࠢ�F�b6�74��S�'6�FV&"�&�GF��#��'WGF��6�74��S�&v��7B�'WGF��"��6Ɩ6�ײ����6WE6WGF��w4�V�G'VR���)��
-	�
--
-������'WGF�����F�c���6�FSࠢ����6�74��S׶F6�2�vR6V7F����G���&��U6V7F������ƆVFW"6�74��S�&FW6�F��F�&"#��'WGF��6�74��S�&FW6�F��6V&6�"��6Ɩ6�ײ�����6WD��&��U6V7F���'F6�2"��6WE6V&6��V�G'VR������7��(�S��7���7��	����
-��
-}
-M
-}
-��
-M]
-
-��
-�
-�]�-
-�
-�
-}
-�]-�
-������7����'WGF����F�b6�74��S�&FW6�F��W6W"�&V#��'WGF��6�74��S�&FW6�F��&V��"&���&V��-
-=-]M���]���#�)�#��'WGF����F�b6�74��S�&FW6�F��&�f��R��6�W"#��'WGF��G�S�&'WGF�� �6�74��S�&FW6�F��W6W" ���6Ɩ6�׶�V�&�f��T��U�6�W'Т&��W��FVC׷&�f��T�V�T�V�Т&���&V��-	-�
-
--�
-���
-����}�-
--]�� ���7�6�74��S�&FW6�F��fF"#�&�f��T��R�6Ɩ6R����F�WW$66R�����7���7G&��s�&�f��T��W���7G&��s��7�6�74��S׷&�f��T�V�T�V��&FW6�F��W6W"�6�Wg&���V�"�&FW6�F��W6W"�6�Wg&��'��(�C��7����'WGF��ࠢ�&�f��T�V�T�V�bb�����'WGF��G�S�&'WGF�� �6�74��S�'&�f��R��6�W"�F�6֗72 �&���&V��-	}
-�
-�-�
--��
-��]�� ���6Ɩ6�ײ����6WE&�f��T�V�T�V�f�6R�Т���f�&�6�74��S�'&�f��R���R��V�R"��7V&֗C׷6fU&�f��T��W���7��	���
-����}�-
--]����7��Ɩ�W@�WF�f�7W0�f�VS׷&�f��TG&gGТ��6��vSײ�WfV�B���6WE&�f��TG&gB�WfV�B�F&vWB�f�VR�Т�6V���FW#�-	--]M�-R
-��� ����V�wF�׳CТ���6����
-�-�
-���
-���
-}�-
-]-�
-"
-�
-�M��R
-�
-�
-�-]---��
-�
-=�
--������6�����F�c��'WGF��G�S�&'WGF��"��6Ɩ6�ײ����6WE&�f��T�V�T�V�f�6R���	�-�]���'WGF����'WGF��G�S�'7V&֗B"F�6&�VCײ&�f��TG&gB�G&�҂���
-�]
-
-��-���'WGF�����F�c���f�&������Т��F�c���F�c����VFW#ࠢƆVFW"6�74��S�&��&��R�F�&"��&��R�&"#��'WGF��6�74��S�&��&��R�&�f��R��&���&��Rֆ��R��&�"��6Ɩ6�ײ����6WD��&��U6V7F���&���R"��&���&V��-	�
-=�
--�=�#�3��'WGF����F�b6�74��S�&��&��R��F�F�R#��7G&��s�
-
-M	]
-
-	��7G&��s��7����&��U6V7F������&���R"�-
-]=�M��"���&��U6V7F������'&��V7G2"�-
-M]
-�"���&��U6V7F������'F6�2"�-	}
-M
-}�"���&��U6V7F������&��FW2"�-	}
-�]-��"���&��U6V7F������'��F�2"�-
-M�-�"���&��U6V7F������'&V�F���2"�-
--�}�"�-	�
-�]�M
-
-�'���7����F�c��F�b6�74��S�&��&��R��7F���2#����&��U6V7F������'F6�2"bb���'WGF��6�74��S�&��&��R֖6���7F���"&���&V��-	����"��6Ɩ6�ײ����6WE6V&6��V₇f�VR���f�VR���(�S��'WGF����Т�'WGF��6�74��S�&��&��R֖6���7F���"&���&V��-	�
--
-����"��6Ɩ6�ײ����6WE6WGF��w4�V�G'VR���)����'WGF�����F�c����VFW#ࠢ�6V7F���6�74��S׶���R�F6�&�&BG���&��U6V7F������&���R"�&7F�fR"�"'��&�ֆ�FFV�׶��&��U6V7F�����&���R'��ƆVFW"6�74��S׶F6�&�&BֆW&�F6�&�&BֆW&��G�F�'G����F�b6�74��S�&F6�&�&BֆW&��6��#��F�b6�74��S�&F6�&�&B�v�&F�&�#�
-
-M	]
-
-	��F�c��6�74��S�&F6�&�&B�FFR#��7��F6�&�&DFFW���7���7�6�74��S�&F6�&�&B�������6R"&���&V�׶
-M
-}
-	�=���G������6R���W����7�&�ֆ�FFV��'G'VR#�+r������6R�6�����7��������6R���WТ��7�����ƃ�w&VWF��w���&�f��T��W�������F�c��F�b6�74��S�&F6�&�&BֆW&��7F���2#��'WGF��6�74��S�&F6�&�&B�&��'��7F���"��6Ɩ6�׶�V��WuF6����7���ȳ��7��
-	��-
-�
-}
-M
-} ���'WGF����'WGF��6�74��S�&F6�&�&B�6V6��F'��7F���"��6Ɩ6�׶�V��Wt��FW���7��)����7��
-	��-
-�
-}
-�]-� ���'WGF�����F�c����VFW#ࠢ�F�b6�74��S�&F6�&�&B�f�7W2#���&V��F��f�#�&F�ǒ�f�7W2#��7��)x���7���7G&��s�
-M��=
-M����7G&��s����&V��Ɩ�W@��C�&F�ǒ�f�7W2 �f�VS׶F�ǔf�7W7Т��6��vSײ�WfV�B���6WDF�ǔf�7W2�WfV�B�F&vWB�f�VR�Т�6V���FW#�-
-}-�
-]=�M��
-M]�--�-]����
--
-m��� ����V�wF�׳#Т���6����F�ǔf�7W2�G&�҂��-
-�]
-
-�]��"�-	��m��
-�}�]��-�
-"
-����
-���]�"'���6������F�cࠢ�F�b6�74��S�&F6�&�&B����WB#��6V7F���6�74��S�&F6�&�&B�6&BF6�&�&B�F�F�#��F�b6�74��S�&F6�&�&B�6&BֆVB#��F�c�ƃ#�	}
-M
-}�
-�
-]=�M�����#��7�6�74��S�&F6�&�&B�&�w&W72�6��#��F�F�F6�6�V�B�G�6���WFVEF�F�6�V�G�
-�rG�F�F�F6�6�V�G�
--�����]���-	M]��
-���
--��M]�'Т��7����F�c��'WGF��6�74��S�&F6�&�&B�6�V�B�Ɩ�"��6Ɩ6�ײ�����6���6UF6�f�Wr�'F�F�"��6WD��&��U6V7F���'F6�2"�����
-	-R
-}
-M
-}�(����'WGF�����F�c��F�b6�74��S�&F6�&�&B�&�w&W72"&���&V�׶
-	-�����]��G�F�F�&�w&W77�R
-}
-M
-r
-�
-]=�M�����7�7G��S׷�v�GF��G�F�F�&�w&W77�V������F�cࠢ�F�b6�74��S�&F6�&�&B�F6��Ɨ7B#��F�F�F6�2��V�wF��������F�b6�74��S�&F6�&�&B�V�G�F6�&�&B�V�G��7F���&�R#��7��)�3��7���F�c��7G&��s�F�F�F6�6�V�B�-	-R
-}
-M
-}�
-�
-]=�M��
--�����]��"�-	�
-]=�M��
--
--��M��'���7G&��s��6����&��E7�W&W2��V�wF��-	��m��
-M�
--�-�
-}
-M
-}2
-
-
-}2
-"
-�=m�=�
-M]
-2�"�-
-�}M
-�
-�]
--=�
-M]
-2
-���
-M�
--�
-}
-M
-}2�'���6�����&��E7�W&W2��V�wF��bb���F�b6�74��S�&F6�&�&B�V�G��7�W&W2#��&��E7�W&W2�6Ɩ6R��2�����7�W&R������'WGF���W�׷7�W&R�G���6Ɩ6�ײ����7F'D�WuF6��7�W&R�B����Ȳ�7�W&R�F�F�W���'WGF�����Т��F�c��Т��F�c���F�c�����F�F�F6�2����F6�������F�b6�74��S׶F6�&�&B�F6��&�rG�F6��B���W6�֖�uF6���B�&�2��W�B"�"'���W�׷F6��G���F6��V�6���WF&�R����7�6�74��S�&F6�&�&B�F6��F�B#�)xc��7�������'WGF��6�74��S׶6�V6��'WGF��&��&�G��&��rG�F6��&��&�G��Т��6Ɩ6�ײ����6���WFUF6��F6��Т&���&V�׶
-	-������-�
-}
-M
-}2*�G�F6��F�F�W�+�Т���Т�7�6�74��S�&F6�&�&B�F6��F��R#�F6��F��R��.(	B'���7���'WGF��6�74��S�&F6�&�&B�F6�����"��6Ɩ6�ײ�����V�FWF�F6��B����7G&��s�F6��F�F�W���7G&��s��F6��B���W6�֖�uF6���Bbb�6����	��m
-��
-���6����Т��'WGF����F6��&��V7D�Bbb���7�6�74��S�&F6�&�&B�&��V7B����#��&��V7EF��&��V7G2�F6��&��V7D�B��7ƗB�"�"��B���Т��7���Т�'WGF��6�74��S�&F6�&�&B�&�r�'&�r"&���&V�׶
-	�-�
-�-�
-}
-M
-}2*�G�F6��F�F�W�+����6Ɩ6�ײ�����V�FWF�F6��B���(���'WGF�����F�c�����Т��F�c���6V7F���ࠢ�6�FR6�74��S�&F6�&�&B�6�FRF6�&�&B�7V��'��6&G2#��'WGF��6�74��S׶F6�&�&B�7V��'��6&BF6�&�&B�7V��'���fW&GVRG��fW&GVUF6�2��V�wF��&�2�f�VR"�"'����6Ɩ6�ײ�����6���6UF6�f�Wr�&�fW&GVR"��6WD��&��U6V7F���'F6�2"������7�6�74��S�&F6�&�&B�7V��'�֖6��#���7���7�6�74��S�&F6�&�&B�7V��'��6��#��6����	�
-�
-�}]����6�����7G&��s��fW&GVUF6�2��V�wF��G��fW&GVUF6�2��V�wF��G�'W76���W&�fW&GVUF6�2��V�wF��-}
-M
-}"�-}
-M
-}�"�-}
-M
-r"���-	��}]=�'���7G&��s��V���fW&GVUF6�2��V�wF��-	�=m��
-
-
-}�
-
--�"�-	-
-��B
-���-
-��]�'���V����7���#�(���#���'WGF��ࠢ�'WGF��6�74��S�&F6�&�&B�7V��'��6&BF6�&�&B�7V��'���W�B"��6Ɩ6�ײ����W6�֖�uF6���V�FWF�W6�֖�uF6��B���V��WuF6������7�6�74��S�&F6�&�&B�7V��'�֖6��#�){s��7���7�6�74��S�&F6�&�&B�7V��'��6��#��6����	��m
-��
-�
-}
-M
-}��6�����7G&��s�W6�֖�uF6���F�F�R��-	��
-�
--��M]�'���7G&��s��V���W6�֖�uF6���FFP��G�W6�֖�uF6��FFR����6�F�F����-
-]=�M��"�f�&�DFFR�W6�֖�uF6��FFR��G�W6�֖�uF6��F��R��G�W6�֖�uF6��F��W��"'� ��-	M�
--�-�
-}
-M
-}2'Т��V����7���#�(���#���'WGF��ࠢ�'WGF��6�74��S�&F6�&�&B�7V��'��6&BF6�&�&B�7V��'��vVV�"��6Ɩ6�ײ�����6���6UF6�f�Wr�'vVV�"��6WD��&��U6V7F���'F6�2"������7�6�74��S�&F6�&�&B�7V��'�֖6��#�)jc��7���7�6�74��S�&F6�&�&B�7V��'��6��#��6����
--]�=�
-�
-�]M]����6�����7G&��s�vVV�F6�2��V�wF��G�vVV�6���WFVD6�V�G�
-�rG�vVV�F6�2��V�wF��
--�����]���-	}
-M
-r
-���
-�]"'���7G&��s��7�6�74��S�&F6�&�&B�vVV��&�w&W72#�ƒ7G��S׷�v�GF��G�vVV�&�w&W77�V������7����7���#�(���#���'WGF�����6�FS���F�cࠢ�6V7F���6�74��S�&F6�&�&B�6V7F���#��F�b6�74��S�&F6�&�&B�6V7F���ֆVB#��F�c�ƃ#�	���
-M]
-�
-m�}�����#���F�c��'WGF����6Ɩ6�ײ�����6WE6V�V7FVE&��V7D�B��V��6WD��&��U6V7F���'&��V7G2"�����	-R
-M]
-�(���'WGF�����F�cࠢ�F�b6�74��S�'7�W&R�6&B�w&�B#��7�W&U7V��&�W2����7V��'����FW�������'WGF��6�74��S׶7�W&R�6&B7�W&R�6&B�&�6�7�W&R�F��R�G���FW�Rg�Т�W�׷7V��'��7�W&R�GТ��6Ɩ6�ײ�����6WE6V�V7FVE&��V7D�B�7V��'��7�W&R�B��6WD��&��U6V7F���'&��V7G2"���Т��7�6�74��S�'7�W&R�7��&��#絲.(�""�.)��"�.)�b"�.)j2"�.)Ȃ"�.)�%ն��FW�Re����7���7�6�74��S�'7�W&R֖�f�#��7G&��s�7V��'��7�W&R�F�F�W���7G&��s��6���6�74��S�'7�W&R��W�B�F6�#��7V��'���W�EF6���G�7V��'���W�EF6��FFR��7V��'���W�EF6��FFR����6�F�F����-
-]=�M��"�f�&�DFFR�7V��'���W�EF6��FFR���-	]r
-M
--�'�G�7V��'���W�EF6��F��R��G�7V��'���W�EF6��F��W��"'�+rG�7V��'���W�EF6��F�F�W� ��-	�]"
-
-�-�-��R
-}
-M
-r'Т��6�����7�6�74��S�'7�W&R�6&B��WF#��7V��'��7F�fT6�V�G��'W76���W&7V��'��7F�fT6�V�B�-
-�-�-�
-�
-}
-M
-}"�-
-�-�-��R
-}
-M
-}�"�-
-�-�-��R
-}
-M
-r"��+r�7V��'����FT6�V�G��'W76���W&7V��'����FT6�V�B�-}
-�]-�"�-}
-�]-��"�-}
-�]-��"�Т��7���7�6�74��S�'7�W&R�6&B�&�w&W72�6��#�8��$z{-���jםasks"); }}>
               <span>▦</span><strong>Неделя</strong><small>{weekTaskCount} {russianPlural(weekTaskCount, "задача", "задачи", "задач")}</small>
             </button>
             <button onClick={() => { setSelectedProjectId(rootSpheres[0]?.id ?? null); setProjectTab("goals"); setMobileSection("projects"); }}>
