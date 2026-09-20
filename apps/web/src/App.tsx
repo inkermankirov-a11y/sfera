@@ -90,6 +90,11 @@ type NoteView = "all" | "ideas" | "diary" | "collections" | "lists" | "favorites
 type ProjectTab = "overview" | "tasks" | "notes" | "photos" | "goals" | "history";
 type CalendarMode = "day" | "week" | "month" | "history";
 
+type InstallPromptEvent = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+};
+
 const noteKindLabels: Record<NoteKind, string> = {
   note: "Заметка",
   idea: "Идея",
@@ -267,6 +272,9 @@ export function App() {
   });
   const [profileDraft, setProfileDraft] = useState(profileName);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
+  const [installHelpOpen, setInstallHelpOpen] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
   const [dailyFocus, setDailyFocus] = useState(() => {
     try {
       const stored = JSON.parse(localStorage.getItem(DAILY_FOCUS_STORAGE_KEY) ?? "null") as { date?: string; text?: string } | null;
@@ -281,6 +289,28 @@ export function App() {
       localStorage.setItem(PROFILE_NAME_STORAGE_KEY, profileName);
     } catch {}
   }, [profileName]);
+
+  useEffect(() => {
+    const standalone = window.matchMedia("(display-mode: standalone)").matches
+      || Boolean((navigator as Navigator & { standalone?: boolean }).standalone);
+    setIsStandalone(standalone);
+
+    const captureInstallPrompt = (event: Event) => {
+      event.preventDefault();
+      setInstallPrompt(event as InstallPromptEvent);
+    };
+    const markInstalled = () => {
+      setInstallPrompt(null);
+      setIsStandalone(true);
+      setInstallHelpOpen(false);
+    };
+    window.addEventListener("beforeinstallprompt", captureInstallPrompt);
+    window.addEventListener("appinstalled", markInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", captureInstallPrompt);
+      window.removeEventListener("appinstalled", markInstalled);
+    };
+  }, []);
 
   useEffect(() => {
     try {
@@ -1068,6 +1098,19 @@ export function App() {
     setProfileMenuOpen((value) => !value);
   }
 
+  async function installApp() {
+    if (installPrompt) {
+      await installPrompt.prompt();
+      const choice = await installPrompt.userChoice;
+      setInstallPrompt(null);
+      if (choice.outcome === "accepted") {
+        setToast("СФЕРА добавлена на главный экран");
+      }
+      return;
+    }
+    setInstallHelpOpen(true);
+  }
+
   function startNewTask(projectId: string | null) {
     setQuickTitle("");
     setQuickDate(isoToday());
@@ -1435,22 +1478,13 @@ export function App() {
       return (
         <div className="tree-node" key={task.id}>
           <article
-            className={`task-row task-depth-${Math.min(depth, 4)} ${selectedId === task.id ? "selected" : ""}`}
+            className={`task-row task-depth-${Math.min(depth, 4)} ${directChildren.length ? "has-children" : ""} ${selectedId === task.id ? "selected" : ""}`}
             draggable
             onDragStart={() => setDraggedId(task.id)}
             onDragEnd={() => setDraggedId(null)}
             onDragOver={(event) => event.preventDefault()}
             onDrop={() => dropBefore(task)}
           >
-            <button
-              className="tree-toggle"
-              disabled={directChildren.length === 0}
-              onClick={() => patchTask(task.id, { collapsed: !task.collapsed })}
-              aria-label={task.collapsed ? "Развернуть подзадачи" : "Свернуть подзадачи"}
-            >
-              {directChildren.length ? (task.collapsed ? "›" : "⌄") : ""}
-            </button>
-
             {task.uncompletable ? (
               <span className="uncompletable-mark" aria-label="Незавершаемая задача">◆</span>
             ) : (
@@ -1463,7 +1497,16 @@ export function App() {
               </button>
             )}
 
-            <button className="task-main" onClick={() => openDetail(task.id)}>
+            <button
+              className="task-main"
+              onClick={() => directChildren.length
+                ? patchTask(task.id, { collapsed: !task.collapsed })
+                : openDetail(task.id)}
+              aria-expanded={directChildren.length ? !task.collapsed : undefined}
+              aria-label={directChildren.length
+                ? `${task.collapsed ? "Развернуть" : "Свернуть"} задачу «${task.title}»`
+                : `Открыть задачу «${task.title}»`}
+            >
               <span className={`task-title ${task.status === "done" ? "done" : ""}`}>
                 {task.title}
               </span>
@@ -1480,7 +1523,7 @@ export function App() {
               </span>
             </button>
 
-            <button className="row-more" aria-label={`Открыть задачу «${task.title}»`} onClick={() => openDetail(task.id)}>›</button>
+            <button className="row-more" aria-label={`Открыть детали задачи «${task.title}»`} onClick={() => openDetail(task.id)}>•••</button>
           </article>
 
           {showNested && directChildren.length > 0 && (
@@ -1613,7 +1656,9 @@ export function App() {
         </header>
 
         <header className="mobile-topbar mobile-appbar">
-          <button className="mobile-profile-mark mobile-home-mark" onClick={() => setMobileSection("home")} aria-label="На главную">С</button>
+          <button className="mobile-profile-mark" onClick={openProfileNamePicker} aria-label="Изменить имя пользователя">
+            {profileName.slice(0, 1).toUpperCase()}
+          </button>
           <div className="mobile-app-title">
             <strong>СФЕРА</strong>
             <span>{mobileSection === "home" ? "Сегодня" : mobileSection === "projects" ? "Сферы" : mobileSection === "tasks" ? "Задачи" : mobileSection === "notes" ? "Заметки" : mobileSection === "photos" ? "Фото" : mobileSection === "relations" ? "Связи" : "Календарь"}</span>
@@ -1822,6 +1867,14 @@ export function App() {
               <span>◫</span><strong>Календарь</strong><small>Даты и история</small>
             </button>
           </div>
+
+          {!isStandalone && (
+            <button className="install-app-link" onClick={installApp}>
+              <span>⇧</span>
+              <span><strong>Установить СФЕРУ</strong><small>Открывать с главного экрана как приложение</small></span>
+              <b>›</b>
+            </button>
+          )}
 
         </section>
 
@@ -2717,7 +2770,12 @@ export function App() {
         </header>
         <div className="mobile-settings-content">
           <div className="settings-card">
-            <button><span className="settings-icon">◎</span><span>Аккаунт</span><b>›</b></button>
+            <button onClick={() => { setProfileDraft(profileName); setProfileMenuOpen(true); }}>
+              <span className="settings-icon settings-avatar">{profileName.slice(0, 1).toUpperCase()}</span>
+              <span>Имя пользователя</span>
+              <em>{profileName}</em>
+              <b>›</b>
+            </button>
             <button><span className="settings-icon">⚙</span><span>Основное</span><b>›</b></button>
             <button onClick={() => { setSettingsOpen(false); openCalendar("month"); }}><span className="settings-icon">▦</span><span>Календарь</span><b>›</b></button>
           </div>
@@ -2743,6 +2801,50 @@ export function App() {
           </div>
         </div>
       </section>
+
+      {profileMenuOpen && (
+        <div className="mobile-profile-backdrop" onClick={() => setProfileMenuOpen(false)}>
+          <form className="mobile-profile-sheet" onSubmit={saveProfileName} onClick={(event) => event.stopPropagation()}>
+            <div className="mobile-sheet-handle" />
+            <div className="mobile-profile-heading">
+              <span className="mobile-profile-avatar">{(profileDraft || profileName).slice(0, 1).toUpperCase()}</span>
+              <div><strong>Ваше имя</strong><small>Показывается в приветствии на главной</small></div>
+            </div>
+            <label htmlFor="mobile-profile-name">Имя пользователя</label>
+            <input
+              id="mobile-profile-name"
+              autoFocus
+              value={profileDraft}
+              onChange={(event) => setProfileDraft(event.target.value)}
+              placeholder="Введите имя"
+              maxLength={40}
+            />
+            <div className="mobile-profile-actions">
+              <button type="button" onClick={() => setProfileMenuOpen(false)}>Отмена</button>
+              <button type="submit" disabled={!profileDraft.trim()}>Сохранить</button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {installHelpOpen && (
+        <div className="mobile-profile-backdrop" onClick={() => setInstallHelpOpen(false)}>
+          <section className="mobile-profile-sheet install-help-sheet" onClick={(event) => event.stopPropagation()}>
+            <div className="mobile-sheet-handle" />
+            <div className="install-help-icon">⇧</div>
+            <h2>Установить СФЕРУ</h2>
+            <p className="install-vk-note">Если СФЕРА открыта внутри ВКонтакте, сначала выберите в меню «Открыть в Safari».</p>
+            <p>На iPhone откройте страницу в Safari, нажмите «Поделиться», затем выберите «На экран Домой».</p>
+            <ol>
+              <li><span>1</span>Открыть в Safari</li>
+              <li><span>2</span>Нажать «Поделиться»</li>
+              <li><span>3</span>Выбрать «На экран Домой»</li>
+            </ol>
+            <small>На Android: меню браузера → «Установить приложение» или «Добавить на главный экран».</small>
+            <button className="install-help-done" onClick={() => setInstallHelpOpen(false)}>Понятно</button>
+          </section>
+        </div>
+      )}
 
       <aside className={`detail-pane note-detail ${selectedNote ? "open" : ""}`} aria-hidden={!selectedNote}>
         {selectedNote && (
