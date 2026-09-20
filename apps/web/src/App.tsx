@@ -1613,7 +1613,7 @@ export function App() {
         </header>
 
         <header className="mobile-topbar mobile-appbar">
-          <button className="mobile-profile-mark mobile-home-mark" onClick={() => setMobileSection("home")} aria-label="На главную">S</button>
+          <button className="mobile-profile-mark mobile-home-mark" onClick={() => setMobileSection("home")} aria-label="На главную">С</button>
           <div className="mobile-app-title">
             <strong>СФЕРА</strong>
             <span>{mobileSection === "home" ? "Сегодня" : mobileSection === "projects" ? "Сферы" : mobileSection === "tasks" ? "Задачи" : mobileSection === "notes" ? "Заметки" : mobileSection === "photos" ? "Фото" : mobileSection === "relations" ? "Связи" : "Календарь"}</span>
@@ -2416,13 +2416,12 @@ export function App() {
           )}
         </section>
 
-        <button className="fab" aria-label="Быстрое добавление" onClick={() => setQuickMenuOpen(true)}>＋</button>
-
         <nav className="bottom-nav mobile-tabbar" aria-label="Основная навигация">
-          <button className={mobileSection === "projects" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("projects"); setSettingsOpen(false); }}><span>◇</span>Сферы</button>
+          <button className={mobileSection === "home" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("home"); setSettingsOpen(false); }}><span>⌂</span>Сегодня</button>
           <button className={mobileSection === "tasks" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("tasks"); setSettingsOpen(false); }}><span>✓</span>Задачи</button>
+          <button className="mobile-add-nav" aria-label="Добавить" onClick={() => setQuickMenuOpen(true)}><span>＋</span>Добавить</button>
+          <button className={mobileSection === "projects" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("projects"); setSettingsOpen(false); }}><span>◇</span>Сферы</button>
           <button className={mobileSection === "notes" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("notes"); setSettingsOpen(false); }}><span>✎</span>Заметки</button>
-          <button className={mobileSection === "photos" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("photos"); setSettingsOpen(false); }}><span>▧</span>Фото</button>
         </nav>
 
         {quickMenuOpen && (
