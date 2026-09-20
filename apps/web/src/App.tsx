@@ -1,1667 +1,634 @@
-import { FormEvent, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import {
-  Filter,
-  Priority,
-  STORAGE_KEY,
-  Task,
-  TaskComment,
-  childrenOf,
-  createTask,
-  depthOf,
-  descendantsOf,
-  formatDate,
-  formatDuration,
-  isoToday,
-  nextOrder,
-  nextRecurringDate,
-  nowIso,
-  parseQuickAdd,
-  readTasks
-} from "./tasks-model";
-import {
-  PROJECTS_STORAGE_KEY,
-  ProjectNode,
-  createProject,
-  flattenProjects,
-  nextProjectOrder,
-  projectChildren,
-  projectDescendants,
-  projectPath,
-  readProjects
-} from "./projects-model";
-import {
-  NOTES_STORAGE_KEY,
-  Note,
-  NoteKind,
-  createNote,
-  readNotes
-} from "./notes-model";
-import {
-  GOALS_STORAGE_KEY,
-  Goal,
-  createGoal,
-  readGoals
-} from "./goals-model";
-import {
-  RELATIONS_STORAGE_KEY,
-  EntityType,
-  ObjectRef,
-  Relation,
-  areLinked,
-  createRelation,
-  otherRef,
-  readRelations,
-  relationsFor,
-  removeRelationsFor
-} from "./relations-model";
-import {
-  ATTACHMENTS_STORAGE_KEY,
-  Attachment,
-  attachmentsFor,
-  readAttachments,
-  removeAttachmentLink
-} from "./attachments-model";
-import { CalendarMiniMonth } from "./calendar/CalendarMiniMonth";
-import { DesktopCalendar } from "./calendar/DesktopCalendar";
-import { RelationsGraph } from "./RelationsGraph";
-import {
-  addDaysIso,
-  calendarRangeLabel,
-  inclusiveDayCount,
-  isoDate,
-  isoRange,
-  monthCells
-} from "./calendar/calendar-utils";
-
-const PROFILE_NAME_STORAGE_KEY = "sfera.profile.name";
-
-const filterLabels: Record<Filter, string> = {
-  all: "Все",
-  today: "Сегодня",
-  inbox: "Без даты",
-  overdue: "Просрочено",
-  done: "Выполнено"
-};
-
-type Section = "home" | "projects" | "tasks" | "notes" | "photos" | "calendar" | "relations";
-type TaskView = Filter | "week";
-type NoteView = "all" | "ideas" | "diary" | "collections" | "lists" | "favorites";
-type ProjectTab = "overview" | "tasks" | "notes" | "photos" | "goals" | "history";
-type CalendarMode = "day" | "week" | "month" | "history";
-
-const noteKindLabels: Record<NoteKind, string> = {
-  note: "Заметка",
-  idea: "Идея",
-  diary: "Дневник",
-  collection: "Коллекция",
-  list: "Список"
-};
-
-function localIso(date: Date) {
-  const offset = date.getTimezoneOffset();
-  return new Date(date.getTime() - offset * 60_000).toISOString().slice(0, 10);
-}
-
-function currentWeekDates() {
-  const now = new Date();
-  const day = now.getDay() || 7;
-  const monday = new Date(now);
-  monday.setHours(12, 0, 0, 0);
-  monday.setDate(now.getDate() - day + 1);
-  return Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(monday);
-    date.setDate(monday.getDate() + index);
-    return {
-      iso: localIso(date),
-      short: new Intl.DateTimeFormat("ru-RU", { weekday: "short" }).format(date).replace(".", ""),
-      day: date.getDate()
-    };
-  });
-}
-
-const priorityLabels: Record<Priority, string> = {
-  1: "Высокий",
-  2: "Средний",
-  3: "Низкий",
-  4: "Без приоритета"
-};
-
-function russianPlural(count: number, one: string, few: string, many: string) {
-  const mod10 = count % 10;
-  const mod100 = count % 100;
-  if (mod10 === 1 && mod100 !== 11) return one;
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return few;
-  return many;
-}
-
-const moonPhases = [
-  { icon: "🌑", name: "Новолуние" },
-  { icon: "🌒", name: "Растущий серп" },
-  { icon: "🌓", name: "Первая четверть" },
-  { icon: "🌔", name: "Растущая Луна" },
-  { icon: "🌕", name: "Полнолуние" },
-  { icon: "🌖", name: "Убывающая Луна" },
-  { icon: "🌗", name: "Последняя четверть" },
-  { icon: "🌘", name: "Убывающий серп" }
-] as const;
-
-function moonPhaseFor(date: Date) {
-  const synodicMonth = 29.530588853;
-  const knownNewMoonUtc = Date.UTC(2000, 0, 6, 18, 14);
-  const localNoonUtc = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 12);
-  const daysSinceNewMoon = (localNoonUtc - knownNewMoonUtc) / 86_400_000;
-  const age = ((daysSinceNewMoon % synodicMonth) + synodicMonth) % synodicMonth;
-  const phaseIndex = Math.floor((age / synodicMonth) * 8 + 0.5) % 8;
-  return moonPhases[phaseIndex];
-}
-
-function rootSphereId(projects: ProjectNode[], projectId: string | null | undefined) {
-  if (!projectId) return null;
-  let current = projects.find((item) => item.id === projectId);
-  const seen = new Set<string>();
-  while (current?.parentId && !seen.has(current.id)) {
-    seen.add(current.id);
-    current = projects.find((item) => item.id === current!.parentId);
-  }
-  return current?.id ?? null;
-}
-
-function sphereTone(projects: ProjectNode[], projectId: string | null | undefined) {
-  const rootId = rootSphereId(projects, projectId);
-  if (!rootId) return "neutral";
-  const roots = projectChildren(projects, null);
-  const index = Math.max(0, roots.findIndex((item) => item.id === rootId));
-  return ["teal", "green", "violet", "coral", "amber", "blue"][index % 6];
-}
-
-function dateTimeLocalValue(at: string) {
-  const d = new Date(at);
-  const offset = d.getTimezoneOffset();
-  return new Date(d.getTime() - offset * 60_000).toISOString().slice(0, 16);
-}
-
-function dateTimeLocalToIso(value: string) {
-  return value ? new Date(value).toISOString() : "";
-}
-
-export function App() {
-  const [tasks, setTasks] = useState<Task[]>(() => readTasks());
-  const [filter, setFilter] = useState<Filter>("all");
-  const [taskView, setTaskView] = useState<TaskView>("all");
-  const [selectedId, setSelectedId] = useState<string | null>(() => {
-    const match = location.hash.match(/^#task=(.+)$/);
-    return match ? decodeURIComponent(match[1]) : null;
-  });
-  const [quickTitle, setQuickTitle] = useState("");
-  const [quickPriority, setQuickPriority] = useState<Priority>(4);
-  const [quickOptionsOpen, setQuickOptionsOpen] = useState(false);
-  const [quickDate, setQuickDate] = useState("");
-  const [quickTime, setQuickTime] = useState("");
-  const [quickDeadline, setQuickDeadline] = useState("");
-  const [calendarComposerOpen, setCalendarComposerOpen] = useState(false);
-  const [calendarComposerPosition, setCalendarComposerPosition] = useState({ left: 360, top: 120 });
-  const calendarComposerRef = useRef<HTMLFormElement | null>(null);
-  const [quickRelationType, setQuickRelationType] = useState<EntityType>("project");
-  const [quickRelationTargetId, setQuickRelationTargetId] = useState("");
-  const [projectView, setProjectView] = useState<"grid" | "list">(() => {
-    try { return localStorage.getItem("sfera.projectView") === "list" ? "list" : "grid"; } catch { return "grid"; }
-  });
-  const [relations, setRelations] = useState<Relation[]>(() => readRelations());
-  const [attachments, setAttachments] = useState<Attachment[]>(() => readAttachments());
-  const [linkType, setLinkType] = useState<EntityType>("project");
-  const [linkTargetId, setLinkTargetId] = useState("");
-  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
-  const [projectEditOpen, setProjectEditOpen] = useState(false);
-  const [editProjectTitle, setEditProjectTitle] = useState("");
-  const [editProjectParentId, setEditProjectParentId] = useState("");
-  const [subtaskTitle, setSubtaskTitle] = useState("");
-  const [commentBody, setCommentBody] = useState("");
-  const [query, setQuery] = useState("");
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [toast, setToast] = useState("");
-  const [draggedId, setDraggedId] = useState<string | null>(null);
-  const [mobileQuickOpen, setMobileQuickOpen] = useState(false);
-  const [quickMenuOpen, setQuickMenuOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [mobileSection, setMobileSection] = useState<Section>("home");
-  const [projects, setProjects] = useState<ProjectNode[]>(() => readProjects());
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
-  const [projectCreateOpen, setProjectCreateOpen] = useState(false);
-  const [projectTitle, setProjectTitle] = useState("");
-  const [projectParentId, setProjectParentId] = useState("");
-  const [quickProjectId, setQuickProjectId] = useState<string | null>(null);
-  const [notes, setNotes] = useState<Note[]>(() => readNotes());
-  const [goals, setGoals] = useState<Goal[]>(() => readGoals());
-  const [noteView, setNoteView] = useState<NoteView>("all");
-  const [noteCreateOpen, setNoteCreateOpen] = useState(false);
-  const [noteTitle, setNoteTitle] = useState("");
-  const [noteBody, setNoteBody] = useState("");
-  const [noteKind, setNoteKind] = useState<NoteKind>("note");
-  const [noteProjectId, setNoteProjectId] = useState<string | null>(null);
-  const [projectTab, setProjectTab] = useState<ProjectTab>("overview");
-  const [goalTitle, setGoalTitle] = useState("");
-  const [calendarMode, setCalendarMode] = useState<CalendarMode>("month");
-  const [calendarCursor, setCalendarCursor] = useState(() => new Date());
-  const [calendarRangeStart, setCalendarRangeStart] = useState(() => isoToday());
-  const [calendarRangeEnd, setCalendarRangeEnd] = useState(() => addDaysIso(isoToday(), 6));
-  const [calendarPickingEnd, setCalendarPickingEnd] = useState(false);
-  const [profileName, setProfileName] = useState(() => {
-    try {
-      return localStorage.getItem(PROFILE_NAME_STORAGE_KEY)?.trim() || "Лаура";
-    } catch {
-      return "Лаура";
-    }
-  });
-  const [profileDraft, setProfileDraft] = useState(profileName);
-  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(PROFILE_NAME_STORAGE_KEY, profileName);
-    } catch {}
-  }, [profileName]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-  }, [tasks]);
-
-  useEffect(() => {
-    localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects));
-  }, [projects]);
-
-  useEffect(() => {
-    localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notes));
-  }, [notes]);
-
-  useEffect(() => {
-    localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify(goals));
-  }, [goals]);
-
-  useEffect(() => {
-    localStorage.setItem(RELATIONS_STORAGE_KEY, JSON.stringify(relations));
-  }, [relations]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(ATTACHMENTS_STORAGE_KEY, JSON.stringify(attachments));
-    } catch {
-      setToast("Не удалось сохранить вложение: локальное хранилище заполнено");
-    }
-  }, [attachments]);
-
-  useEffect(() => {
-    if (!selectedProjectId) setProjectTab("overview");
-  }, [selectedProjectId]);
-
-  useEffect(() => {
-    if (!toast) return;
-    const timer = window.setTimeout(() => setToast(""), 2600);
-    return () => window.clearTimeout(timer);
-  }, [toast]);
-
-  useEffect(() => {
-    const onHash = () => {
-      const match = location.hash.match(/^#task=(.+)$/);
-      setSelectedId(match ? decodeURIComponent(match[1]) : null);
-    };
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  }, []);
-
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      const el = event.target as HTMLElement | null;
-      const typing = el?.tagName === "INPUT" || el?.tagName === "TEXTAREA" || el?.tagName === "SELECT";
-      if (!typing && event.key.toLowerCase() === "q") {
-        event.preventDefault();
-        document.getElementById("quick-add")?.focus();
-      }
-      if (event.key === "Escape" && selectedId) closeDetail();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [selectedId]);
-
-  const selected = tasks.find((task) => task.id === selectedId) ?? null;
-  const selectedParent = selected?.parentId
-    ? tasks.find((task) => task.id === selected.parentId) ?? null
-    : null;
-
-  const activeCount = tasks.filter((task) => task.status === "active").length;
-  const selectedProject = selectedProjectId
-    ? projects.find((project) => project.id === selectedProjectId) ?? null
-    : null;
-  const selectedNote = selectedNoteId
-    ? notes.find((note) => note.id === selectedNoteId) ?? null
-    : null;
-  const flattenedProjects = useMemo(() => flattenProjects(projects), [projects]);
-  const todayTasks = useMemo(
-    () => tasks
-      .filter((task) => task.status === "active" && task.date === isoToday())
-      .sort((a, b) => (a.time ?? "99:99").localeCompare(b.time ?? "99:99") || a.order - b.order),
-    [tasks]
-  );
-  const overdueTasks = useMemo(
-    () => tasks
-      .filter((task) => task.status === "active" && task.date && task.date < isoToday())
-      .sort((a, b) => (a.date ?? "").localeCompare(b.date ?? "")),
-    [tasks]
-  );
-  const rootSpheres = useMemo(() => projectChildren(projects, null), [projects]);
-  const dashboardDate = new Intl.DateTimeFormat("ru-RU", {
-    weekday: "long",
-    day: "numeric",
-    month: "long"
-  }).format(new Date());
-  const moonPhase = moonPhaseFor(new Date());
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Доброе утро" : hour < 18 ? "Добрый день" : "Добрый вечер";
-  const weekDates = useMemo(() => currentWeekDates(), []);
-  const weekTaskCount = useMemo(
-    () => tasks.filter((task) => task.status === "active" && task.date && weekDates.some((day) => day.iso === task.date)).length,
-    [tasks, weekDates]
-  );
-  const visibleNotes = useMemo(() => {
-    if (noteView === "ideas") return notes.filter((note) => note.kind === "idea");
-    if (noteView === "diary") return notes.filter((note) => note.kind === "diary");
-    if (noteView === "collections") return notes.filter((note) => note.kind === "collection");
-    if (noteView === "lists") return notes.filter((note) => note.kind === "list");
-    if (noteView === "favorites") return notes.filter((note) => note.favorite);
-    return notes;
-  }, [notes, noteView]);
-  const calendarCells = useMemo(() => monthCells(calendarCursor), [calendarCursor]);
-  const calendarTitle = new Intl.DateTimeFormat("ru-RU", { month: "long", year: "numeric" }).format(calendarCursor);
-  const desktopCalendarDates = useMemo(() => isoRange(calendarRangeStart, calendarRangeEnd), [calendarRangeStart, calendarRangeEnd]);
-  const desktopCalendarTitle = calendarRangeLabel(calendarRangeStart, calendarRangeEnd);
-  const desktopCalendarDayCount = desktopCalendarDates.length;
-  const timezoneHours = -new Date().getTimezoneOffset() / 60;
-  const timezoneLabel = "GMT" + (timezoneHours >= 0 ? "+" : "") + (Number.isInteger(timezoneHours) ? timezoneHours : timezoneHours.toFixed(1));
-  const historyEvents = useMemo(() => {
-    const taskEvents = tasks.flatMap((task) => {
-      const events = [
-        { id: "task-created-" + task.id, at: task.createdAt, icon: "✓", title: task.title, meta: "Задача создана" }
-      ];
-      if (task.completedAt) events.push({ id: "task-done-" + task.id, at: task.completedAt, icon: "✓", title: task.title, meta: "Задача выполнена" });
-      return events;
-    });
-    const noteEvents = notes.map((note) => ({
-      id: "note-" + note.id,
-      at: note.createdAt,
-      icon: "✎",
-      title: note.title,
-      meta: noteKindLabels[note.kind]
-    }));
-    const goalEvents = goals.map((goal) => ({
-      id: "goal-" + goal.id,
-      at: goal.createdAt,
-      icon: "◎",
-      title: goal.title,
-      meta: "Цель"
-    }));
-    return [...taskEvents, ...noteEvents, ...goalEvents]
-      .filter((event) => !!event.at)
-      .sort((a, b) => b.at.localeCompare(a.at))
-      .slice(0, 40);
-  }, [tasks, notes, goals]);
-
-  function matchesFilter(task: Task) {
-    const normalized = query.trim().toLowerCase();
-    if (normalized) {
-      const haystack = [
-        task.title,
-        task.description,
-        task.labels.join(" ")
-      ].join(" ").toLowerCase();
-      if (!haystack.includes(normalized)) return false;
-    }
-
-    if (filter === "today") return task.status === "active" && task.date === isoToday();
-    if (filter === "inbox") return task.status === "active" && task.date === null;
-    if (filter === "overdue") return task.status === "active" && !!task.date && task.date < isoToday();
-    if (filter === "done") return task.status === "done";
-    return task.status === "active";
-  }
-
-  function hasMatchingDescendant(task: Task) {
-    return descendantsOf(tasks, task.id).some(matchesFilter);
-  }
-
-  const topLevelForView = useMemo(() => {
-    return childrenOf(tasks, null).filter((task) => matchesFilter(task) || hasMatchingDescendant(task));
-  }, [tasks, filter, query]);
-
-  function patchTask(id: string, patch: Partial<Task>) {
-    setTasks((current) =>
-      current.map((task) =>
-        task.id === id ? { ...task, ...patch, updatedAt: nowIso() } : task
-      )
-    );
-  }
-
-  function patchProject(id: string, patch: Partial<ProjectNode>) {
-    setProjects((current) =>
-      current.map((project) =>
-        project.id === id
-          ? { ...project, ...patch, updatedAt: nowIso() }
-          : project
-      )
-    );
-  }
-
-  function addProject(event?: FormEvent) {
-    event?.preventDefault();
-    const title = projectTitle.trim();
-    if (!title) return;
-    const parentId = projectParentId || null;
-    const project = createProject({
-      title,
-      parentId,
-      kind: parentId ? "project" : "sphere",
-      order: nextProjectOrder(projects, parentId)
-    });
-    setProjects((current) => [...current, project]);
-    setProjectTitle("");
-    setProjectCreateOpen(false);
-    setProjectParentId("");
-    setSelectedProjectId(project.id);
-    setToast(parentId ? "Проект создан" : "Сфера жизни создана");
-  }
-
-  function chooseTaskView(view: TaskView) {
-    setTaskView(view);
-    if (view === "week") return;
-    setFilter(view);
-  }
-
-  function addNote(event?: FormEvent) {
-    event?.preventDefault();
-    const title = noteTitle.trim();
-    if (!title) return;
-    const note = createNote({
-      title,
-      body: noteBody.trim(),
-      kind: noteKind,
-      projectId: noteProjectId,
-      date: noteKind === "diary" ? isoToday() : null
-    });
-    setNotes((current) => [note, ...current]);
-    setNoteTitle("");
-    setNoteBody("");
-    setNoteKind("note");
-    setNoteProjectId(null);
-    setNoteCreateOpen(false);
-    setNoteView(note.kind === "idea" ? "ideas" : note.kind === "diary" ? "diary" : note.kind === "collection" ? "collections" : note.kind === "list" ? "lists" : "all");
-    setMobileSection("notes");
-    setToast("Запись сохранена");
-  }
-
-  function addGoal(event?: FormEvent) {
-    event?.preventDefault();
-    const title = goalTitle.trim();
-    if (!title || !selectedProject) return;
-    const goal = createGoal({
-      title,
-      projectId: selectedProject.id,
-      progress: 0
-    });
-    setGoals((current) => [goal, ...current]);
-    setGoalTitle("");
-    setToast("Цель добавлена");
-  }
-
-  function patchGoal(id: string, patch: Partial<Goal>) {
-    setGoals((current) => current.map((goal) =>
-      goal.id === id ? { ...goal, ...patch, updatedAt: nowIso() } : goal
-    ));
-  }
-
-  function openCalendar(mode: CalendarMode = "month") {
-    setCalendarMode(mode);
-    setMobileSection("calendar");
-  }
-
-  function setMonthOffset(delta: number) {
-    setCalendarCursor((current) => new Date(current.getFullYear(), current.getMonth() + delta, 1));
-  }
-
-  function setDesktopCalendarPeriod(start: string, days: number) {
-    const safeDays = Math.max(1, Math.min(14, days));
-    setCalendarRangeStart(start);
-    setCalendarRangeEnd(addDaysIso(start, safeDays - 1));
-    setCalendarPickingEnd(false);
-    setCalendarCursor(isoDate(start));
-  }
-
-  function selectMiniCalendarDay(iso: string) {
-    if (!calendarPickingEnd) {
-      setCalendarRangeStart(iso);
-      setCalendarRangeEnd(iso);
-      setCalendarPickingEnd(true);
-      setCalendarCursor(isoDate(iso));
-      return;
-    }
-
-    const anchor = calendarRangeStart;
-    let start = anchor <= iso ? anchor : iso;
-    let end = anchor <= iso ? iso : anchor;
-    if (inclusiveDayCount(start, end) > 14) {
-      if (iso >= anchor) end = addDaysIso(anchor, 13);
-      else start = addDaysIso(anchor, -13);
-    }
-    setCalendarRangeStart(start);
-    setCalendarRangeEnd(end);
-    setCalendarPickingEnd(false);
-    setCalendarCursor(isoDate(start));
-  }
-
-  function moveDesktopCalendarPeriod(direction: -1 | 1) {
-    const days = inclusiveDayCount(calendarRangeStart, calendarRangeEnd);
-    const nextStart = addDaysIso(calendarRangeStart, days * direction);
-    setDesktopCalendarPeriod(nextStart, days);
-  }
-
-  function chooseTodayPeriod() {
-    setDesktopCalendarPeriod(isoToday(), desktopCalendarDayCount);
-  }
-
-  function setTaskProject(task: Task, projectId: string | null) {
-    const ids = new Set([task.id, ...descendantsOf(tasks, task.id).map((item) => item.id)]);
-    setTasks((current) =>
-      current.map((item) =>
-        ids.has(item.id)
-          ? { ...item, projectId, updatedAt: nowIso() }
-          : item
-      )
-    );
-    setToast(projectId ? "Проект назначен" : "Задача без проекта");
-  }
-
-  function projectTaskCount(projectId: string, includeChildren = true) {
-    const ids = new Set([projectId]);
-    if (includeChildren) {
-      projectDescendants(projects, projectId).forEach((project) => ids.add(project.id));
-    }
-    return tasks.filter((task) => task.status === "active" && task.projectId && ids.has(task.projectId)).length;
-  }
-
-  function projectScopeIds(projectId: string) {
-    return new Set([projectId, ...projectDescendants(projects, projectId).map((project) => project.id)]);
-  }
-
-  function taskInProjectScope(task: Task, projectId: string) {
-    const ids = projectScopeIds(projectId);
-    if (task.projectId && ids.has(task.projectId)) return true;
-    return Array.from(ids).some((id) => areLinked(relations, { type: "task", id: task.id }, { type: "project", id }));
-  }
-
-  function noteInProjectScope(note: Note, projectId: string) {
-    const ids = projectScopeIds(projectId);
-    if (note.projectId && ids.has(note.projectId)) return true;
-    return Array.from(ids).some((id) => areLinked(relations, { type: "note", id: note.id }, { type: "project", id }));
-  }
-
-  function projectNoteCount(projectId: string) {
-    return notes.filter((note) => noteInProjectScope(note, projectId)).length;
-  }
-
-  function entityTitle(ref: ObjectRef) {
-    if (ref.type === "project") {
-      const project = projects.find((item) => item.id === ref.id);
-      return project ? projectPath(projects, project.id) : "Удалённый проект";
-    }
-    if (ref.type === "task") return tasks.find((item) => item.id === ref.id)?.title ?? "Удалённая задача";
-    return notes.find((item) => item.id === ref.id)?.title ?? "Удалённая заметка";
-  }
-
-  function graphEntityTitle(ref: ObjectRef) {
-    if (ref.type === "project") {
-      return projects.find((item) => item.id === ref.id)?.title ?? "Удалённый проект";
-    }
-    if (ref.type === "task") return tasks.find((item) => item.id === ref.id)?.title ?? "Удалённая задача";
-    return notes.find((item) => item.id === ref.id)?.title ?? "Удалённая заметка";
-  }
-
-  function entityTypeLabel(type: EntityType) {
-    return type === "project" ? "Сфера / проект" : type === "task" ? "Задача" : "Заметка";
-  }
-
-  function relationTargetOptions(type: EntityType, source: ObjectRef) {
-    if (type === "project") {
-      return flattenedProjects
-        .filter(({ project }) => !(source.type === "project" && source.id === project.id))
-        .map(({ project, path }) => ({ id: project.id, label: path }));
-    }
-    if (type === "task") {
-      return tasks
-        .filter((task) => !(source.type === "task" && source.id === task.id))
-        .map((task) => ({ id: task.id, label: task.title }));
-    }
-    return notes
-      .filter((note) => !(source.type === "note" && source.id === note.id))
-      .map((note) => ({ id: note.id, label: note.title }));
-  }
-
-  function addObjectRelation(source: ObjectRef) {
-    if (!linkTargetId) return;
-    const target: ObjectRef = { type: linkType, id: linkTargetId };
-    if (source.type === target.type && source.id === target.id) return;
-    if (areLinked(relations, source, target)) {
-      setToast("Эта связь уже существует");
-      return;
-    }
-    setRelations((current) => [...current, createRelation(source, target)]);
-    setLinkTargetId("");
-    setToast("Связь добавлена");
-  }
-
-  function openLinkedObject(ref: ObjectRef) {
-    if (ref.type === "project") {
-      setSelectedProjectId(ref.id);
-      setMobileSection("projects");
-      setSelectedNoteId(null);
-      if (selectedId) closeDetail();
-      return;
-    }
-    if (ref.type === "task") {
-      setSelectedNoteId(null);
-      openDetail(ref.id);
-      return;
-    }
-    setSelectedNoteId(ref.id);
-    if (selectedId) closeDetail();
-  }
-
-  function renderRelationsPanel(source: ObjectRef) {
-    const linked = relationsFor(relations, source);
-    const options = relationTargetOptions(linkType, source);
-    return (
-      <section className="detail-section linked-objects-section">
-        <div className="section-heading">
-          <h3>Связи</h3>
-          <span>{linked.length}</span>
-        </div>
-        {linked.length > 0 && (
-          <div className="linked-object-list">
-            {linked.map((relation) => {
-              const ref = otherRef(relation, source);
-              return (
-                <div className="linked-object-chip" key={relation.id}>
-                  <button onClick={() => openLinkedObject(ref)}>
-                    <small>{entityTypeLabel(ref.type)}</small>
-                    <strong>{entityTitle(ref)}</strong>
-                  </button>
-                  <button
-                    className="linked-remove"
-                    aria-label="Удалить связь"
-                    onClick={() => setRelations((current) => current.filter((item) => item.id !== relation.id))}
-                  >×</button>
-                </div>
-              );
-            })}
-          </div>
-        )}
-        <div className="link-object-form">
-          <select value={linkType} onChange={(event) => { setLinkType(event.target.value as EntityType); setLinkTargetId(""); }}>
-            <option value="project">Сфера / проект</option>
-            <option value="task">Задача</option>
-            <option value="note">Заметка</option>
-          </select>
-          <select value={linkTargetId} onChange={(event) => setLinkTargetId(event.target.value)}>
-            <option value="">Выбрать объект…</option>
-            {options.map((option) => <option value={option.id} key={option.id}>{option.label}</option>)}
-          </select>
-          <button disabled={!linkTargetId} onClick={() => addObjectRelation(source)}>Связать</button>
-        </div>
-      </section>
-    );
-  }
-
-  async function attachFiles(ref: ObjectRef, fileList: FileList | null) {
-    if (!fileList?.length) return;
-    const files = Array.from(fileList);
-    const accepted: Attachment[] = [];
-    for (const file of files) {
-      if (file.size > 1_200_000) {
-        setToast("Файл слишком большой для локального прототипа — максимум 1,2 МБ");
-        continue;
-      }
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result ?? ""));
-        reader.onerror = () => reject(reader.error);
-        reader.readAsDataURL(file);
-      });
-      accepted.push({
-        id: crypto.randomUUID(),
-        name: file.name,
-        mime: file.type || "application/octet-stream",
-        size: file.size,
-        dataUrl,
-        links: [ref],
-        createdAt: new Date().toISOString()
-      });
-    }
-    if (accepted.length) {
-      setAttachments((current) => [...accepted, ...current]);
-      setToast(accepted.length === 1 ? "Файл прикреплён" : "Файлы прикреплены");
-    }
-  }
-
-  function removeAttachmentFrom(ref: ObjectRef, attachmentId: string) {
-    setAttachments((current) => current
-      .map((attachment) => attachment.id === attachmentId ? removeAttachmentLink(attachment, ref) : attachment)
-      .filter((attachment) => attachment.links.length > 0));
-  }
-
-  function renderAttachmentsPanel(ref: ObjectRef) {
-    const items = attachmentsFor(attachments, ref);
-    return (
-      <section className="detail-section object-attachments-section">
-        <div className="section-heading">
-          <h3>Файлы и фото</h3>
-          <span>{items.length}</span>
-        </div>
-        {items.length > 0 && (
-          <div className="object-attachment-grid">
-            {items.map((attachment) => (
-              <article className="object-attachment" key={attachment.id}>
-                {attachment.mime.startsWith("image/") ? (
-                  <img src={attachment.dataUrl} alt={attachment.name} />
-                ) : (
-                  <span className="attachment-file-icon">▤</span>
-                )}
-                <div>
-                  <strong>{attachment.name}</strong>
-                  <small>{Math.max(1, Math.round(attachment.size / 1024))} КБ</small>
-                </div>
-                <a href={attachment.dataUrl} download={attachment.name} aria-label="Открыть файл">↗</a>
-                <button onClick={() => removeAttachmentFrom(ref, attachment.id)} aria-label="Открепить файл">×</button>
-              </article>
-            ))}
-          </div>
-        )}
-        <label className="attachment-upload">
-          <span>＋ Прикрепить фото или файл</span>
-          <input
-            type="file"
-            multiple
-            accept="image/*,.pdf,.txt,.doc,.docx,.xls,.xlsx,.zip"
-            onChange={(event) => { void attachFiles(ref, event.currentTarget.files); event.currentTarget.value = ""; }}
-          />
-        </label>
-        <small className="attachment-limit">Сейчас локально: до 1,2 МБ на файл. Голосовые с расшифровкой — следующий слой этой модели.</small>
-      </section>
-    );
-  }
-
-  function patchNote(id: string, patch: Partial<Note>) {
-    setNotes((current) => current.map((note) => note.id === id ? { ...note, ...patch, updatedAt: nowIso() } : note));
-  }
-
-  function deleteNote(note: Note) {
-    if (!window.confirm(`Удалить заметку «${note.title}»?`)) return;
-    const ref: ObjectRef = { type: "note", id: note.id };
-    setNotes((current) => current.filter((item) => item.id !== note.id));
-    setRelations((current) => removeRelationsFor(current, ref));
-    setAttachments((current) => current
-      .map((attachment) => removeAttachmentLink(attachment, ref))
-      .filter((attachment) => attachment.links.length > 0));
-    setSelectedNoteId(null);
-    setToast("Заметка удалена");
-  }
-
-  function openProjectEditor(project: ProjectNode) {
-    setEditProjectTitle(project.title);
-    setEditProjectParentId(project.parentId ?? "");
-    setProjectEditOpen(true);
-  }
-
-  function saveProjectEdit(event?: FormEvent) {
-    event?.preventDefault();
-    if (!selectedProject) return;
-    const title = editProjectTitle.trim();
-    if (!title) return;
-    const invalidParents = new Set([selectedProject.id, ...projectDescendants(projects, selectedProject.id).map((item) => item.id)]);
-    const parentId = editProjectParentId && !invalidParents.has(editProjectParentId) ? editProjectParentId : null;
-    patchProject(selectedProject.id, {
-      title,
-      parentId,
-      kind: parentId ? "project" : "sphere"
-    });
-    setProjectEditOpen(false);
-    setToast("Проект обновлён");
-  }
-
-  function deleteProjectNode(project: ProjectNode) {
-    if (!window.confirm(`Удалить «${project.title}»? Подпроекты будут подняты на уровень выше.`)) return;
-    const ref: ObjectRef = { type: "project", id: project.id };
-    const parentId = project.parentId;
-    setProjects((current) => current
-      .filter((item) => item.id !== project.id)
-      .map((item) => item.parentId === project.id ? { ...item, parentId, updatedAt: nowIso() } : item));
-    setTasks((current) => current.map((task) => task.projectId === project.id ? { ...task, projectId: parentId, updatedAt: nowIso() } : task));
-    setNotes((current) => current.map((note) => note.projectId === project.id ? { ...note, projectId: parentId, updatedAt: nowIso() } : note));
-    setRelations((current) => removeRelationsFor(current, ref));
-    setAttachments((current) => current
-      .map((attachment) => removeAttachmentLink(attachment, ref))
-      .filter((attachment) => attachment.links.length > 0));
-    setSelectedProjectId(parentId);
-    setProjectEditOpen(false);
-    setToast("Проект удалён");
-  }
-
-  function setProjectViewMode(mode: "grid" | "list") {
-    setProjectView(mode);
-    try { localStorage.setItem("sfera.projectView", mode); } catch {}
-  }
-
-  function renderProjectLocationPicker(
-    value: string,
-    onChange: (value: string) => void,
-    rootLabel = "Без проекта / корень",
-    excludeIds: Set<string> = new Set()
-  ) {
-    const selectedProject = value ? projects.find((project) => project.id === value) ?? null : null;
-    const selectedTone = selectedProject ? sphereTone(projects, selectedProject.id) : "neutral";
-    return (
-      <details className="project-location-picker">
-        <summary className={`project-location-summary tone-${selectedTone} ${selectedProject ? "has-project" : "is-root"}`}>
-          <span className="project-location-swatch" />
-          <span>
-            <strong>{selectedProject ? selectedProject.title : rootLabel}</strong>
-            {selectedProject && <small>{projectPath(projects, selectedProject.id)}</small>}
-          </span>
-          <b>⌄</b>
-        </summary>
-        <div className="project-location-menu">
-          <button
-            type="button"
-            className={`project-location-option tone-neutral depth-0 ${!value ? "selected" : ""}`}
-            onClick={(event) => {
-              onChange("");
-              event.currentTarget.closest("details")?.removeAttribute("open");
-            }}
-          >
-            <span className="project-location-swatch" />
-            <span className="project-location-copy"><strong>{rootLabel}</strong><small>Верхний уровень</small></span>
-            {!value && <b>✓</b>}
-          </button>
-          {flattenedProjects
-            .filter(({ project }) => !excludeIds.has(project.id))
-            .map(({ project, depth, path }) => {
-              const tone = sphereTone(projects, project.id);
-              return (
-                <button
-                  type="button"
-                  key={project.id}
-                  className={`project-location-option tone-${tone} depth-${Math.min(depth, 4)} ${value === project.id ? "selected" : ""}`}
-                  onClick={(event) => {
-                    onChange(project.id);
-                    event.currentTarget.closest("details")?.removeAttribute("open");
-                  }}
-                >
-                  <span className="project-location-swatch" />
-                  <span className="project-location-copy">
-                    <strong>{project.title}</strong>
-                    <small>{depth === 0 ? "Сфера жизни" : path}</small>
-                  </span>
-                  {value === project.id && <b>✓</b>}
-                </button>
-              );
-            })}
-        </div>
-      </details>
-    );
-  }
-
-  function renderProjectGrid(parentId: string | null) {
-    const items = projectChildren(projects, parentId);
-    return (
-      <div className="project-grid">
-        {items.map((project) => {
-          const children = projectChildren(projects, project.id);
-          const tone = sphereTone(projects, project.id);
-          return (
-            <button
-              className={`project-tile sphere-tone-${tone} ${project.kind === "sphere" ? "sphere-root-tile" : "sphere-child-tile"}`}
-              key={project.id}
-              onClick={() => setSelectedProjectId(project.id)}
-            >
-              <span className="project-tile-icon">{project.kind === "sphere" ? "◇" : "▰"}</span>
-              <strong>{project.title}</strong>
-              <small>{projectTaskCount(project.id)} задач · {children.length} {russianPlural(children.length, "подпроект", "подпроекта", "подпроектов")}</small>
-              <b>›</b>
-            </button>
-          );
-        })}
-      </div>
-    );
-  }
-
-  function renderProjectTree(parentId: string | null, depth = 0): React.ReactNode {
-    return projectChildren(projects, parentId).map((project) => {
-      const children = projectChildren(projects, project.id);
-      return (
-        <div className="project-tree-node" key={project.id}>
-          <div className={`project-tree-row project-depth-${Math.min(depth, 4)} sphere-tone-${sphereTone(projects, project.id)} ${depth === 0 ? "sphere-root-row" : "sphere-child-row"}`}>
-            <button
-              className="project-toggle"
-              disabled={children.length === 0}
-              onClick={() => patchProject(project.id, { collapsed: !project.collapsed })}
-              aria-label={project.collapsed ? "Развернуть" : "Свернуть"}
-            >
-              {children.length ? (project.collapsed ? "›" : "⌄") : ""}
-            </button>
-            <button className="project-main" onClick={() => setSelectedProjectId(project.id)}>
-              <span className="project-folder-icon">{project.kind === "sphere" ? "◇" : "▰"}</span>
-              <span>
-                <strong>{project.title}</strong>
-                <small>{projectTaskCount(project.id)} активных задач</small>
-              </span>
-            </button>
-            <button className="project-open" aria-label={`Открыть ${project.kind === "sphere" ? "сферу" : "проект"} «${project.title}»`} onClick={() => setSelectedProjectId(project.id)}>›</button>
-          </div>
-          {!project.collapsed && children.length > 0 && (
-            <div className="project-subtree">{renderProjectTree(project.id, depth + 1)}</div>
-          )}
-        </div>
-      );
-    });
-  }
-
-  function saveProfileName(event?: FormEvent) {
-    event?.preventDefault();
-    const nextName = profileDraft.trim();
-    if (!nextName) return;
-    setProfileName(nextName);
-    setProfileDraft(nextName);
-    setProfileMenuOpen(false);
-  }
-
-  function openProfileNamePicker() {
-    setProfileDraft(profileName);
-    setProfileMenuOpen((value) => !value);
-  }
-
-  function openNewTask() {
-    setQuickTitle("");
-    setQuickDate(isoToday());
-    setQuickTime("");
-    setQuickDeadline("");
-    setQuickProjectId(null);
-    setQuickPriority(4);
-    setQuickOptionsOpen(false);
-    setFilter("today");
-    setTaskView("today");
-    setMobileSection("tasks");
-    window.setTimeout(() => document.getElementById("quick-add")?.focus(), 0);
-  }
-
-  function openNewNote() {
-    setNoteKind("note");
-    setNoteTitle("");
-    setNoteBody("");
-    setNoteProjectId(null);
-    setNoteCreateOpen(true);
-  }
-
-  function openDetail(id: string, replace = false) {
-    const hash = "#task=" + encodeURIComponent(id);
-    if (replace) history.replaceState(null, "", hash);
-    else history.pushState(null, "", hash);
-    setSelectedId(id);
-  }
-
-  function closeDetail() {
-    if (location.hash.startsWith("#task=")) {
-      history.pushState(null, "", location.pathname + location.search);
-    }
-    setSelectedId(null);
-  }
-
-  function addTask(event?: FormEvent) {
-    event?.preventDefault();
-    const parsed = parseQuickAdd(quickTitle);
-    if (!parsed.title) return;
-
-    const task = createTask({
-      title: parsed.title,
-      parentId: null,
-      projectId: quickProjectId,
-      order: nextOrder(tasks, null),
-      date: quickDate || (filter === "today" && !parsed.date ? isoToday() : parsed.date),
-      time: quickTime || parsed.time,
-      deadline: quickDeadline || parsed.deadline,
-      recurrence: parsed.recurrence,
-      priority: quickPriority < 4 ? quickPriority : parsed.priority,
-      labels: parsed.labels,
-      uncompletable: parsed.uncompletable
-    });
-
-    setTasks((current) => [...current, task]);
-    if (quickRelationTargetId) {
-      setRelations((current) => [
-        ...current,
-        createRelation(
-          { type: "task", id: task.id },
-          { type: quickRelationType, id: quickRelationTargetId }
-        )
-      ]);
-    }
-    setQuickTitle("");
-    setQuickPriority(4);
-    setQuickDate("");
-    setQuickTime("");
-    setQuickDeadline("");
-    setQuickRelationType("project");
-    setQuickRelationTargetId("");
-    setQuickOptionsOpen(false);
-    setQuickProjectId(null);
-    setMobileQuickOpen(false);
-    setCalendarComposerOpen(false);
-    setToast("Задача добавлена");
-  }
-
-  function resetQuickTaskDraft() {
-    setQuickTitle("");
-    setQuickProjectId(null);
-    setQuickPriority(4);
-    setQuickDate("");
-    setQuickTime("");
-    setQuickDeadline("");
-    setQuickRelationType("project");
-    setQuickRelationTargetId("");
-    setQuickOptionsOpen(false);
-  }
-
-  function closeCalendarTaskComposer() {
-    setCalendarComposerOpen(false);
-    resetQuickTaskDraft();
-  }
-
-  function openCalendarTaskCreator(date: string, time: string | null, position: { x: number; y: number }) {
-    resetQuickTaskDraft();
-    setQuickDate(date);
-    setQuickTime(time ?? "");
-
-    const width = 420;
-    const heightEstimate = 520;
-    const viewportMargin = 14;
-    const sidebarSafeLeft = window.innerWidth > 720 ? 274 : viewportMargin;
-    const left = Math.max(
-      sidebarSafeLeft,
-      Math.min(window.innerWidth - width - viewportMargin, position.x - 34)
-    );
-    const top = Math.max(
-      viewportMargin,
-      Math.min(window.innerHeight - heightEstimate - viewportMargin, position.y - 68)
-    );
-
-    setCalendarComposerPosition({ left, top });
-    setCalendarComposerOpen(true);
-  }
-
-  useLayoutEffect(() => {
-    if (!calendarComposerOpen) return;
-
-    const element = calendarComposerRef.current;
-    if (!element) return;
-
-    const viewportMargin = 14;
-    const sidebarSafeLeft = window.innerWidth > 720 ? 274 : viewportMargin;
-    const rect = element.getBoundingClientRect();
-    const maxLeft = Math.max(sidebarSafeLeft, window.innerWidth - rect.width - viewportMargin);
-    const maxTop = Math.max(viewportMargin, window.innerHeight - rect.height - viewportMargin);
-
-    const nextLeft = Math.min(Math.max(calendarComposerPosition.left, sidebarSafeLeft), maxLeft);
-    const nextTop = Math.min(Math.max(calendarComposerPosition.top, viewportMargin), maxTop);
-
-    if (Math.abs(nextLeft - calendarComposerPosition.left) > 0.5 || Math.abs(nextTop - calendarComposerPosition.top) > 0.5) {
-      setCalendarComposerPosition({ left: nextLeft, top: nextTop });
-    }
-  }, [calendarComposerOpen, quickOptionsOpen, calendarComposerPosition.left, calendarComposerPosition.top]);
-
-  function calendarEndTime() {
-    if (!quickTime) return "";
-    const [hours, minutes] = quickTime.split(":").map(Number);
-    const total = (hours * 60 + minutes + 60) % (24 * 60);
-    return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
-  }
-
-  function addSubtask(parent: Task) {
-    const parsed = parseQuickAdd(subtaskTitle);
-    if (!parsed.title) return;
-    const depth = depthOf(tasks, parent);
-    if (depth >= 7) {
-      setToast("Достигнут предел вложенности");
-      return;
-    }
-
-    const task = createTask({
-      title: parsed.title,
-      parentId: parent.id,
-      projectId: parent.projectId,
-      order: nextOrder(tasks, parent.id),
-      date: parsed.date,
-      time: parsed.time,
-      deadline: parsed.deadline,
-      recurrence: parsed.recurrence,
-      priority: parsed.priority,
-      labels: parsed.labels,
-      uncompletable: parsed.uncompletable
-    });
-
-    setTasks((current) =>
-      current
-        .map((item) => item.id === parent.id ? { ...item, collapsed: false } : item)
-        .concat(task)
-    );
-    setSubtaskTitle("");
-    setToast("Подзадача добавлена");
-  }
-
-  function reopenDirectSubtasks(parentId: string) {
-    setTasks((current) =>
-      current.map((task) =>
-        task.parentId === parentId
-          ? { ...task, status: "active", completedAt: null, updatedAt: nowIso() }
-          : task
-      )
-    );
-  }
-
-  function completeTask(task: Task, forever = false) {
-    if (task.uncompletable) return;
-
-    if (task.status === "done") {
-      patchTask(task.id, { status: "active", completedAt: null });
-      setToast("Задача возвращена");
-      return;
-    }
-
-    if (task.recurrence && !forever) {
-      const nextDate = nextRecurringDate(task.date, task.recurrence);
-      if (nextDate) {
-        patchTask(task.id, { date: nextDate, completedAt: null, status: "active" });
-        if (task.resetSubtasks) reopenDirectSubtasks(task.id);
-        setToast("Выполнено · назначен следующий повтор");
-        return;
-      }
-    }
-
-    const ids = new Set([task.id, ...descendantsOf(tasks, task.id).map((item) => item.id)]);
-    const completedAt = nowIso();
-    setTasks((current) =>
-      current.map((item) =>
-        ids.has(item.id)
-          ? { ...item, status: "done", completedAt, updatedAt: completedAt }
-          : item
-      )
-    );
-    setToast("Задача выполнена");
-  }
-
-  function duplicateTask(task: Task) {
-    const all = [task, ...descendantsOf(tasks, task.id)];
-    const idMap = new Map<string, string>();
-    all.forEach((item) => idMap.set(item.id, crypto.randomUUID()));
-    const now = nowIso();
-
-    const copies = all.map((item, index) => ({
-      ...item,
-      id: idMap.get(item.id)!,
-      title: index === 0 ? item.title + " — копия" : item.title,
-      parentId: item.id === task.id
-        ? task.parentId
-        : item.parentId
-          ? idMap.get(item.parentId) ?? task.parentId
-          : null,
-      order: item.id === task.id ? nextOrder(tasks, task.parentId) : item.order,
-      status: "active" as const,
-      completedAt: null,
-      comments: [],
-      createdAt: now,
-      updatedAt: now
-    }));
-
-    setTasks((current) => [...current, ...copies]);
-    openDetail(copies[0].id);
-    setToast("Задача продублирована");
-  }
-
-  function deleteTask(task: Task) {
-    if (!window.confirm(`Удалить «${task.title}» и все вложенные подзадачи?`)) return;
-    const ids = new Set([task.id, ...descendantsOf(tasks, task.id).map((item) => item.id)]);
-    setTasks((current) => current.filter((item) => !ids.has(item.id)));
-    closeDetail();
-    setToast("Задача удалена");
-  }
-
-  function copyTaskLink(task: Task) {
-    const url = location.origin + location.pathname + location.search + "#task=" + encodeURIComponent(task.id);
-    navigator.clipboard?.writeText(url).then(
-      () => setToast("Ссылка скопирована"),
-      () => setToast("Не удалось скопировать ссылку")
-    );
-  }
-
-  function moveSibling(task: Task, delta: -1 | 1) {
-    const siblings = childrenOf(tasks, task.parentId);
-    const index = siblings.findIndex((item) => item.id === task.id);
-    const otherIndex = index + delta;
-    if (index < 0 || otherIndex < 0 || otherIndex >= siblings.length) return;
-    const other = siblings[otherIndex];
-
-    setTasks((current) =>
-      current.map((item) => {
-        if (item.id === task.id) return { ...item, order: other.order, updatedAt: nowIso() };
-        if (item.id === other.id) return { ...item, order: task.order, updatedAt: nowIso() };
-        return item;
-      })
-    );
-  }
-
-  function indentTask(task: Task) {
-    const siblings = childrenOf(tasks, task.parentId);
-    const index = siblings.findIndex((item) => item.id === task.id);
-    if (index <= 0) return;
-    const newParent = siblings[index - 1];
-    if (depthOf(tasks, newParent) >= 7) return;
-    patchTask(task.id, {
-      parentId: newParent.id,
-      projectId: newParent.projectId,
-      order: nextOrder(tasks, newParent.id)
-    });
-    patchTask(newParent.id, { collapsed: false });
-    setToast("Задача стала подзадачей");
-  }
-
-  function outdentTask(task: Task) {
-    if (!task.parentId) return;
-    const parent = tasks.find((item) => item.id === task.parentId);
-    if (!parent) return;
-    patchTask(task.id, {
-      parentId: parent.parentId,
-      order: nextOrder(tasks, parent.parentId)
-    });
-    setToast("Уровень вложенности уменьшен");
-  }
-
-  function dropBefore(target: Task) {
-    if (!draggedId || draggedId === target.id) return;
-    const dragged = tasks.find((item) => item.id === draggedId);
-    if (!dragged || dragged.parentId !== target.parentId) {
-      setToast("Перетаскивать можно между соседями одного уровня");
-      return;
-    }
-
-    const siblings = childrenOf(tasks, target.parentId).filter((item) => item.id !== dragged.id);
-    const targetIndex = siblings.findIndex((item) => item.id === target.id);
-    siblings.splice(Math.max(0, targetIndex), 0, dragged);
-    const orderMap = new Map(siblings.map((item, index) => [item.id, (index + 1) * 10]));
-    setTasks((current) =>
-      current.map((item) =>
-        orderMap.has(item.id)
-          ? { ...item, order: orderMap.get(item.id)!, updatedAt: nowIso() }
-          : item
-      )
-    );
-    setDraggedId(null);
-  }
-
-  function addReminder(task: Task) {
-    const at = new Date(Date.now() + 60 * 60 * 1000).toISOString();
-    patchTask(task.id, {
-      reminders: [...task.reminders, { id: crypto.randomUUID(), at }]
-    });
-  }
-
-  function addComment(task: Task) {
-    const body = commentBody.trim();
-    if (!body) return;
-    const comment: TaskComment = {
-      id: crypto.randomUUID(),
-      body,
-      createdAt: nowIso()
-    };
-    patchTask(task.id, { comments: [...task.comments, comment] });
-    setCommentBody("");
-  }
-
-  function renderTree(parentId: string | null, depth = 0): React.ReactNode {
-    const children = childrenOf(tasks, parentId).filter((task) => {
-      if (parentId && filter !== "done") {
-        const parent = tasks.find((item) => item.id === parentId);
-        if (task.status === "done" && !parent?.showCompletedSubtasks) return false;
-      }
-      return matchesFilter(task) || hasMatchingDescendant(task);
-    });
-
-    return children.map((task) => {
-      const directChildren = childrenOf(tasks, task.id);
-      const activeChildren = directChildren.filter((item) => item.status === "active");
-      const completedChildren = directChildren.length - activeChildren.length;
-      const showNested = !task.collapsed;
-
-      return (
-        <div className="tree-node" key={task.id}>
-          <article
-            className={`task-row task-depth-${Math.min(depth, 4)} ${selectedId === task.id ? "selected" : ""}`}
-            draggable
-            onDragStart={() => setDraggedId(task.id)}
-            onDragEnd={() => setDraggedId(null)}
-            onDragOver={(event) => event.preventDefault()}
-            onDrop={() => dropBefore(task)}
-          >
-            <button
-              className="tree-toggle"
-              disabled={directChildren.length === 0}
-              onClick={() => patchTask(task.id, { collapsed: !task.collapsed })}
-              aria-label={task.collapsed ? "Развернуть подзадачи" : "Свернуть подзадачи"}
-            >
-              {directChildren.length ? (task.collapsed ? "›" : "⌄") : ""}
-            </button>
-
-            {task.uncompletable ? (
-              <span className="uncompletable-mark" aria-label="Незавершаемая задача">◆</span>
-            ) : (
-              <button
-                className={`check-button priority-ring p${task.priority} ${task.status === "done" ? "checked" : ""}`}
-                aria-label={task.status === "done" ? `Вернуть задачу «${task.title}»` : `Выполнить задачу «${task.title}»`}
-                onClick={() => completeTask(task)}
-              >
-                {task.status === "done" ? "✓" : ""}
-              </button>
-            )}
-
-            <button className="task-main" onClick={() => openDetail(task.id)}>
-              <span className={`task-title ${task.status === "done" ? "done" : ""}`}>
-                {task.title}
-              </span>
-              <span className="task-meta">
-                {task.date && <span className={task.date < isoToday() ? "overdue" : ""}>{formatDate(task.date)}{task.time ? " · " + task.time : ""}</span>}
-                {task.recurrence && <span>↻ {task.recurrence}</span>}
-                {task.deadline && <span>◷ до {formatDate(task.deadline)}</span>}
-                {task.durationMinutes && <span>{formatDuration(task.durationMinutes)}</span>}
-                <span className={`priority-flag p${task.priority}`} title={priorityLabels[task.priority]} aria-label={`Приоритет: ${priorityLabels[task.priority]}`}>⚑</span>
-                {task.projectId && <span className="task-project-path">◇ {projectPath(projects, task.projectId)}</span>}
-                {task.labels.map((label) => <span key={label}>%{label}</span>)}
-                {activeChildren.length > 0 && <span>▤ {activeChildren.length}</span>}
-                {completedChildren > 0 && <span>✓ {completedChildren}</span>}
-              </span>
-            </button>
-
-            <button className="row-more" aria-label={`Открыть задачу «${task.title}»`} onClick={() => openDetail(task.id)}>›</button>
-          </article>
-
-          {showNested && directChildren.length > 0 && (
-            <div className="subtree">{renderTree(task.id, depth + 1)}</div>
-          )}
-        </div>
-      );
-    });
-  }
-
-  const relationGraphObjects: ObjectRef[] = [
-    ...projects.map((project) => ({ type: "project" as const, id: project.id })),
-    ...tasks.filter((task) => task.status === "active").map((task) => ({ type: "task" as const, id: task.id })),
-    ...notes.map((note) => ({ type: "note" as const, id: note.id }))
-  ];
-
-  const relationGraphStructureEdges = [
-    ...projects
-      .filter((project) => project.parentId)
-      .map((project) => ({
-        id: `project-parent:${project.id}`,
-        a: { type: "project" as const, id: project.parentId! },
-        b: { type: "project" as const, id: project.id }
-      })),
-    ...tasks
-      .filter((task) => task.status === "active" && task.projectId)
-      .map((task) => ({
-        id: `task-project:${task.id}`,
-        a: { type: "project" as const, id: task.projectId! },
-        b: { type: "task" as const, id: task.id }
-      })),
-    ...notes
-      .filter((note) => note.projectId)
-      .map((note) => ({
-        id: `note-project:${note.id}`,
-        a: { type: "project" as const, id: note.projectId! },
-        b: { type: "note" as const, id: note.id }
-      }))
-  ];
-
-  const visibleCount = topLevelForView.length;
-
-  return (
-    <div className={`app-shell section-${mobileSection} ${selected ? "has-detail" : ""}`}>
-      <aside className="sidebar" aria-label="Навигация СФЕРА">
-        <button className="brand brand-button" onClick={() => setMobileSection("home")} aria-label="Главная СФЕРА">
-          <img className="brand-logo" src="/sfera/sfera-logo.webp?v=20260920-clean" alt="СФЕРА" />
-        </button>
-
-        <nav className="side-nav">
-          <button className={mobileSection === "home" ? "active" : ""} onClick={() => setMobileSection("home")}><span>⌂</span>Главная</button>
-          <button className={mobileSection === "projects" ? "active" : ""} onClick={() => setMobileSection("projects")}><span>◇</span>Сферы</button>
-          <button className={mobileSection === "tasks" ? "active" : ""} onClick={() => setMobileSection("tasks")}><span>✓</span>Задачи</button>
-          <button className={mobileSection === "notes" ? "active" : ""} onClick={() => setMobileSection("notes")}><span>✎</span>Заметки</button>
-          <button className={mobileSection === "photos" ? "active" : ""} onClick={() => setMobileSection("photos")}><span>▧</span>Фото</button>
-          <div className={`calendar-nav-group ${mobileSection === "calendar" ? "open" : ""}`}>
-            <button className={mobileSection === "calendar" ? "active" : ""} onClick={() => openCalendar("month")}><span>▦</span>Календарь</button>
-            {mobileSection === "calendar" && (
-              <CalendarMiniMonth
-                title={calendarTitle}
-                cells={calendarCells}
-                rangeStart={calendarRangeStart}
-                rangeEnd={calendarRangeEnd}
-                pickingEnd={calendarPickingEnd}
-                dayCount={desktopCalendarDayCount}
-                todayIso={isoToday()}
-                onPreviousMonth={() => setMonthOffset(-1)}
-                onNextMonth={() => setMonthOffset(1)}
-                onSelectDay={selectMiniCalendarDay}
-                onSetDays={(days) => setDesktopCalendarPeriod(calendarRangeStart, days)}
-              />
-            )}
-          </div>
-          <button className={mobileSection === "relations" ? "active" : ""} onClick={() => setMobileSection("relations")}><span>↔</span>Связи</button>
-        </nav>
-
-        <div className="sidebar-bottom">
-          <button className="ghost-button" onClick={() => setSettingsOpen(true)}>⚙ Настройки</button>
-        </div>
-      </aside>
-
-      <main className={`tasks-page section-${mobileSection}`}>
-        <header className="desktop-topbar">
-          <button className="desktop-search" onClick={() => { setMobileSection("tasks"); setSearchOpen(true); }}>
-            <span>⌕</span>
-            <span>Поиск по задачам, сферам, проектам и заметкам...</span>
-          </button>
-          <div className="desktop-user-area">
-            <button className="desktop-bell" aria-label="Уведомления">♢</button>
-            <div className="desktop-profile-picker">
-              <button
-                type="button"
-                className="desktop-user"
-                onClick={openProfileNamePicker}
-                aria-expanded={profileMenuOpen}
-                aria-label="Выбрать имя пользователя"
-              >
-                <span className="desktop-avatar">{profileName.slice(0, 1).toUpperCase()}</span>
-                <strong>{profileName}</strong>
-                <span className={profileMenuOpen ? "desktop-user-chevron open" : "desktop-user-chevron"}>⌄</span>
-              </button>
-
-              {profileMenuOpen && (
-                <>
-                  <button
-                    type="button"
-                    className="profile-picker-dismiss"
-                    aria-label="Закрыть выбор имени"
-                    onClick={() => setProfileMenuOpen(false)}
-                  />
-                  <form className="profile-name-menu" onSubmit={saveProfileName}>
-                    <span>Имя пользователя</span>
-                    <input
-                      autoFocus
-                      value={profileDraft}
-                      onChange={(event) => setProfileDraft(event.target.value)}
-                      placeholder="Введите имя"
-                      maxLength={40}
-                    />
-                    <small>Это имя показывается в профиле и приветствии на главной.</small>
-                    <div>
-                      <button type="button" onClick={() => setProfileMenuOpen(false)}>Отмена</button>
-                      <button type="submit" disabled={!profileDraft.trim()}>Сохранить</button>
-                    </div>
-                  </form>
-                </>
-              )}
-            </div>
-          </div>
-        </header>
-
-        <header className="mobile-topbar mobile-appbar">
-          <button className="mobile-profile-mark mobile-home-mark" onClick={() => setMobileSection("home")} aria-label="На главную">S</button>
-          <div className="mobile-app-title">
-            <strong>СФЕРА</strong>
-            <span>{mobileSection === "home" ? "Сегодня" : mobileSection === "projects" ? "Сферы" : mobileSection === "tasks" ? "Задачи" : mobileSection === "notes" ? "Заметки" : mobileSection === "photos" ? "Фото" : mobileSection === "relations" ? "Связи" : "Календарь"}</span>
-          </div>
-          <div className="mobile-app-actions">
-            {mobileSection === "tasks" && (
-              <button className="mobile-icon-action" aria-label="Поиск" onClick={() => setSearchOpen((value) => !value)}>⌕</button>
-            )}
-            <button className="mobile-icon-action" aria-label="Настройки" onClick={() => setSettingsOpen(true)}>⚙</button>
-          </div>
-        </header>
-
-        <section className={`home-dashboard ${mobileSection === "home" ? "active" : ""}`} aria-hidden={mobileSection !== "home"}>
-          <header className="dashboard-hero">
-            <div className="dashboard-hero-copy">
-              <div className="dashboard-wordmark">СФЕРА</div>
-              <p className="dashboard-date">
-                <span>{dashboardDate}</span>
-                <span className="dashboard-moon-phase" aria-label={`Фаза Луны: ${moonPhase.name}`}>
-                  <span aria-hidden="true">· {moonPhase.icon}</span> {moonPhase.name}
-                </span>
-              </p>
-              <h1>{greeting}, {profileName}!</h1>
-              <p className="dashboard-lead">Большие перемены начинаются<br />с маленьких шагов ✨</p>
-            </div>
-            <div className="dashboard-hero-motto">Гармония<br />в каждом дне<span /></div>
-          </header>
-
-          <div className="dashboard-layout">
-            <section className="dashboard-card dashboard-today">
-              <div className="dashboard-card-head">
-                <h2>Сегодня</h2>
-                <div className="dashboard-card-actions">
-                  <button className="dashboard-action dashboard-action-task" onClick={openNewTask}>＋ Новая задача</button>
-                  <button className="dashboard-action dashboard-action-note" onClick={openNewNote}>＋ Новая заметка</button>
-                  <button className="dashboard-count-link" onClick={() => { chooseTaskView("today"); setMobileSection("tasks"); }}>
-                    {todayTasks.length} {russianPlural(todayTasks.length, "задача", "задачи", "задач")} ›
-                  </button>
-                </div>
-              </div>
-
-              <div className="dashboard-task-list">
-                {todayTasks.length === 0 ? (
-                  <div className="dashboard-empty">
-                    <span>✓</span>
-                    <div>
-                      <strong>На сегодня всё свободно</strong>
-                      <small>Добавь задачу или выбери одну из сфер жизни.</small>
-                    </div>
-                  </div>
-                ) : (
-                  todayTasks.map((task) => (
-                    <div className="dashboard-task-row" key={task.id}>
-                      {task.uncompletable ? (
-                        <span className="dashboard-task-dot">◆</span>
-                      ) : (
-                        <button
-                          className={`check-button priority-ring p${task.priority}`}
-                          onClick={() => completeTask(task)}
-                          aria-label={`Выполнить задачу «${task.title}»`}
-                        />
-                      )}
-                      <span className="dashboard-task-time">{task.time || "—"}</span>
-                      <button className="dashboard-task-main" onClick={() => openDetail(task.id)}>
-                        <strong>{task.title}</strong>
-                      </button>
-                      {task.projectId && (
-                        <span className="dashboard-project-pill">
-                          {projectPath(projects, task.projectId).split(" / ").at(-1)}
-                        </span>
-                      )}
-                      <button className="dashboard-row-arrow" aria-label={`Открыть задачу «${task.title}»`} onClick={() => openDetail(task.id)}>›</button>
-                    </div>
-                  ))
-                )}
-              </div>
-            </section>
-
-            <aside className="dashboard-side dashboard-stat-tiles">
-              <button className="stat-tile stat-overdue" onClick={() => { chooseTaskView("overdue"); setMobileSection("tasks"); }}>
-                <span className="stat-icon">!</span><b>›</b>
-                <strong>{overdueTasks.length}</strong>
-                <small>Просрочено</small>
-              </button>
-              <button className="stat-tile stat-projects" onClick={() => { setSelectedProjectId(null); setMobileSection("projects"); }}>
-                <span className="stat-icon">▰</span><b>›</b>
-                <strong>{rootSpheres.length}</strong>
-                <small>Сферы</small>
-              </button>
-              <button className="stat-tile stat-notes" onClick={() => setMobileSection("notes")}>
-                <span className="stat-icon">▤</span><b>›</b>
-                <strong>{notes.length}</strong>
-                <small>Заметки</small>
-              </button>
-              <button className="stat-tile stat-photos" onClick={() => setMobileSection("photos")}>
-                <span className="stat-icon">▧</span><b>›</b>
-                <strong>{attachments.filter((item) => item.mime.startsWith("image/")).length}</strong>
-                <small>Фото</small>
-              </button>
-            </aside>
-          </div>
-
-          <section className="dashboard-section">
-            <div className="dashboard-section-head">
-              <div>
-                <h2>Мои сферы жизни</h2>
-              </div>
-              <button onClick={() => { setSelectedProjectId(null); setMobileSection("projects"); }}>Все сферы ›</button>
-            </div>
-
-            <div className="sphere-card-grid">
-              {rootSpheres.slice(0, 6).map((sphere, index) => (
-                <button
-                  className={`sphere-card sphere-tone-${index % 6}`}
-                  key={sphere.id}
-                  onClick={() => { setSelectedProjectId(sphere.id); setMobileSection("projects"); }}
-                >
-                  <span className="sphere-symbol">{["⌂","☾","✦","▣","✈","♡"][index % 6]}</span>
-                  <span className="sphere-info">
-                    <strong>{sphere.title}</strong>
-                    <small>{projectTaskCount(sphere.id)} задач · {projectNoteCount(sphere.id)} заметок</small>
-                  </span>
-                  <b>›</b>
-                </button>
-              ))}
-              <button className="sphere-card sphere-create" onClick={() => { setProjectParentId(""); setProjectCreateOpen(true); }}>
-                <span className="sphere-symbol">＋</span>
-                <span className="sphere-info">
-                  <strong>Новая сфера</strong>
-                  <small>Добавить область жизни</small>
-                </span>
-              </button>
-            </div>
-          </section>
-
-          <div className="home-function-strip">
-            <button onClick={() => { chooseTaskView("week"); setMobileSection("tasks"); }}>
+Y��x-���jם��i��+��j[h��ܢ���N8�:-jZ.����)޳V���'B�f�&�WfV�B�W6TVffV7B�W6T���WDVffV7B�W6T�V���W6U&Vb�W6U7FFR�g&��'&V7B#�����'B��f��FW"��&��&�G���5D�$tU��U���F6���F6�6���V�B��6���G&V��b��7&VFUF6���FWF��b��FW66V�F�G4�b��f�&�DFFR��f�&�DGW&F������6�F�F����W�D�&FW"���W�E&V7W'&��tFFR����t�6���'6UV�6�FB��&VEF6�0��g&��"��F6�2���FV�#�����'B��$��T5E5�5D�$tU��U���&��V7D��FR��7&VFU&��V7B��f�GFV�&��V7G2���W�E&��V7D�&FW"��&��V7D6���G&V���&��V7DFW66V�F�G2��&��V7EF���&VE&��V7G0��g&��"��&��V7G2���FV�#�����'B����DU5�5D�$tU��U�����FR����FT���B��7&VFT��FR��&VD��FW0��g&��"����FW2���FV�#�����'B��t��5�5D�$tU��U���v����7&VFTv����&VDv��0��g&��"��v��2���FV�#�����'B��$T�D���5�5D�$tU��U���V�F�G�G�R���&�V7E&Vb��&V�F�����&TƖ�VB��7&VFU&V�F������F�W%&Vb��&VE&V�F���2��&V�F���4f�"��&V��fU&V�F���4f� ��g&��"��&V�F���2���FV�#�����'B��ED4��T�E5�5D�$tU��U���GF6��V�B��GF6��V�G4f�"��&VDGF6��V�G2��&V��fTGF6��V�DƖ氧�g&��"��GF6��V�G2���FV�#�����'B�6�V�F$֖����F��g&��"��6�V�F"�6�V�F$֖����F�#�����'B�FW6�F�6�V�F"�g&��"��6�V�F"�FW6�F�6�V�F"#�����'B�&V�F���4w&��g&��"��&V�F���4w&�#�����'B��FDF�4�6���6�V�F%&�vT�&V�����6�W6�fTF�6�V�B���6�FFR���6�&�vR�����F�6V��0��g&��"��6�V�F"�6�V�F"�WF��2#���6��7B$�d��U���U�5D�$tU��U��'6fW&�&�f��R���R#��6��7BD�ŕ�d�5U5�5D�$tU��U��'6fW&�F6�&�&B�F�ǒ�f�7W2#���6��7Bf��FW$�&V�3�&V6�&C�f��FW"�7G&��s�����â-	-R"��F�F��-
+]=�M��"����&���-	]r
+M
+-�"���fW&GVS�-	�
+�
+�}]��"��F��S�-	-�����]�� �Ӱ��G�R6V7F����&���R"�'&��V7G2"�'F6�2"�&��FW2"�'��F�2"�&6�V�F""�'&V�F���2#��G�RF6�f�Wr�f��FW"�'vVV�#��G�R��FUf�Wr�&��"�&�FV2"�&F�'�"�&6���V7F���2"�&Ɨ7G2"�&ff�&�FW2#��G�R&��V7EF"�&�fW'f�Wr"�'F6�2"�&��FW2"�'��F�2"�&v��2"�&��7F�'�#��G�R6�V�F$��FR�&F�"�'vVV�"�&���F�"�&��7F�'�#���6��7B��FT���D�&V�3�&V6�&C���FT���B�7G&��s������FS�-	}
+�]-�"���FV�-	�M]�"��F�'��-	M�]-���"��6���V7F���-	����]�m��"��Ɨ7C�-
+���� �Ӱ��gV�7F�����6ė6�FFS�FFR���6��7B�fg6WB�FFR�vWEF��W���T�fg6WB����&WGW&��WrFFR�FFR�vWEF��R����fg6WB�c���F��4�7G&��r���6Ɩ6R�����Р�gV�7F���7W'&V�EvVV�FFW2����6��7B��r��WrFFR����6��7BF����r�vWDF�����s��6��7B���F���WrFFR���r������F��6WD��W'2�"���������F��6WDFFR���r�vWDFFR���F�����&WGW&�'&��g&�҇��V�wF��r�������FW������6��7BFFR��WrFFR����F����FFR�6WDFFR����F��vWDFFR�����FW����&WGW&����6���6ė6�FFR���6��'C��Wr��F��FFUF��Tf�&�B�''R�%R"��vVV�F��'6��'B"Ғ�f�&�B�FFR��&W�6R�"�"�""���F��FFR�vWDFFR���Ӱ�ғ��Р�6��7B&��&�G��&V�3�&V6�&C�&��&�G��7G&��s�����-	-�����"��#�-
+
+]M���"��3�-	��}���"��C�-	]r
+�
+��
+�-]- �Ӱ��gV�7F���'W76���W&6�V�C��V�&W"���S�7G&��r�fWs�7G&��r��瓢7G&��r���6��7B��C�6�V�BR��6��7B��C�6�V�BR���b���C���bb��C���&WGW&���S���b���C��"bb��C��Bbb���C�"����C�B��&WGW&�fWs��&WGW&��瓰�Р�6��7B�����6W2�����6��/	��"���S�-	��-��=��R"�����6��/	��""���S�-
+
+
+-=���
+]
+�"�����6��/	��2"���S�-	�]
+-
+�
+}]--]
+-�"�����6��/	��B"���S�-
+
+
+-=�
+�
+	�=�"�����6��/	��R"���S�-	������=��R"�����6��/	��b"���S�-
+=�-
+��
+�
+	�=�"�����6��/	��r"���S�-	���]M���
+}]--]
+-�"�����6��/	�ɂ"���S�-
+=�-
+����
+]
+�"Х�26��7C���gV�7F��������6Tf�"�FFS�FFR���6��7B7���F�4���F��#��S3S���S3��6��7B���v��Wt����WF2�FFR�UD2�#��b���B���6��7B��6�����WF2�FFR�UD2�FFR�vWDgV�ŖV"���FFR�vWD���F����FFR�vWDFFR���"���6��7BF�56��6T�Wt��������6�����WF2����v��Wt����WF2���e�C���6��7BvR���F�56��6T�Wt����R7���F�4���F���7���F�4���F��R7���F�4���F���6��7B�6T��FW���F��f���"��vR�7���F�4���F������R�R���&WGW&������6W5��6T��FW�Ӱ�Р�gV�7F���&V6V�D7F�f�G��&VC�7G&��r���6��7BFFR��WrFFR�B����b��V�&W"�4��FFR�vWEF��R����&WGW&�-�]M
+-��#��6��7B7F�f�G�F����6ė6�FFR���6��7BF�F���6�F�F������b�7F�f�G�F����F�F��&WGW&�-]=�M��#���b�7F�f�G�F����FDF�4�6�F�F�����&WGW&�--}]
+#��&WGW&��Wr��F��FFUF��Tf�&�B�''R�%R"��F��&�V�W&�2"����F��'6��'B"Ґ��f�&�B�FFR���&W�6R�"�"�""���Р�gV�7F���&��E7�W&T�B�&��V7G3�&��V7D��FU���&��V7D�C�7G&��r��V���V�FVf��VB����b�&��V7D�B�&WGW&��V�ð��WB7W'&V�B�&��V7G2�f��B���FVҒ���FV��B���&��V7D�B���6��7B6VV���Wr6WC�7G&��sₓ��v���R�7W'&V�C��&V�D�Bbb6VV��2�7W'&V�B�B����6VV��FB�7W'&V�B�B���7W'&V�B�&��V7G2�f��B���FVҒ���FV��B���7W'&V�B�&V�D�B���Т&WGW&�7W'&V�C��B���V�ð�Р�gV�7F���7�W&UF��R�&��V7G3�&��V7D��FU���&��V7D�C�7G&��r��V���V�FVf��VB���6��7B&��D�B�&��E7�W&T�B�&��V7G2�&��V7D�B����b�&��D�B�&WGW&�&�WWG&�#��6��7B&��G2�&��V7D6���G&V�&��V7G2��V���6��7B��FW���F������&��G2�f��D��FW����FVҒ���FV��B���&��D�B����&WGW&��'FV�"�&w&VV�"�'f���WB"�&6�&�"�&�&W""�&&�VR%ն��FW�ReӰ�Р�gV�7F���FFUF��T��6�f�VR�C�7G&��r���6��7BB��WrFFR�B���6��7B�fg6WB�B�vWEF��W���T�fg6WB����&WGW&��WrFFR�B�vWEF��R����fg6WB�c���F��4�7G&��r���6Ɩ6R��b���Р�gV�7F���FFUF��T��6�F��6�f�VS�7G&��r���&WGW&�f�VR��WrFFR�f�VR��F��4�7G&��r���"#��Р�W��'BgV�7F�������6��7B�F6�2�6WEF6�5��W6U7FFS�F6���₂���&VEF6�2�����6��7B�f��FW"�6WDf��FW%��W6U7FFS�f��FW#�&��"���6��7B�F6�f�Wr�6WEF6�f�Wu��W6U7FFS�F6�f�Ws�&��"���6��7B�6V�V7FVD�B�6WE6V�V7FVD�E��W6U7FFS�7G&��r��V��₂�����6��7B�F6����6F����6���F6����7F6�҂ⲒB򓰢&WGW&��F6��FV6�FUU$�6����V�B��F6��Ғ��V�ð�ғ��6��7B�V�6�F�F�R�6WEV�6�F�F�U��W6U7FFR�""���6��7B�V�6�&��&�G��6WEV�6�&��&�G���W6U7FFS�&��&�G��B���6��7B�V�6��F���4�V��6WEV�6��F���4�V���W6U7FFR�f�6R���6��7B�V�6�FFR�6WEV�6�FFU��W6U7FFR�""���6��7B�V�6�F��R�6WEV�6�F��U��W6U7FFR�""���6��7B�V�6�FVFƖ�R�6WEV�6�FVFƖ�U��W6U7FFR�""���6��7B�6�V�F$6���6W$�V��6WD6�V�F$6���6W$�V���W6U7FFR�f�6R���6��7B�6�V�F$6���6W%�6�F����6WD6�V�F$6���6W%�6�F�����W6U7FFR���VgC�3c�F��#ғ��6��7B6�V�F$6���6W%&Vb�W6U&VcąD��f�&�V�V�V�B��V����V���6��7B�V�6�&V�F���G�R�6WEV�6�&V�F���G�U��W6U7FFS�V�F�G�G�S�'&��V7B"���6��7B�V�6�&V�F���F&vWD�B�6WEV�6�&V�F���F&vWD�E��W6U7FFR�""���6��7B�&��V7Ef�Wr�6WE&��V7Ef�Wu��W6U7FFS�&w&�B"�&Ɨ7B#₂�����G'��&WGW&���6�7F�&vR�vWD�FV҂'6fW&�&��V7Ef�Wr"����&Ɨ7B"�&Ɨ7B"�&w&�B#��6F6��&WGW&�&w&�B#�Тғ��6��7B�&V�F���2�6WE&V�F���5��W6U7FFS�&V�F����₂���&VE&V�F���2�����6��7B�GF6��V�G2�6WDGF6��V�G5��W6U7FFS�GF6��V�E��₂���&VDGF6��V�G2�����6��7B�Ɩ�G�R�6WDƖ�G�U��W6U7FFS�V�F�G�G�S�'&��V7B"���6��7B�Ɩ�F&vWD�B�6WDƖ�F&vWD�E��W6U7FFR�""���6��7B�6V�V7FVD��FT�B�6WE6V�V7FVD��FT�E��W6U7FFS�7G&��r��V����V���6��7B�&��V7DVF�D�V��6WE&��V7DVF�D�V���W6U7FFR�f�6R���6��7B�VF�E&��V7EF�F�R�6WDVF�E&��V7EF�F�U��W6U7FFR�""���6��7B�VF�E&��V7E&V�D�B�6WDVF�E&��V7E&V�D�E��W6U7FFR�""���6��7B�7V'F6�F�F�R�6WE7V'F6�F�F�U��W6U7FFR�""���6��7B�6���V�D&�G��6WD6���V�D&�G���W6U7FFR�""���6��7B�VW'��6WEVW'���W6U7FFR�""���6��7B�6V&6��V��6WE6V&6��V���W6U7FFR�f�6R���6��7B�F�7B�6WEF�7E��W6U7FFR�""���6��7B�G&vvVD�B�6WDG&vvVD�E��W6U7FFS�7G&��r��V����V���6��7B���&��UV�6��V��6WD��&��UV�6��V���W6U7FFR�f�6R���6��7B�V�6��V�T�V��6WEV�6��V�T�V���W6U7FFR�f�6R���6��7B�6WGF��w4�V��6WE6WGF��w4�V���W6U7FFR�f�6R���6��7B���&��U6V7F����6WD��&��U6V7F�����W6U7FFS�6V7F����&���R"���6��7B�&��V7G2�6WE&��V7G5��W6U7FFS�&��V7D��FU��₂���&VE&��V7G2�����6��7B�6V�V7FVE&��V7D�B�6WE6V�V7FVE&��V7D�E��W6U7FFS�7G&��r��V����V���6��7B�&��V7D7&VFT�V��6WE&��V7D7&VFT�V���W6U7FFR�f�6R���6��7B�&��V7EF�F�R�6WE&��V7EF�F�U��W6U7FFR�""���6��7B�&��V7E&V�D�B�6WE&��V7E&V�D�E��W6U7FFR�""���6��7B�V�6�&��V7D�B�6WEV�6�&��V7D�E��W6U7FFS�7G&��r��V����V���6��7B���FW2�6WD��FW5��W6U7FFS���FU��₂���&VD��FW2�����6��7B�v��2�6WDv��5��W6U7FFS�v�ŵ�₂���&VDv��2�����6��7B���FUf�Wr�6WD��FUf�Wu��W6U7FFS���FUf�Ws�&��"���6��7B���FT7&VFT�V��6WD��FT7&VFT�V���W6U7FFR�f�6R���6��7B���FUF�F�R�6WD��FUF�F�U��W6U7FFR�""���6��7B���FT&�G��6WD��FT&�G���W6U7FFR�""���6��7B���FT���B�6WD��FT���E��W6U7FFS���FT���C�&��FR"���6��7B���FU&��V7D�B�6WD��FU&��V7D�E��W6U7FFS�7G&��r��V����V���6��7B�&��V7EF"�6WE&��V7EF%��W6U7FFS�&��V7EF#�&�fW'f�Wr"���6��7B�v��F�F�R�6WDv��F�F�U��W6U7FFR�""���6��7B�6�V�F$��FR�6WD6�V�F$��FU��W6U7FFS�6�V�F$��FS�&���F�"���6��7B�6�V�F$7W'6�"�6WD6�V�F$7W'6�%��W6U7FFR������WrFFR�����6��7B�6�V�F%&�vU7F'B�6WD6�V�F%&�vU7F'E��W6U7FFR������6�F�F������6��7B�6�V�F%&�vTV�B�6WD6�V�F%&�vTV�E��W6U7FFR�����FDF�4�6�6�F�F����b����6��7B�6�V�F%�6���tV�B�6WD6�V�F%�6���tV�E��W6U7FFR�f�6R���6��7B�&�f��T��R�6WE&�f��T��U��W6U7FFR�������G'���&WGW&���6�7F�&vR�vWD�FV҅$�d��U���U�5D�$tU��U����G&�҂���-	�
+=
+#���6F6���&WGW&�-	�
+=
+#��Тғ��6��7B�&�f��TG&gB�6WE&�f��TG&gE��W6U7FFR�&�f��T��R���6��7B�&�f��T�V�T�V��6WE&�f��T�V�T�V���W6U7FFR�f�6R���6��7B�F�ǔf�7W2�6WDF�ǔf�7W5��W6U7FFR�������G'���6��7B7F�&VB��4���'6R���6�7F�&vR�vWD�FV҄D�ŕ�d�5U5�5D�$tU��U����&�V��"�2�FFS�7G&��s�FW�C�7G&��r���V�ð�&WGW&�7F�&VC��FFR����6�F�F���bbG�V�b7F�&VB�FW�B���'7G&��r"�7F�&VB�FW�B�"#���6F6���&WGW&�"#��Тғ���W6TVffV7B�������G'�����6�7F�&vR�6WD�FV҅$�d��U���U�5D�$tU��U��&�f��T��R����6F6��Т���&�f��T��Uғ���W6TVffV7B�������G'�����6�7F�&vR�6WD�FV҄D�ŕ�d�5U5�5D�$tU��U���4���7G&��v�g���FFS��6�F�F����FW�C�F�ǔf�7W2Ғ����6F6��Т���F�ǔf�7W5ғ���W6TVffV7B���������6�7F�&vR�6WD�FV҅5D�$tU��U���4���7G&��v�g��F6�2�������F6�5ғ���W6TVffV7B���������6�7F�&vR�6WD�FV҅$��T5E5�5D�$tU��U���4���7G&��v�g��&��V7G2�������&��V7G5ғ���W6TVffV7B���������6�7F�&vR�6WD�FV҄��DU5�5D�$tU��U���4���7G&��v�g����FW2���������FW5ғ���W6TVffV7B���������6�7F�&vR�6WD�FV҄t��5�5D�$tU��U���4���7G&��v�g��v��2�������v��5ғ���W6TVffV7B���������6�7F�&vR�6WD�FV҅$T�D���5�5D�$tU��U���4���7G&��v�g��&V�F���2�������&V�F���5ғ���W6TVffV7B�������G'�����6�7F�&vR�6WD�FV҄ED4��T�E5�5D�$tU��U���4���7G&��v�g��GF6��V�G2�����6F6���6WEF�7B�-	�R
+=M
+���
+�]
+
+��-�
+-��m]��S�
+���
+����R
+]
+
+�����R
+}
+����]��"���Т���GF6��V�G5ғ���W6TVffV7B��������b�6V�V7FVE&��V7D�B�6WE&��V7EF"�&�fW'f�Wr"������6V�V7FVE&��V7D�Eғ���W6TVffV7B��������b�F�7B�&WGW&㰢6��7BF��W"�v��F�r�6WEF��V�WB�����6WEF�7B�""��#c���&WGW&�����v��F�r�6�V%F��V�WB�F��W"������F�7Eғ���W6TVffV7B�������6��7B��6��������6��7B�F6����6F����6���F6����7F6�҂ⲒB򓰢6WE6V�V7FVD�B��F6��FV6�FUU$�6����V�B��F6��Ғ��V���Ӱ�v��F�r�FDWfV�DƗ7FV�W"�&�6�6��vR"���6����&WGW&�����v��F�r�&V��fTWfV�DƗ7FV�W"�&�6�6��vR"���6�������ғ���W6TVffV7B�������6��7B��W���WfV�C��W�&�&DWfV�B�����6��7BV��WfV�B�F&vWB2�D��V�V�V�B��V�ð�6��7BG���r�V���Ft��R���$��UB"��V���Ft��R���%DU�D$T"��V���Ft��R���%4T�T5B#���b�G���rbbWfV�B�W��F���vW$66R�����'"���WfV�B�&WfV�DFVfV�B����F�7V�V�B�vWDV�V�V�D'��B�'V�6��FB"���f�7W2����Т�b�WfV�B�W����$W66R"bb6V�V7FVD�B�6��6TFWF����Ӱ�v��F�r�FDWfV�DƗ7FV�W"�&�W�F�v�"���W����&WGW&�����v��F�r�&V��fTWfV�DƗ7FV�W"�&�W�F�v�"���W�������6V�V7FVD�Eғ���6��7B6V�V7FVB�F6�2�f��B��F6����F6��B���6V�V7FVD�B����V�ð�6��7B6V�V7FVE&V�B�6V�V7FVC��&V�D�@��F6�2�f��B��F6����F6��B���6V�V7FVB�&V�D�B����V�����V�ð��6��7B7F�fT6�V�B�F6�2�f��FW"��F6����F6��7FGW2���&7F�fR"���V�wF���6��7B6V�V7FVE&��V7B�6V�V7FVE&��V7D�@��&��V7G2�f��B��&��V7B���&��V7B�B���6V�V7FVE&��V7D�B����V�����V�ð�6��7B6V�V7FVD��FR�6V�V7FVD��FT�@����FW2�f��B����FR�����FR�B���6V�V7FVD��FT�B����V�����V�ð�6��7Bf�GFV�VE&��V7G2�W6T�V�򂂒��f�GFV�&��V7G2�&��V7G2���&��V7G5ғ��6��7BF�F�F6�2�W6T�V������F6�0��f��FW"��F6����F6��7FGW2���&7F�fR"bbF6��FFR����6�F�F������6�'B���"�����F��R��#�����"����6�T6��&R�"�F��R��#�����"�����&FW"�"��&FW"����F6�5Т���6��7B�fW&GVUF6�2�W6T�V������F6�0��f��FW"��F6����F6��7FGW2���&7F�fR"bbF6��FFRbbF6��FFR��6�F�F������6�'B���"�����FFR��""����6�T6��&R�"�FFR��""�����F6�5Т���6��7B&��E7�W&W2�W6T�V�򂂒��&��V7D6���G&V�&��V7G2��V���&��V7G5ғ��6��7BF6�&�&DFFR��Wr��F��FFUF��Tf�&�B�''R�%R"���vVV�F��&���r"��F��&�V�W&�2"�����F��&���r �Ғ�f�&�B��WrFFR�����6��7B�����6R������6Tf�"��WrFFR�����6��7B��W"��WrFFR���vWD��W'2����6��7Bw&VWF��r���W"�"�-	M�
+�R
+=-
+�"���W"���-	M�
+��
+M]��"�-	M�
+��
+-]}]#��6��7BF�'B���W"�b�&�v�B"���W"�"�&��&��r"���W"���&F�"�&WfV��r#��6��7BvVV�FFW2�W6T�V�򂂒��7W'&V�EvVV�FFW2����ғ��6��7BvVV�F6�2�W6T�V������F6�2�f��FW"��F6����F6��FFRbbvVV�FFW2�6��R��F����F��6����F6��FFR�����F6�2�vVV�FFW5Т���6��7BvVV�F6�6�V�B�vVV�F6�2�f��FW"��F6����F6��7FGW2���&7F�fR"���V�wF���6��7BvVV�6���WFVD6�V�B�vVV�F6�2�f��FW"��F6����F6��7FGW2���&F��R"���V�wF���6��7BvVV�&�w&W72�vVV�F6�2��V�wF���F��&�V�B��vVV�6���WFVD6�V�B�vVV�F6�2��V�wF�������6��7B6���WFVEF�F�6�V�B�W6T�V������F6�2�f��FW"��F6����F6��7FGW2���&F��R"bbF6��FFR����6�F�F������V�wF����F6�5Т���6��7BF�F�F6�6�V�B�F�F�F6�2��V�wF��6���WFVEF�F�6�V�C��6��7BF�F�&�w&W72�F�F�F6�6�V�B��F��&�V�B��6���WFVEF�F�6�V�B�F�F�F6�6�V�B������6��7BW6�֖�uF6��W6T�V�򂂒����6��7BF�F���6�F�F�����6��7B7W'&V�EF��R��WrFFR���F�F��U7G&��r���6Ɩ6R��R���6��7B6�F�FFW2�F6�0��f��FW"��F6����F6��7FGW2���&7F�fR"bbF6��FFRbbF6��FFR��F�F����6�'B���"�����FFR��""����6�T6��&R�"�FFR��""������F��R��#�����"����6�T6��&R�"�F��R��#�����"������&FW"�"��&FW ����&WGW&�6�F�FFW2�f��B��F6����F6��FFR��F�F���F6��F��R��F6��F��R��7W'&V�EF��R���6�F�FFW5�����V�ð����F6�5ғ��6��7B7�W&U7V��&�W2�W6T�V�򂂒����6��7BF�F���6�F�F�����&WGW&�&��E7�W&W2����7�W&R�����6��7BFW66V�F�G2�&��V7DFW66V�F�G2�&��V7G2�7�W&R�B���6��7B66�T�G2��Wr6WB��7�W&R�B����FW66V�F�G2����&��V7B���&��V7B�B�ғ��6��7B7�W&UF6�2�F6�2�f��FW"��F6����F6��&��V7D�Bbb66�T�G2�2�F6��&��V7D�B����6��7B7F�fUF6�2�7�W&UF6�2�f��FW"��F6����F6��7FGW2���&7F�fR"���6��7B6���WFVD6�V�B�7�W&UF6�2�f��FW"��F6����F6��7FGW2���&F��R"���V�wF���6��7B7�W&T��FW2���FW2�f��FW"����FR�����FR�&��V7D�Bbb66�T�G2�2���FR�&��V7D�B����6��7BFFVD7F�fUF6�2�7F�fUF6�0��f��FW"��F6����F6��FFRbbF6��FFR��F�F����6�'B���"�����FFR��""����6�T6��&R�"�FFR��""������F��R��#�����"����6�T6��&R�"�F��R��#�����"������&FW"�"��&FW ����6��7B�W�EF6��FFVD7F�fUF6�5��������7F�fUF6�5��6�'B���"���"�WFFVDB���6�T6��&R��WFFVDB�������V�ð�6��7B7F�f�G�FFW2���7�W&R�WFFVDB�����FW66V�F�G2����&��V7B���&��V7B�WFFVDB������7�W&UF6�2����F6����F6��WFFVDB������7�W&T��FW2������FR�����FR�WFFVDB����6�'B�����&WGW&���7�W&R��7F�fT6�V�C�7F�fUF6�2��V�wF�����FT6�V�C�7�W&T��FW2��V�wF���F�F�6�V�C�7�W&UF6�2��V�wF���6���WFVD6�V�B��&�w&W73�7�W&UF6�2��V�wF���F��&�V�B��6���WFVD6�V�B�7�W&UF6�2��V�wF��������W�EF6����7D7F�f�G��7F�f�G�FFW2�B�����7�W&R�WFFVD@�Ӱ�ғ�����&��E7�W&W2�&��V7G2�F6�2���FW5ғ��6��7Bf�6�&�T��FW2�W6T�V�򂂒�����b���FUf�Wr���&�FV2"�&WGW&���FW2�f��FW"����FR�����FR涖�B���&�FV"����b���FUf�Wr���&F�'�"�&WGW&���FW2�f��FW"����FR�����FR涖�B���&F�'�"����b���FUf�Wr���&6���V7F���2"�&WGW&���FW2�f��FW"����FR�����FR涖�B���&6���V7F���"����b���FUf�Wr���&Ɨ7G2"�&WGW&���FW2�f��FW"����FR�����FR涖�B���&Ɨ7B"����b���FUf�Wr���&ff�&�FW2"�&WGW&���FW2�f��FW"����FR�����FR�ff�&�FR���&WGW&���FW3�������FW2���FUf�Wuғ��6��7B6�V�F$6V��2�W6T�V�򂂒�����F�6V��2�6�V�F$7W'6�"���6�V�F$7W'6�%ғ��6��7B6�V�F%F�F�R��Wr��F��FFUF��Tf�&�B�''R�%R"�����F��&���r"��V#�&�V�W&�2"Ғ�f�&�B�6�V�F$7W'6�"���6��7BFW6�F�6�V�F$FFW2�W6T�V�򂂒���6�&�vR�6�V�F%&�vU7F'B�6�V�F%&�vTV�B���6�V�F%&�vU7F'B�6�V�F%&�vTV�Eғ��6��7BFW6�F�6�V�F%F�F�R�6�V�F%&�vT�&V6�V�F%&�vU7F'B�6�V�F%&�vTV�B���6��7BFW6�F�6�V�F$F�6�V�B�FW6�F�6�V�F$FFW2��V�wF���6��7BF��W���T��W'2���WrFFR���vWEF��W���T�fg6WB���c��6��7BF��W���T�&V��$t�B"��F��W���T��W'2���"�"�""����V�&W"�4��FVvW"�F��W���T��W'2��F��W���T��W'2�F��W���T��W'2�F�f��VB�����6��7B��7F�'�WfV�G2�W6T�V�򂂒����6��7BF6�WfV�G2�F6�2�f�D���F6������6��7BWfV�G2�����C�'F6��7&VFVB�"�F6��B�C�F6��7&VFVDB��6��.)�2"�F�F�S�F6��F�F�R��WF�-	}
+M
+}
+�}M
+�"ТӰ��b�F6��6���WFVDB�WfV�G2�W6����C�'F6��F��R�"�F6��B�C�F6��6���WFVDB��6��.)�2"�F�F�S�F6��F�F�R��WF�-	}
+M
+}
+-�����]�"ғ��&WGW&�WfV�G3��ғ��6��7B��FTWfV�G2���FW2������FR�������C�&��FR�"���FR�B��C���FR�7&VFVDB���6��.)��"��F�F�S���FR�F�F�R���WF���FT���D�&V�5���FR涖�EТҒ���6��7Bv��WfV�G2�v��2����v�������C�&v���"�v���B��C�v���7&VFVDB���6��.)x�"��F�F�S�v���F�F�R���WF�-
+m]�� �Ғ���&WGW&�����F6�WfV�G2������FTWfV�G2����v��WfV�G5Т�f��FW"��WfV�B���WfV�B�B���6�'B���"���"�B���6�T6��&R��B����6Ɩ6R��C������F6�2���FW2�v��5ғ���gV�7F����F6�W4f��FW"�F6��F6����6��7B��&�Ɨ�VB�VW'��G&�҂��F���vW$66R�����b���&�Ɨ�VB���6��7B��7F6����F6��F�F�R��F6��FW67&�F�����F6���&V�2����""�������""��F���vW$66R�����b���7F6���6�VFW2���&�Ɨ�VB��&WGW&�f�6S��Р��b�f��FW"���'F�F�"�&WGW&�F6��7FGW2���&7F�fR"bbF6��FFR����6�F�F������b�f��FW"���&��&��"�&WGW&�F6��7FGW2���&7F�fR"bbF6��FFR����V�ð��b�f��FW"���&�fW&GVR"�&WGW&�F6��7FGW2���&7F�fR"bbF6��FFRbbF6��FFR��6�F�F������b�f��FW"���&F��R"�&WGW&�F6��7FGW2���&F��R#��&WGW&�F6��7FGW2���&7F�fR#��Р�gV�7F����4�F6���tFW66V�F�B�F6��F6����&WGW&�FW66V�F�G4�b�F6�2�F6��B��6��R��F6�W4f��FW"���Р�6��7BF��WfV�f�%f�Wr�W6T�V�򂂒����&WGW&�6���G&V��b�F6�2��V��f��FW"��F6�����F6�W4f��FW"�F6�����4�F6���tFW66V�F�B�F6��������F6�2�f��FW"�VW'�ғ���gV�7F���F6�F6���C�7G&��r�F6��'F���F6����6WEF6�2��7W'&V�B���7W'&V�B����F6����F6��B����B�����F6�����F6��WFFVDC���t�6���F6�������Р�gV�7F���F6�&��V7B��C�7G&��r�F6��'F���&��V7D��FS���6WE&��V7G2��7W'&V�B���7W'&V�B����&��V7B���&��V7B�B����@������&��V7B����F6��WFFVDC���t�6�Т�&��V7@������Р�gV�7F���FE&��V7B�WfV�C�f�&�WfV�B���WfV�C��&WfV�DFVfV�B����6��7BF�F�R�&��V7EF�F�R�G&�҂����b�F�F�R�&WGW&㰢6��7B&V�D�B�&��V7E&V�D�B���V�ð�6��7B&��V7B�7&VFU&��V7B���F�F�R��&V�D�B�����C�&V�D�B�'&��V7B"�'7�W&R"���&FW#��W�E&��V7D�&FW"�&��V7G2�&V�D�B��ғ��6WE&��V7G2��7W'&V�B�������7W'&V�B�&��V7Eғ��6WE&��V7EF�F�R�""���6WE&��V7D7&VFT�V�f�6R���6WE&��V7E&V�D�B�""���6WE6V�V7FVE&��V7D�B�&��V7B�B���6WEF�7B�&V�D�B�-	�
+�]�"
+�}M
+�"�-
+M]
+
+m�}��
+�}M
+�"���Р�gV�7F���6���6UF6�f�Wr�f�Ws�F6�f�Wr���6WEF6�f�Wr�f�Wr����b�f�Wr���'vVV�"�&WGW&㰢6WDf��FW"�f�Wr���Р�gV�7F���FD��FR�WfV�C�f�&�WfV�B���WfV�C��&WfV�DFVfV�B����6��7BF�F�R���FUF�F�R�G&�҂����b�F�F�R�&WGW&㰢6��7B��FR�7&VFT��FR���F�F�R��&�G����FT&�G��G&�҂������C���FT���B��&��V7D�C���FU&��V7D�B��FFS���FT���B���&F�'�"��6�F�F�����V���ғ��6WD��FW2��7W'&V�B������FR����7W'&V�Eғ��6WD��FUF�F�R�""���6WD��FT&�G��""���6WD��FT���B�&��FR"���6WD��FU&��V7D�B��V���6WD��FT7&VFT�V�f�6R���6WD��FUf�Wr���FR涖�B���&�FV"�&�FV2"���FR涖�B���&F�'�"�&F�'�"���FR涖�B���&6���V7F���"�&6���V7F���2"���FR涖�B���&Ɨ7B"�&Ɨ7G2"�&��"���6WD��&��U6V7F���&��FW2"���6WEF�7B�-	}
+���
+�]
+
+�]�"���Р�gV�7F���FDv�WfV�C�f�&�WfV�B���WfV�C��&WfV�DFVfV�B����6��7BF�F�R�v��F�F�R�G&�҂����b�F�F�R��6V�V7FVE&��V7B�&WGW&㰢6��7Bv���7&VFTv���F�F�R��&��V7D�C�6V�V7FVE&��V7B�B��&�w&W73� �ғ��6WDv��2��7W'&V�B����v������7W'&V�Eғ��6WDv��F�F�R�""���6WEF�7B�-
+m]��
+M�
+-�]�"���Р�gV�7F���F6�v��C�7G&��r�F6��'F���v�����6WDv��2��7W'&V�B���7W'&V�B����v���v���B����B�����v������F6��WFFVDC���t�6���v�������Р�gV�7F����V�6�V�F"���FS�6�V�F$��FR�&���F�"���6WD6�V�F$��FR���FR���6WD��&��U6V7F���&6�V�F""���Р�gV�7F���6WD���F��fg6WB�FV�F��V�&W"���6WD6�V�F$7W'6�"��7W'&V�B����WrFFR�7W'&V�B�vWDgV�ŖV"���7W'&V�B�vWD���F����FV�F�����Р�gV�7F���6WDFW6�F�6�V�F%W&��B�7F'C�7G&��r�F�3��V�&W"���6��7B6fTF�2��F�������F��֖�B�F�2����6WD6�V�F%&�vU7F'B�7F'B���6WD6�V�F%&�vTV�B�FDF�4�6�7F'B�6fTF�2�����6WD6�V�F%�6���tV�B�f�6R���6WD6�V�F$7W'6�"��6�FFR�7F'B����Р�gV�7F���6V�V7D֖�6�V�F$F���6�7G&��r����b�6�V�F%�6���tV�B���6WD6�V�F%&�vU7F'B��6򓰢6WD6�V�F%&�vTV�B��6򓰢6WD6�V�F%�6���tV�B�G'VR���6WD6�V�F$7W'6�"��6�FFR��6򒓰�&WGW&㰢Р�6��7B�6��"�6�V�F%&�vU7F'C���WB7F'B��6��"���6���6��"��6��WBV�B��6��"���6���6���6��#���b���6�W6�fTF�6�V�B�7F'B�V�B��B����b��6����6��"�V�B�FDF�4�6��6��"�2���V�6R7F'B�FDF�4�6��6��"��2���Т6WD6�V�F%&�vU7F'B�7F'B���6WD6�V�F%&�vTV�B�V�B���6WD6�V�F%�6���tV�B�f�6R���6WD6�V�F$7W'6�"��6�FFR�7F'B����Р�gV�7F�����fTFW6�F�6�V�F%W&��B�F�&V7F��������6��7BF�2���6�W6�fTF�6�V�B�6�V�F%&�vU7F'B�6�V�F%&�vTV�B���6��7B�W�E7F'B�FDF�4�6�6�V�F%&�vU7F'B�F�2�F�&V7F��⓰�6WDFW6�F�6�V�F%W&��B��W�E7F'B�F�2���Р�gV�7F���6���6UF�F�W&��B����6WDFW6�F�6�V�F%W&��B��6�F�F����FW6�F�6�V�F$F�6�V�B���Р�gV�7F���6WEF6�&��V7B�F6��F6��&��V7D�C�7G&��r��V���6��7B�G2��Wr6WB��F6��B����FW66V�F�G4�b�F6�2�F6��B������FVҒ���FV��B�ғ��6WEF6�2��7W'&V�B���7W'&V�B�����FVҒ���G2�2��FV��B�������FV��&��V7D�B�WFFVDC���t�6�Т��FVТ�����6WEF�7B�&��V7D�B�-	�
+�]�"
+�
+}�
+}]�"�-	}
+M
+}
+]r
+�
+�]�-"���Р�gV�7F���&��V7EF6�6�V�B�&��V7D�C�7G&��r���6�VFT6���G&V��G'VR���6��7B�G2��Wr6WB��&��V7D�Eғ���b���6�VFT6���G&V���&��V7DFW66V�F�G2�&��V7G2�&��V7D�B��f�$V6���&��V7B����G2�FB�&��V7B�B����Т&WGW&�F6�2�f��FW"��F6����F6��7FGW2���&7F�fR"bbF6��&��V7D�Bbb�G2�2�F6��&��V7D�B����V�wF���Р�gV�7F���&��V7E66�T�G2�&��V7D�C�7G&��r���&WGW&��Wr6WB��&��V7D�B����&��V7DFW66V�F�G2�&��V7G2�&��V7D�B�����&��V7B���&��V7B�B�ғ��Р�gV�7F���F6���&��V7E66�R�F6��F6��&��V7D�C�7G&��r���6��7B�G2�&��V7E66�T�G2�&��V7D�B����b�F6��&��V7D�Bbb�G2�2�F6��&��V7D�B��&WGW&�G'VS��&WGW&�'&��g&�҆�G2��6��R���B���&TƖ�VB�&V�F���2��G�S�'F6�"��C�F6��B���G�S�'&��V7B"��BҒ���Р�gV�7F�����FT��&��V7E66�R���FS���FR�&��V7D�C�7G&��r���6��7B�G2�&��V7E66�T�G2�&��V7D�B����b���FR�&��V7D�Bbb�G2�2���FR�&��V7D�B��&WGW&�G'VS��&WGW&�'&��g&�҆�G2��6��R���B���&TƖ�VB�&V�F���2��G�S�&��FR"��C���FR�B���G�S�'&��V7B"��BҒ���Р�gV�7F���&��V7D��FT6�V�B�&��V7D�C�7G&��r���&WGW&���FW2�f��FW"����FR�����FT��&��V7E66�R���FR�&��V7D�B����V�wF���Р�gV�7F���V�F�G�F�F�R�&Vc��&�V7E&Vb����b�&Vb�G�R���'&��V7B"���6��7B&��V7B�&��V7G2�f��B���FVҒ���FV��B���&Vb�B���&WGW&�&��V7B�&��V7EF��&��V7G2�&��V7B�B��-
+=M
+�����
+�
+�]�"#��Т�b�&Vb�G�R���'F6�"�&WGW&�F6�2�f��B���FVҒ���FV��B���&Vb�B���F�F�R��-
+=M
+���
+�
+}
+M
+}#��&WGW&���FW2�f��B���FVҒ���FV��B���&Vb�B���F�F�R��-
+=M
+���
+�
+}
+�]-�#��Р�gV�7F���w&�V�F�G�F�F�R�&Vc��&�V7E&Vb����b�&Vb�G�R���'&��V7B"���&WGW&�&��V7G2�f��B���FVҒ���FV��B���&Vb�B���F�F�R��-
+=M
+�����
+�
+�]�"#��Т�b�&Vb�G�R���'F6�"�&WGW&�F6�2�f��B���FVҒ���FV��B���&Vb�B���F�F�R��-
+=M
+���
+�
+}
+M
+}#��&WGW&���FW2�f��B���FVҒ���FV��B���&Vb�B���F�F�R��-
+=M
+���
+�
+}
+�]-�#��Р�gV�7F���V�F�G�G�T�&VG�S�V�F�G�G�R���&WGW&�G�R���'&��V7B"�-
+M]
+�
+�
+�]�""�G�R���'F6�"�-	}
+M
+}"�-	}
+�]-�#��Р�gV�7F���&V�F���F&vWD�F���2�G�S�V�F�G�G�R�6�W&6S��&�V7E&Vb����b�G�R���'&��V7B"���&WGW&�f�GFV�VE&��V7G0��f��FW"���&��V7BҒ���6�W&6R�G�R���'&��V7B"bb6�W&6R�B���&��V7B�B��������&��V7B�F�Ғ�����C�&��V7B�B��&VâF�Ғ���Т�b�G�R���'F6�"���&WGW&�F6�0��f��FW"��F6�����6�W&6R�G�R���'F6�"bb6�W&6R�B���F6��B�������F6�������C�F6��B��&VâF6��F�F�RҒ���Т&WGW&���FW0��f��FW"����FR����6�W&6R�G�R���&��FR"bb6�W&6R�B�����FR�B���������FR������C���FR�B��&Vâ��FR�F�F�RҒ���Р�gV�7F���FD�&�V7E&V�F���6�W&6S��&�V7E&Vb����b�Ɩ�F&vWD�B�&WGW&㰢6��7BF&vWC��&�V7E&Vb��G�S�Ɩ�G�R��C�Ɩ�F&vWD�BӰ��b�6�W&6R�G�R���F&vWB�G�Rbb6�W&6R�B���F&vWB�B�&WGW&㰢�b�&TƖ�VB�&V�F���2�6�W&6R�F&vWB����6WEF�7B�-
+�-
+-�}�
+=mR
+=�]--=]""���&WGW&㰢Т6WE&V�F���2��7W'&V�B�������7W'&V�B�7&VFU&V�F���6�W&6R�F&vWB�ғ��6WDƖ�F&vWD�B�""���6WEF�7B�-
+-�}�
+M�
+-�]�"���Р�gV�7F����V�Ɩ�VD�&�V7B�&Vc��&�V7E&Vb����b�&Vb�G�R���'&��V7B"���6WE6V�V7FVE&��V7D�B�&Vb�B���6WD��&��U6V7F���'&��V7G2"���6WE6V�V7FVD��FT�B��V����b�6V�V7FVD�B�6��6TFWF����&WGW&㰢Т�b�&Vb�G�R���'F6�"���6WE6V�V7FVD��FT�B��V����V�FWF�&Vb�B���&WGW&㰢Т6WE6V�V7FVD��FT�B�&Vb�B����b�6V�V7FVD�B�6��6TFWF����Р�gV�7F���&V�FW%&V�F���5�V6�W&6S��&�V7E&Vb���6��7BƖ�VB�&V�F���4f�"�&V�F���2�6�W&6R���6��7B�F���2�&V�F���F&vWD�F���2�Ɩ�G�R�6�W&6R���&WGW&����6V7F���6�74��S�&FWF���6V7F���Ɩ�VB��&�V7G2�6V7F���#��F�b6�74��S�'6V7F���ֆVF��r#�ƃ3�
+-�}����3��7��Ɩ�VB��V�wF����7����F�c��Ɩ�VB��V�wF��bb���F�b6�74��S�&Ɩ�VB��&�V7B�Ɨ7B#��Ɩ�VB����&V�F�������6��7B&Vb��F�W%&Vb�&V�F����6�W&6R���&WGW&����F�b6�74��S�&Ɩ�VB��&�V7B�6��"�W�׷&V�F����G���'WGF����6Ɩ6�ײ�����V�Ɩ�VD�&�V7B�&Vb����6����V�F�G�G�T�&V&Vb�G�R����6�����7G&��s�V�F�G�F�F�R�&Vb����7G&��s���'WGF����'WGF��6�74��S�&Ɩ�VB�&V��fR �&���&V��-
+=M
+��-�
+-�}� ���6Ɩ6�ײ����6WE&V�F���2��7W'&V�B���7W'&V�B�f��FW"���FVҒ���FV��B��&V�F����B��Т�9s��'WGF�����F�c����җТ��F�c��Т�F�b6�74��S�&Ɩ���&�V7B�f�&�#��6V�V7Bf�VS׶Ɩ�G�W���6��vSײ�WfV�B����6WDƖ�G�R�WfV�B�F&vWB�f�VR2V�F�G�G�R��6WDƖ�F&vWD�B�""�������F���f�VS�'&��V7B#�
+M]
+�
+�
+�]�#���F������F���f�VS�'F6�#�	}
+M
+}���F������F���f�VS�&��FR#�	}
+�]-����F������6V�V7C��6V�V7Bf�VS׶Ɩ�F&vWD�G���6��vSײ�WfV�B���6WDƖ�F&vWD�B�WfV�B�F&vWB�f�VR�����F���f�VS�"#�	-�
+
+-�
+��]�.(
+c���F������F���2�����F�������F���f�VS׶�F����G��W�׶�F����G���F�����&V�����F����Т��6V�V7C��'WGF��F�6&�VCײƖ�F&vWD�G���6Ɩ6�ײ����FD�&�V7E&V�F���6�W&6R���
+-�}
+-���'WGF�����F�c���6V7F�������Р�7��2gV�7F���GF6�f��W2�&Vc��&�V7E&Vb�f��TƗ7C�f��TƗ7B��V����b�f��TƗ7C���V�wF��&WGW&㰢6��7Bf��W2�'&��g&�҆f��TƗ7B���6��7B66WFVC�GF6��V�E����Ӱ�f�"�6��7Bf��R�bf��W2����b�f��R�6��R��#����6WEF�7B�-
+M
+��
+������
+������
+M��
+���
+����=�
+�
+�-�-��(	B
+�
+���=��"
+	�	"���6��F��VS��Т6��7BFFW&��v�B�Wr&�֗6S�7G&��s₇&W6��fR�&V�V7B�����6��7B&VFW"��Wrf��U&VFW"����&VFW"�����B�����&W6��fR�7G&��r�&VFW"�&W7V�B��""����&VFW"���W'&�"�����&V�V7B�&VFW"�W'&�"���&VFW"�&VD4FFU$f��R���ғ��66WFVB�W6�����C�7'�F��&�F��UT�B������S�f��R���R��֖�S�f��R�G�R��&Ɩ6F�����7FWB�7G&V�"��6��S�f��R�6��R��FFW&���Ɩ�3��&Ve���7&VFVDC��WrFFR���F��4�7G&��r���ғ��Т�b�66WFVB��V�wF����6WDGF6��V�G2��7W'&V�B�������66WFVB����7W'&V�Eғ��6WEF�7B�66WFVB��V�wF�����-
+M
+��
+�
+��
+]���"�-
+M
+���
+�
+��
+]��]��"���ТР�gV�7F���&V��fTGF6��V�Dg&�҇&Vc��&�V7E&Vb�GF6��V�D�C�7G&��r���6WDGF6��V�G2��7W'&V�B���7W'&V�@�����GF6��V�B���GF6��V�B�B���GF6��V�D�B�&V��fTGF6��V�DƖ沆GF6��V�B�&Vb��GF6��V�B���f��FW"��GF6��V�B���GF6��V�B�Ɩ�2��V�wF������Р�gV�7F���&V�FW$GF6��V�G5�V&Vc��&�V7E&Vb���6��7B�FV�2�GF6��V�G4f�"�GF6��V�G2�&Vb���&WGW&����6V7F���6�74��S�&FWF���6V7F����&�V7B�GF6��V�G2�6V7F���#��F�b6�74��S�'6V7F���ֆVF��r#�ƃ3�
+M
+���
+�
+M�-����3��7�綗FV�2��V�wF����7����F�c���FV�2��V�wF��bb���F�b6�74��S�&�&�V7B�GF6��V�B�w&�B#���FV�2����GF6��V�B������'F�6�R6�74��S�&�&�V7B�GF6��V�B"�W�׶GF6��V�B�G���GF6��V�B�֖�R�7F'G5v�F��&��vR�"����Ɩ�r7&3׶GF6��V�B�FFW&���C׶GF6��V�B���W��������7�6�74��S�&GF6��V�B�f��R֖6��#�)jC��7���Т�F�c��7G&��s�GF6��V�B���W���7G&��s��6�����F�������F��&�V�B�GF6��V�B�6��R�#B���
+	�	��6������F�c���&Vc׶GF6��V�B�FFW&��F�v���C׶GF6��V�B���W�&���&V��-	�-�
+�-�
+M
+��#�(is����'WGF����6Ɩ6�ײ����&V��fTGF6��V�Dg&�҇&Vb�GF6��V�B�B��&���&V��-	�-�
+]��-�
+M
+��#�9s��'WGF�����'F�6�S���Т��F�c��Т��&V�6�74��S�&GF6��V�B�W��B#��7���Ȳ
+	�
+��
+]��-�
+M�-�
+���
+M
+����7��Ɩ�W@�G�S�&f��R ��V�F��P�66WC�&��vR���Fb��G�B��F�2��F�7����2���7��禗 ���6��vSײ�WfV�B����f��BGF6�f��W2�&Vb�WfV�B�7W'&V�EF&vWB�f��W2��WfV�B�7W'&V�EF&vWB�f�VR�"#��Т�����&V���6���6�74��S�&GF6��V�B�Ɩ֗B#�
+]�}
+
+���
+����
+M��"
+	�	
+�
+M
+���
+	=����-�R
+
+
+
+��M
+�-���(	B
+�]M=����
+���
+�-��
+��M]�����6������6V7F�������Р�gV�7F���F6���FR��C�7G&��r�F6��'F�����FS���6WD��FW2��7W'&V�B���7W'&V�B������FR�����FR�B����B�������FR����F6��WFFVDC���t�6�����FR����Р�gV�7F���FV�WFT��FR���FS���FR����b�v��F�r�6��f�&҆
+=M
+��-�
+}
+�]-�2*�G���FR�F�F�W�+����&WGW&㰢6��7B&Vc��&�V7E&Vb��G�S�&��FR"��C���FR�BӰ�6WD��FW2��7W'&V�B���7W'&V�B�f��FW"���FVҒ���FV��B����FR�B����6WE&V�F���2��7W'&V�B���&V��fU&V�F���4f�"�7W'&V�B�&Vb����6WDGF6��V�G2��7W'&V�B���7W'&V�@�����GF6��V�B���&V��fTGF6��V�DƖ沆GF6��V�B�&Vb����f��FW"��GF6��V�B���GF6��V�B�Ɩ�2��V�wF������6WE6V�V7FVD��FT�B��V���6WEF�7B�-	}
+�]-�
+=M
+�]�"���Р�gV�7F����V�&��V7DVF�F�"�&��V7C�&��V7D��FR���6WDVF�E&��V7EF�F�R�&��V7B�F�F�R���6WDVF�E&��V7E&V�D�B�&��V7B�&V�D�B��""���6WE&��V7DVF�D�V�G'VR���Р�gV�7F���6fU&��V7DVF�B�WfV�C�f�&�WfV�B���WfV�C��&WfV�DFVfV�B�����b�6V�V7FVE&��V7B�&WGW&㰢6��7BF�F�R�VF�E&��V7EF�F�R�G&�҂����b�F�F�R�&WGW&㰢6��7B��fƖE&V�G2��Wr6WB��6V�V7FVE&��V7B�B����&��V7DFW66V�F�G2�&��V7G2�6V�V7FVE&��V7B�B������FVҒ���FV��B�ғ��6��7B&V�D�B�VF�E&��V7E&V�D�Bbb��fƖE&V�G2�2�VF�E&��V7E&V�D�B��VF�E&��V7E&V�D�B��V�ð�F6�&��V7B�6V�V7FVE&��V7B�B���F�F�R��&V�D�B�����C�&V�D�B�'&��V7B"�'7�W&R �ғ��6WE&��V7DVF�D�V�f�6R���6WEF�7B�-	�
+�]�"
+���-��"���Р�gV�7F���FV�WFU&��V7D��FR�&��V7C�&��V7D��FR����b�v��F�r�6��f�&҆
+=M
+��-�*�G�&��V7B�F�F�W�+��
+	��M�
+�]�-�
+=M="
+��M��-�
+�
+=
+�-]��
+-��R���&WGW&㰢6��7B&Vc��&�V7E&Vb��G�S�'&��V7B"��C�&��V7B�BӰ�6��7B&V�D�B�&��V7B�&V�D�C��6WE&��V7G2��7W'&V�B���7W'&V�@��f��FW"���FVҒ���FV��B��&��V7B�B�������FVҒ���FV��&V�D�B���&��V7B�B�����FV��&V�D�B�WFFVDC���t�6����FVҒ���6WEF6�2��7W'&V�B���7W'&V�B����F6����F6��&��V7D�B���&��V7B�B�����F6��&��V7D�C�&V�D�B�WFFVDC���t�6���F6�����6WD��FW2��7W'&V�B���7W'&V�B������FR�����FR�&��V7D�B���&��V7B�B�������FR�&��V7D�C�&V�D�B�WFFVDC���t�6�����FR����6WE&V�F���2��7W'&V�B���&V��fU&V�F���4f�"�7W'&V�B�&Vb����6WDGF6��V�G2��7W'&V�B���7W'&V�@�����GF6��V�B���&V��fTGF6��V�DƖ沆GF6��V�B�&Vb����f��FW"��GF6��V�B���GF6��V�B�Ɩ�2��V�wF������6WE6V�V7FVE&��V7D�B�&V�D�B���6WE&��V7DVF�D�V�f�6R���6WEF�7B�-	�
+�]�"
+=M
+��"���Р�gV�7F���6WE&��V7Ef�Wt��FR���FS�&w&�B"�&Ɨ7B"���6WE&��V7Ef�Wr���FR���G'����6�7F�&vR�6WD�FV҂'6fW&�&��V7Ef�Wr"���FR���6F6��ТР�gV�7F���&V�FW%&��V7D��6F����6�W"��f�VS�7G&��r����6��vS��f�VS�7G&��r���f��B��&��D�&V��-	]r
+�
+�]�-�
+��
+]��"��W�6�VFT�G3�6WC�7G&��s���Wr6WB������6��7B6V�V7FVE&��V7B�f�VR�&��V7G2�f��B��&��V7B���&��V7B�B���f�VR����V����V�ð�6��7B6V�V7FVEF��R�6V�V7FVE&��V7B�7�W&UF��R�&��V7G2�6V�V7FVE&��V7B�B��&�WWG&�#��&WGW&����FWF��26�74��S�'&��V7B���6F�����6�W"#��7V��'�6�74��S׶&��V7B���6F����7V��'�F��R�G�6V�V7FVEF��W�G�6V�V7FVE&��V7B�&�2�&��V7B"�&�2�&��B'����7�6�74��S�'&��V7B���6F����7vF6�"���7���7G&��s�6V�V7FVE&��V7B�6V�V7FVE&��V7B�F�F�R�&��D�&V����7G&��s��6V�V7FVE&��V7Bbb�6����&��V7EF��&��V7G2�6V�V7FVE&��V7B�B����6����Т��7���#�(�C��#���7V��'���F�b6�74��S�'&��V7B���6F�����V�R#��'WGF��G�S�&'WGF�� �6�74��S׶&��V7B���6F�����F���F��R��WWG&�FWF��G�f�VR�'6V�V7FVB"�"'�Т��6Ɩ6�ײ�WfV�B�������6��vR�""���WfV�B�7W'&V�EF&vWB�6��6W7B�&FWF��2"���&V��fTGG&�'WFR�&�V�"����Т��7�6�74��S�'&��V7B���6F����7vF6�"���7�6�74��S�'&��V7B���6F����6��#��7G&��s�&��D�&V����7G&��s��6����	-]
+]���
+=
+�-]����6������7���f�VRbb�#�)�3��#�Т��'WGF����f�GFV�VE&��V7G0��f��FW"���&��V7BҒ��W�6�VFT�G2�2�&��V7B�B��������&��V7B�FWF��F�Ғ����6��7BF��R�7�W&UF��R�&��V7G2�&��V7B�B���&WGW&����'WGF��G�S�&'WGF�� ��W�׷&��V7B�GТ6�74��S׶&��V7B���6F�����F���F��R�G�F��W�FWF��G��F��֖�FWF��B��G�f�VR���&��V7B�B�'6V�V7FVB"�"'�Т��6Ɩ6�ײ�WfV�B�������6��vR�&��V7B�B���WfV�B�7W'&V�EF&vWB�6��6W7B�&FWF��2"���&V��fTGG&�'WFR�&�V�"����Т��7�6�74��S�'&��V7B���6F����7vF6�"���7�6�74��S�'&��V7B���6F����6��#��7G&��s�&��V7B�F�F�W���7G&��s��6����FWF�����-
+M]
+
+m�}��"�F����6������7���f�VR���&��V7B�Bbb�#�)�3��#�Т��'WGF������җТ��F�c���FWF��3����Р�gV�7F���&V�FW%&��V7Dw&�B�&V�D�C�7G&��r��V���6��7B�FV�2�&��V7D6���G&V�&��V7G2�&V�D�B���&WGW&����F�b6�74��S�'&��V7B�w&�B#���FV�2����&��V7B�����6��7B6���G&V��&��V7D6���G&V�&��V7G2�&��V7B�B���6��7BF��R�7�W&UF��R�&��V7G2�&��V7B�B���&WGW&����'WGF��6�74��S׶&��V7B�F��R7�W&R�F��R�G�F��W�G�&��V7B涖�B���'7�W&R"�'7�W&R�&��B�F��R"�'7�W&R�6���B�F��R'�Т�W�׷&��V7B�GТ��6Ɩ6�ײ����6WE6V�V7FVE&��V7D�B�&��V7B�B�Т��7�6�74��S�'&��V7B�F��R֖6��#�&��V7B涖�B���'7�W&R"�.)xr"�.)k'���7���7G&��s�&��V7B�F�F�W���7G&��s��6����&��V7EF6�6�V�B�&��V7B�B��
+}
+M
+r+r�6���G&V���V�wF���'W76���W&6���G&V���V�wF��-��M�
+�]�""�-��M�
+�]�-"�-��M�
+�]�-�""����6�����#�(���#���'WGF������җТ��F�c����Р�gV�7F���&V�FW%&��V7EG&VR�&V�D�C�7G&��r��V���FWF����&V7B�&V7D��FR��&WGW&�&��V7D6���G&V�&��V7G2�&V�D�B�����&��V7B�����6��7B6���G&V��&��V7D6���G&V�&��V7G2�&��V7B�B���&WGW&����F�b6�74��S�'&��V7B�G&VR���FR"�W�׷&��V7B�G���F�b6�74��S׶&��V7B�G&VR�&�r&��V7B�FWF��G��F��֖�FWF��B��7�W&R�F��R�G�7�W&UF��R�&��V7G2�&��V7B�B��G�FWF�����'7�W&R�&��B�&�r"�'7�W&R�6���B�&�r'����'WGF��6�74��S�'&��V7B�F�vv�R �F�6&�VC׶6���G&V���V�wF����Т��6Ɩ6�ײ����F6�&��V7B�&��V7B�B��6���6VC�&��V7B�6���6VBҗТ&���&V�׷&��V7B�6���6VB�-
+
+
+}-]
+�=-�"�-
+-]
+�=-�'Т��6���G&V���V�wF���&��V7B�6���6VB�.(�"�.(�B"��"'Т��'WGF����'WGF��6�74��S�'&��V7B����"��6Ɩ6�ײ����6WE6V�V7FVE&��V7D�B�&��V7B�B����7�6�74��S�'&��V7B�f��FW"֖6��#�&��V7B涖�B���'7�W&R"�.)xr"�.)k'���7���7���7G&��s�&��V7B�F�F�W���7G&��s��6����&��V7EF6�6�V�B�&��V7B�B��
+
+�-�-��R
+}
+M
+s��6������7����'WGF����'WGF��6�74��S�'&��V7B��V�"&���&V�׶
+	�-�
+�-�G�&��V7B涖�B���'7�W&R"�-M]
+2"�-�
+�]�"'�*�G�&��V7B�F�F�W�+����6Ɩ6�ײ����6WE6V�V7FVE&��V7D�B�&��V7B�B���(���'WGF�����F�c��&��V7B�6���6VBbb6���G&V���V�wF��bb���F�b6�74��S�'&��V7B�7V'G&VR#�&V�FW%&��V7EG&VR�&��V7B�B�FWF������F�c��Т��F�c����ғ��Р�gV�7F���6fU&�f��T��R�WfV�C�f�&�WfV�B���WfV�C��&WfV�DFVfV�B����6��7B�W�D��R�&�f��TG&gB�G&�҂����b��W�D��R�&WGW&㰢6WE&�f��T��R��W�D��R���6WE&�f��TG&gB��W�D��R���6WE&�f��T�V�T�V�f�6R���Р�gV�7F����V�&�f��T��U�6�W"����6WE&�f��TG&gB�&�f��T��R���6WE&�f��T�V�T�V₇f�VR���f�VR���Р�gV�7F���7F'D�WuF6��&��V7D�C�7G&��r��V���6WEV�6�F�F�R�""���6WEV�6�FFR��6�F�F������6WEV�6�F��R�""���6WEV�6�FVFƖ�R�""���6WEV�6�&��V7D�B�&��V7D�B���6WEV�6�&��&�G��B���6WEV�6��F���4�V�f�6R���6WDf��FW"�'F�F�"���6WEF6�f�Wr�'F�F�"���6WD��&��U6V7F���'F6�2"���v��F�r�6WEF��V�WB�����F�7V�V�B�vWDV�V�V�D'��B�'V�6��FB"���f�7W2������Р�gV�7F����V��WuF6�����7F'D�WuF6���V���Р�gV�7F����V��Wt��FR����6WD��FT���B�&��FR"���6WD��FUF�F�R�""���6WD��FT&�G��""���6WD��FU&��V7D�B��V���6WD��FT7&VFT�V�G'VR���Р�gV�7F����V�FWF��C�7G&��r�&W�6R�f�6R���6��7B�6��"7F6��"�V�6�FUU$�6����V�B��B����b�&W�6R���7F�'��&W�6U7FFR��V���""��6����V�6R��7F�'��W6�7FFR��V���""��6����6WE6V�V7FVD�B��B���Р�gV�7F���6��6TFWF�����b���6F����6��7F'G5v�F��"7F6��"������7F�'��W6�7FFR��V���""���6F����F���R���6F����6V&6����Т6WE6V�V7FVD�B��V���Р�gV�7F���FEF6��WfV�C�f�&�WfV�B���WfV�C��&WfV�DFVfV�B����6��7B'6VB�'6UV�6�FB�V�6�F�F�R����b�'6VB�F�F�R�&WGW&㰠�6��7BF6��7&VFUF6����F�F�S�'6VB�F�F�R��&V�D�C��V����&��V7D�C�V�6�&��V7D�B���&FW#��W�D�&FW"�F6�2��V���FFS�V�6�FFR���f��FW"���'F�F�"bb'6VB�FFR��6�F�F����'6VB�FFR���F��S�V�6�F��R��'6VB�F��R��FVFƖ�S�V�6�FVFƖ�R��'6VB�FVFƖ�R��&V7W'&V�6S�'6VB�&V7W'&V�6R��&��&�G��V�6�&��&�G��B�V�6�&��&�G��'6VB�&��&�G����&V�3�'6VB��&V�2��V�6���WF&�S�'6VB�V�6���WF&�P�ғ���6WEF6�2��7W'&V�B�������7W'&V�B�F6�ғ���b�V�6�&V�F���F&vWD�B���6WE&V�F���2��7W'&V�B��������7W'&V�B��7&VFU&V�F��•�G�S�'F6�"��C�F6��B����G�S�V�6�&V�F���G�R��C�V�6�&V�F���F&vWD�BТ��ғ��Т6WEV�6�F�F�R�""���6WEV�6�&��&�G��B���6WEV�6�FFR�""���6WEV�6�F��R�""���6WEV�6�FVFƖ�R�""���6WEV�6�&V�F���G�R�'&��V7B"���6WEV�6�&V�F���F&vWD�B�""���6WEV�6��F���4�V�f�6R���6WEV�6�&��V7D�B��V���6WD��&��UV�6��V�f�6R���6WD6�V�F$6���6W$�V�f�6R���6WEF�7B�-	}
+M
+}
+M�
+-�]�"���Р�gV�7F���&W6WEV�6�F6�G&gB����6WEV�6�F�F�R�""���6WEV�6�&��V7D�B��V���6WEV�6�&��&�G��B���6WEV�6�FFR�""���6WEV�6�F��R�""���6WEV�6�FVFƖ�R�""���6WEV�6�&V�F���G�R�'&��V7B"���6WEV�6�&V�F���F&vWD�B�""���6WEV�6��F���4�V�f�6R���Р�gV�7F���6��6T6�V�F%F6�6���6W"����6WD6�V�F$6���6W$�V�f�6R���&W6WEV�6�F6�G&gB����Р�gV�7F����V�6�V�F%F6�7&VF�"�FFS�7G&��r�F��S�7G&��r��V����6�F�������V�&W#����V�&W"Ғ��&W6WEV�6�F6�G&gB����6WEV�6�FFR�FFR���6WEV�6�F��R�F��R��""����6��7Bv�GF��C#��6��7B�V�v�DW7F��FR�S#��6��7Bf�Ww�'D�&v���C��6��7B6�FV&%6fT�VgB�v��F�r���W%v�GF��s#�#sB�f�Ww�'D�&v�㰢6��7B�VgB��F������6�FV&%6fT�VgB���F��֖�v��F�r���W%v�GF��v�GF��f�Ww�'D�&v����6�F�����3B�����6��7BF���F������f�Ww�'D�&v�����F��֖�v��F�r���W$�V�v�B��V�v�DW7F��FR�f�Ww�'D�&v����6�F�����c�������6WD6�V�F$6���6W%�6�F��⇲�VgB�F�ғ��6WD6�V�F$6���6W$�V�G'VR���Р�W6T���WDVffV7B��������b�6�V�F$6���6W$�V�&WGW&㰠�6��7BV�V�V�B�6�V�F$6���6W%&Vb�7W'&V�C���b�V�V�V�B�&WGW&㰠�6��7Bf�Ww�'D�&v���C��6��7B6�FV&%6fT�VgB�v��F�r���W%v�GF��s#�#sB�f�Ww�'D�&v�㰢6��7B&V7B�V�V�V�B�vWD&�V�F��t6ƖV�E&V7B����6��7B���VgB��F�����6�FV&%6fT�VgB�v��F�r���W%v�GF��&V7B�v�GF��f�Ww�'D�&v�⓰�6��7B��F���F�����f�Ww�'D�&v���v��F�r���W$�V�v�B�&V7B�V�v�B�f�Ww�'D�&v�⓰��6��7B�W�D�VgB��F��֖��F�����6�V�F$6���6W%�6�F�����VgB�6�FV&%6fT�VgB�����VgB���6��7B�W�EF���F��֖��F�����6�V�F$6���6W%�6�F����F��f�Ww�'D�&v�����F������b��F��'2��W�D�VgB�6�V�F$6���6W%�6�F�����VgB���R���F��'2��W�EF��6�V�F$6���6W%�6�F����F����R���6WD6�V�F$6���6W%�6�F��⇲�VgC��W�D�VgB�F���W�EF�ғ��Т���6�V�F$6���6W$�V��V�6��F���4�V��6�V�F$6���6W%�6�F�����VgB�6�V�F$6���6W%�6�F����F�ғ���gV�7F���6�V�F$V�EF��R�����b�V�6�F��R�&WGW&�"#��6��7B���W'2�֖�WFW5��V�6�F��R�7ƗB�#�"�����V�&W"���6��7BF�F�����W'2�c�֖�WFW2�c�R�#B�c���&WGW&�G�7G&��r��F��f���"�F�F��c���E7F'B�"�#"�ӢG�7G&��r�F�F�Rc��E7F'B�"�#"����Р�gV�7F���FE7V'F6��&V�C�F6����6��7B'6VB�'6UV�6�FB�7V'F6�F�F�R����b�'6VB�F�F�R�&WGW&㰢6��7BFWF��FWF��b�F6�2�&V�B����b�FWF���r���6WEF�7B�-	M�-�=�="
+�
+]M]�
+-��m]���-�"���&WGW&㰢Р�6��7BF6��7&VFUF6����F�F�S�'6VB�F�F�R��&V�D�C�&V�B�B��&��V7D�C�&V�B�&��V7D�B���&FW#��W�D�&FW"�F6�2�&V�B�B���FFS�'6VB�FFR��F��S�'6VB�F��R��FVFƖ�S�'6VB�FVFƖ�R��&V7W'&V�6S�'6VB�&V7W'&V�6R��&��&�G��'6VB�&��&�G����&V�3�'6VB��&V�2��V�6���WF&�S�'6VB�V�6���WF&�P�ғ���6WEF6�2��7W'&V�B���7W'&V�@������FVҒ���FV��B���&V�B�B�����FV��6���6VC�f�6R���FVҐ��6��6B�F6������6WE7V'F6�F�F�R�""���6WEF�7B�-	��M}
+M
+}
+M�
+-�]�"���Р�gV�7F���&V�V�F�&V7E7V'F6�2�&V�D�C�7G&��r���6WEF6�2��7W'&V�B���7W'&V�B����F6����F6��&V�D�B���&V�D�@������F6��7FGW3�&7F�fR"�6���WFVDC��V���WFFVDC���t�6�Т�F6�������Р�gV�7F���6���WFUF6��F6��F6��f�&WfW"�f�6R����b�F6��V�6���WF&�R�&WGW&㰠��b�F6��7FGW2���&F��R"���F6�F6��F6��B��7FGW3�&7F�fR"�6���WFVDC��V��ғ��6WEF�7B�-	}
+M
+}
+-�}-
+
+�]�"���&WGW&㰢Р��b�F6��&V7W'&V�6Rbbf�&WfW"���6��7B�W�DFFR��W�E&V7W'&��tFFR�F6��FFR�F6��&V7W'&V�6R����b��W�DFFR���F6�F6��F6��B��FFS��W�DFFR�6���WFVDC��V���7FGW3�&7F�fR"ғ���b�F6��&W6WE7V'F6�2�&V�V�F�&V7E7V'F6�2�F6��B���6WEF�7B�-	-�����]��+r
+�
+}�
+}]�
+�]M=����
+��--�"���&WGW&㰢ТР�6��7B�G2��Wr6WB��F6��B����FW66V�F�G4�b�F6�2�F6��B������FVҒ���FV��B�ғ��6��7B6���WFVDB���t�6򂓰�6WEF6�2��7W'&V�B���7W'&V�B�����FVҒ���G2�2��FV��B�������FV��7FGW3�&F��R"�6���WFVDB�WFFVDC�6���WFVDBТ��FVТ�����6WEF�7B�-	}
+M
+}
+-�����]�"���Р�gV�7F���GWƖ6FUF6��F6��F6����6��7B����F6�����FW66V�F�G4�b�F6�2�F6��B�Ӱ�6��7B�D���Wr��7G&��r�7G&��sₓ�����f�$V6����FVҒ���D��6WB��FV��B�7'�F��&�F��UT�B������6��7B��r���t�6򂓰��6��7B6��W2��������FV����FW����������FV����C��D��vWB��FV��B���F�F�S���FW������FV��F�F�R�"(	B
+�����"��FV��F�F�R��&V�D�C��FV��B���F6��@��F6��&V�D�@���FV��&V�D�@���D��vWB��FV��&V�D�B���F6��&V�D�@���V�����&FW#��FV��B���F6��B��W�D�&FW"�F6�2�F6��&V�D�B���FV���&FW"��7FGW3�&7F�fR"26��7B��6���WFVDC��V����6���V�G3�����7&VFVDC���r��WFFVDC���p�Ғ����6WEF6�2��7W'&V�B�������7W'&V�B����6��W5ғ���V�FWF�6��W5���B���6WEF�7B�-	}
+M
+}
+�
+�M=��
+�-
+�"���Р�gV�7F���FV�WFUF6��F6��F6�����b�v��F�r�6��f�&҆
+=M
+��-�*�G�F6��F�F�W�+�
+�
+-R
+-��m]���R
+��M}
+M
+}����&WGW&㰢6��7B�G2��Wr6WB��F6��B����FW66V�F�G4�b�F6�2�F6��B������FVҒ���FV��B�ғ��6WEF6�2��7W'&V�B���7W'&V�B�f��FW"���FVҒ���G2�2��FV��B�����6��6TFWF����6WEF�7B�-	}
+M
+}
+=M
+�]�"���Р�gV�7F���6��F6�Ɩ沇F6��F6����6��7BW&����6F�����&�v�����6F����F���R���6F����6V&6��"7F6��"�V�6�FUU$�6����V�B�F6��B����f�vF�"�6Ɨ&�&C��w&�FUFW�B�W&�F�V•����6WEF�7B�-
+���
+����
+�-
+�"�������6WEF�7B�-	�R
+=M
+���
+����
+�-
+-�
+���2"�����Р�gV�7F�����fU6�&Ɩ�r�F6��F6��FV�F������6��7B6�&Ɩ�w2�6���G&V��b�F6�2�F6��&V�D�B���6��7B��FW��6�&Ɩ�w2�f��D��FW����FVҒ���FV��B���F6��B���6��7B�F�W$��FW����FW��FV�F���b���FW�����F�W$��FW�����F�W$��FW���6�&Ɩ�w2��V�wF��&WGW&㰢6��7B�F�W"�6�&Ɩ�w5��F�W$��FW�Ӱ��6WEF6�2��7W'&V�B���7W'&V�B�����FVҒ�����b��FV��B���F6��B�&WGW&�����FV���&FW#��F�W"��&FW"�WFFVDC���t�6�Ӱ��b��FV��B����F�W"�B�&WGW&�����FV���&FW#�F6���&FW"�WFFVDC���t�6�Ӱ�&WGW&��FVӰ�Ґ����Р�gV�7F�����FV�EF6��F6��F6����6��7B6�&Ɩ�w2�6���G&V��b�F6�2�F6��&V�D�B���6��7B��FW��6�&Ɩ�w2�f��D��FW����FVҒ���FV��B���F6��B����b���FW����&WGW&㰢6��7B�Wu&V�B�6�&Ɩ�w5���FW��Ӱ��b�FWF��b�F6�2��Wu&V�B���r�&WGW&㰢F6�F6��F6��B���&V�D�C��Wu&V�B�B��&��V7D�C��Wu&V�B�&��V7D�B���&FW#��W�D�&FW"�F6�2��Wu&V�B�B��ғ��F6�F6���Wu&V�B�B��6���6VC�f�6Rғ��6WEF�7B�-	}
+M
+}
+-
+�
+��M}
+M
+}]�"���Р�gV�7F����WFFV�EF6��F6��F6�����b�F6��&V�D�B�&WGW&㰢6��7B&V�B�F6�2�f��B���FVҒ���FV��B���F6��&V�D�B����b�&V�B�&WGW&㰢F6�F6��F6��B���&V�D�C�&V�B�&V�D�B���&FW#��W�D�&FW"�F6�2�&V�B�&V�D�B��ғ��6WEF�7B�-
+=
+�-]��
+-��m]���-�
+=�]���]�"���Р�gV�7F���G&�&Vf�&R�F&vWC�F6�����b�G&vvVD�B��G&vvVD�B���F&vWB�B�&WGW&㰢6��7BG&vvVB�F6�2�f��B���FVҒ���FV��B���G&vvVD�B����b�G&vvVB��G&vvVB�&V�D�B��F&vWB�&V�D�B���6WEF�7B�-	�]
+]-
+��-
+-�
+��m��
+�]mM2
+�]M���
+�M��=�
+=
+�-��"���&WGW&㰢Р�6��7B6�&Ɩ�w2�6���G&V��b�F6�2�F&vWB�&V�D�B��f��FW"���FVҒ���FV��B��G&vvVB�B���6��7BF&vWD��FW��6�&Ɩ�w2�f��D��FW����FVҒ���FV��B���F&vWB�B���6�&Ɩ�w2�7Ɩ6R��F������F&vWD��FW����G&vvVB���6��7B�&FW$���Wr��6�&Ɩ�w2�����FV����FW������FV��B����FW����Ғ���6WEF6�2��7W'&V�B���7W'&V�B�����FVҒ���&FW$��2��FV��B�������FV���&FW#��&FW$��vWB��FV��B��WFFVDC���t�6�Т��FVТ�����6WDG&vvVD�B��V���Р�gV�7F���FE&V֖�FW"�F6��F6����6��7BB��WrFFR�FFR���r���c�c���F��4�7G&��r����F6�F6��F6��B���&V֖�FW'3�����F6��&V֖�FW'2���C�7'�F��&�F��UT�B���B�Тғ��Р�gV�7F���FD6���V�B�F6��F6����6��7B&�G��6���V�D&�G��G&�҂����b�&�G��&WGW&㰢6��7B6���V�C�F6�6���V�B����C�7'�F��&�F��UT�B����&�G���7&VFVDC���t�6򂐢Ӱ�F6�F6��F6��B��6���V�G3�����F6��6���V�G2�6���V�E�ғ��6WD6���V�D&�G��""���Р�gV�7F���&V�FW%G&VR�&V�D�C�7G&��r��V���FWF����&V7B�&V7D��FR��6��7B6���G&V��6���G&V��b�F6�2�&V�D�B��f��FW"��F6�������b�&V�D�Bbbf��FW"��&F��R"���6��7B&V�B�F6�2�f��B���FVҒ���FV��B���&V�D�B����b�F6��7FGW2���&F��R"bb&V�C��6��t6���WFVE7V'F6�2�&WGW&�f�6S��Т&WGW&��F6�W4f��FW"�F6�����4�F6���tFW66V�F�B�F6����ғ���&WGW&�6���G&V�����F6������6��7BF�&V7D6���G&V��6���G&V��b�F6�2�F6��B���6��7B7F�fT6���G&V��F�&V7D6���G&V��f��FW"���FVҒ���FV��7FGW2���&7F�fR"���6��7B6���WFVD6���G&V��F�&V7D6���G&V���V�wF��7F�fT6���G&V���V�wF���6��7B6��t�W7FVB�F6��6���6VC���&WGW&����F�b6�74��S�'G&VR���FR"�W�׷F6��G���'F�6�P�6�74��S׶F6��&�rF6��FWF��G��F��֖�FWF��B��G�6V�V7FVD�B���F6��B�'6V�V7FVB"�"'�ТG&vv&�P���G&u7F'Cײ����6WDG&vvVD�B�F6��B�Т��G&tV�Cײ����6WDG&vvVD�B��V�Т��G&t�fW#ײ�WfV�B���WfV�B�&WfV�DFVfV�B��Т��G&�ײ����G&�&Vf�&R�F6��Т��'WGF��6�74��S�'G&VR�F�vv�R �F�6&�VC׶F�&V7D6���G&V���V�wF����Т��6Ɩ6�ײ����F6�F6��F6��B��6���6VC�F6��6���6VBҗТ&���&V�׷F6��6���6VB�-
+
+
+}-]
+�=-�
+��M}
+M
+}�"�-
+-]
+�=-�
+��M}
+M
+}�'Т��F�&V7D6���G&V���V�wF���F6��6���6VB�.(�"�.(�B"��"'Т��'WGF��ࠢ�F6��V�6���WF&�R����7�6�74��S�'V�6���WF&�R��&�"&���&V��-	�]}
+-]
+�
+]�
+�
+}
+M
+}#�)xc��7�������'WGF��6�74��S׶6�V6��'WGF��&��&�G��&��rG�F6��&��&�G��G�F6��7FGW2���&F��R"�&6�V6�VB"�"'�Т&���&V�׷F6��7FGW2���&F��R"�
+	-]
+�=-�
+}
+M
+}2*�G�F6��F�F�W�+��
+	-������-�
+}
+M
+}2*�G�F6��F�F�W�+�Т��6Ɩ6�ײ����6���WFUF6��F6��Т��F6��7FGW2���&F��R"�.)�2"�"'Т��'WGF����Р��'WGF��6�74��S�'F6�����"��6Ɩ6�ײ�����V�FWF�F6��B����7�6�74��S׶F6��F�F�RG�F6��7FGW2���&F��R"�&F��R"�"'����F6��F�F�WТ��7���7�6�74��S�'F6���WF#��F6��FFRbb�7�6�74��S׷F6��FFR��6�F�F����&�fW&GVR"�"'��f�&�DFFR�F6��FFR�׷F6��F��R�"+r"�F6��F��R�"'���7��Т�F6��&V7W'&V�6Rbb�7��(k��F6��&V7W'&V�6W���7��Т�F6��FVFƖ�Rbb�7��){r
+M��f�&�DFFR�F6��FVFƖ�R����7��Т�F6��GW&F���֖�WFW2bb�7��f�&�DGW&F���F6��GW&F���֖�WFW2����7��Т�7�6�74��S׶&��&�G��f�rG�F6��&��&�G���F�F�S׷&��&�G��&V�5�F6��&��&�G���&���&V�׶
+	�
+��
+�-]#�G�&��&�G��&V�5�F6��&��&�G�����)���7���F6��&��V7D�Bbb�7�6�74��S�'F6��&��V7B�F�#�)xr�&��V7EF��&��V7G2�F6��&��V7D�B����7��Т�F6���&V�2�����&V���7��W�׶�&V���W��&V����7��Т�7F�fT6���G&V���V�wF��bb�7��)jB�7F�fT6���G&V���V�wF����7��Т�6���WFVD6���G&V��bb�7��)�2�6���WFVD6���G&V����7��Т��7����'WGF��ࠢ�'WGF��6�74��S�'&�r���&R"&���&V�׶
+	�-�
+�-�
+}
+M
+}2*�G�F6��F�F�W�+����6Ɩ6�ײ�����V�FWF�F6��B���(���'WGF�����'F�6�Sࠢ�6��t�W7FVBbbF�&V7D6���G&V���V�wF��bb���F�b6�74��S�'7V'G&VR#�&V�FW%G&VR�F6��B�FWF������F�c��Т��F�c����ғ��Р�6��7B&V�F���w&��&�V7G3��&�V7E&Ve��������&��V7G2����&��V7B�����G�S�'&��V7B"26��7B��C�&��V7B�BҒ������F6�2�f��FW"��F6����F6��7FGW2���&7F�fR"�����F6������G�S�'F6�"26��7B��C�F6��BҒ��������FW2������FR�����G�S�&��FR"26��7B��C���FR�BҒ��Ӱ��6��7B&V�F���w&�7G'V7GW&TVFvW2������&��V7G0��f��FW"��&��V7B���&��V7B�&V�D�B������&��V7B�������C�&��V7B�&V�C�G�&��V7B�G�����G�S�'&��V7B"26��7B��C�&��V7B�&V�D�B���#��G�S�'&��V7B"26��7B��C�&��V7B�BТҒ������F6�0��f��FW"��F6����F6��7FGW2���&7F�fR"bbF6��&��V7D�B������F6��������C�F6��&��V7C�G�F6��G�����G�S�'&��V7B"26��7B��C�F6��&��V7D�B���#��G�S�'F6�"26��7B��C�F6��BТҒ��������FW0��f��FW"����FR�����FR�&��V7D�B��������FR�������C���FR�&��V7C�G���FR�G�����G�S�'&��V7B"26��7B��C���FR�&��V7D�B���#��G�S�&��FR"26��7B��C���FR�BТҒ��Ӱ��6��7Bf�6�&�T6�V�B�F��WfV�f�%f�Wr��V�wF����&WGW&����F�b6�74��S׶�6�V��6V7F����G���&��U6V7F����G�6V�V7FVB�&�2�FWF��"�"'����6�FR6�74��S�'6�FV&""&���&V��-	�
+-�=
+m��
+
+M	]
+
+	#��'WGF��6�74��S�&'&�B'&�B�'WGF��"��6Ɩ6�ײ����6WD��&��U6V7F���&���R"��&���&V��-	=�
+-�
+�
+
+M	]
+
+	#�Ɩ�r6�74��S�&'&�B���v�"7&3�"�6fW&�6fW&���v��vV'�c�##c�#�6�V�"�C�-
+
+M	]
+
+	"����'WGF��ࠢ��b6�74��S�'6�FR��b#��'WGF��6�74��S׶��&��U6V7F������&���R"�&7F�fR"�"'���6Ɩ6�ײ����6WD��&��U6V7F���&���R"����7��(�#��7��	=�
+-�
+���'WGF����'WGF��6�74��S׶��&��U6V7F������'&��V7G2"�&7F�fR"�"'���6Ɩ6�ײ����6WD��&��U6V7F���'&��V7G2"����7��)xs��7��
+M]
+���'WGF����'WGF��6�74��S׶��&��U6V7F������'F6�2"�&7F�fR"�"'���6Ɩ6�ײ����6WD��&��U6V7F���'F6�2"����7��)�3��7��	}
+M
+}���'WGF����'WGF��6�74��S׶��&��U6V7F������&��FW2"�&7F�fR"�"'���6Ɩ6�ײ����6WD��&��U6V7F���&��FW2"����7��)����7��	}
+�]-����'WGF����'WGF��6�74��S׶��&��U6V7F������'��F�2"�&7F�fR"�"'���6Ɩ6�ײ����6WD��&��U6V7F���'��F�2"����7��)js��7��
+M�-���'WGF����F�b6�74��S׶6�V�F"��b�w&�WG���&��U6V7F������&6�V�F""�&�V�"�"'����'WGF��6�74��S׶��&��U6V7F������&6�V�F""�&7F�fR"�"'���6Ɩ6�ײ�����V�6�V�F"�&���F�"����7��)jc��7��	�
+�]�M
+
+���'WGF������&��U6V7F������&6�V�F""bb���6�V�F$֖����F��F�F�S׶6�V�F%F�F�WТ6V��3׶6�V�F$6V��7Т&�vU7F'C׶6�V�F%&�vU7F'GТ&�vTV�C׶6�V�F%&�vTV�GТ�6���tV�C׶6�V�F%�6���tV�GТF�6�V�C׶FW6�F�6�V�F$F�6�V�GТF�F��6�׶�6�F�F���Т��&Wf��W4���F�ײ����6WD���F��fg6WB���Т���W�D���F�ײ����6WD���F��fg6WB��Т��6V�V7DF�׷6V�V7D֖�6�V�F$F�Т��6WDF�3ײ�F�2���6WDFW6�F�6�V�F%W&��B�6�V�F%&�vU7F'B�F�2�Т���Т��F�c��'WGF��6�74��S׶��&��U6V7F������'&V�F���2"�&7F�fR"�"'���6Ɩ6�ײ����6WD��&��U6V7F���'&V�F���2"����7��(iC��7��
+-�}���'WGF������cࠢ�F�b6�74��S�'6�FV&"�&�GF��#��'WGF��6�74��S�&v��7B�'WGF��"��6Ɩ6�ײ����6WE6WGF��w4�V�G'VR���)��
+	�
+-
+������'WGF�����F�c���6�FSࠢ����6�74��S׶F6�2�vR6V7F����G���&��U6V7F������ƆVFW"6�74��S�&FW6�F��F�&"#��'WGF��6�74��S�&FW6�F��6V&6�"��6Ɩ6�ײ�����6WD��&��U6V7F���'F6�2"��6WE6V&6��V�G'VR������7��(�S��7���7��	����
+��
+}
+M
+}
+��
+M]
+
+��
+�
+�]�-
+�
+�
+}
+�]-�
+������7����'WGF����F�b6�74��S�&FW6�F��W6W"�&V#��'WGF��6�74��S�&FW6�F��&V��"&���&V��-
+=-]M���]���#�)�#��'WGF����F�b6�74��S�&FW6�F��&�f��R��6�W"#��'WGF��G�S�&'WGF�� �6�74��S�&FW6�F��W6W" ���6Ɩ6�׶�V�&�f��T��U�6�W'Т&��W��FVC׷&�f��T�V�T�V�Т&���&V��-	-�
+
+-�
+���
+����}�-
+-]�� ���7�6�74��S�&FW6�F��fF"#�&�f��T��R�6Ɩ6R����F�WW$66R�����7���7G&��s�&�f��T��W���7G&��s��7�6�74��S׷&�f��T�V�T�V��&FW6�F��W6W"�6�Wg&���V�"�&FW6�F��W6W"�6�Wg&��'��(�C��7����'WGF��ࠢ�&�f��T�V�T�V�bb�����'WGF��G�S�&'WGF�� �6�74��S�'&�f��R��6�W"�F�6֗72 �&���&V��-	}
+�
+�-�
+-��
+��]�� ���6Ɩ6�ײ����6WE&�f��T�V�T�V�f�6R�Т���f�&�6�74��S�'&�f��R���R��V�R"��7V&֗C׷6fU&�f��T��W���7��	���
+����}�-
+-]����7��Ɩ�W@�WF�f�7W0�f�VS׷&�f��TG&gGТ��6��vSײ�WfV�B���6WE&�f��TG&gB�WfV�B�F&vWB�f�VR�Т�6V���FW#�-	--]M�-R
+��� ����V�wF�׳CТ���6����
+�-�
+���
+���
+}�-
+]-�
+"
+�
+�M��R
+�
+�
+�-]---��
+�
+=�
+-������6�����F�c��'WGF��G�S�&'WGF��"��6Ɩ6�ײ����6WE&�f��T�V�T�V�f�6R���	�-�]���'WGF����'WGF��G�S�'7V&֗B"F�6&�VCײ&�f��TG&gB�G&�҂���
+�]
+
+��-���'WGF�����F�c���f�&������Т��F�c���F�c����VFW#ࠢƆVFW"6�74��S�&��&��R�F�&"��&��R�&"#��'WGF��6�74��S�&��&��R�&�f��R��&���&��Rֆ��R��&�"��6Ɩ6�ײ����6WD��&��U6V7F���&���R"��&���&V��-	�
+=�
+-�=�#�3��'WGF����F�b6�74��S�&��&��R��F�F�R#��7G&��s�
+
+M	]
+
+	��7G&��s��7����&��U6V7F������&���R"�-
+]=�M��"���&��U6V7F������'&��V7G2"�-
+M]
+�"���&��U6V7F������'F6�2"�-	}
+M
+}�"���&��U6V7F������&��FW2"�-	}
+�]-��"���&��U6V7F������'��F�2"�-
+M�-�"���&��U6V7F������'&V�F���2"�-
+-�}�"�-	�
+�]�M
+
+�'���7����F�c��F�b6�74��S�&��&��R��7F���2#����&��U6V7F������'F6�2"bb���'WGF��6�74��S�&��&��R֖6���7F���"&���&V��-	����"��6Ɩ6�ײ����6WE6V&6��V₇f�VR���f�VR���(�S��'WGF����Т�'WGF��6�74��S�&��&��R֖6���7F���"&���&V��-	�
+-
+����"��6Ɩ6�ײ����6WE6WGF��w4�V�G'VR���)����'WGF�����F�c����VFW#ࠢ�6V7F���6�74��S׶���R�F6�&�&BG���&��U6V7F������&���R"�&7F�fR"�"'��&�ֆ�FFV�׶��&��U6V7F�����&���R'��ƆVFW"6�74��S׶F6�&�&BֆW&�F6�&�&BֆW&��G�F�'G����F�b6�74��S�&F6�&�&BֆW&��6��#��F�b6�74��S�&F6�&�&B�v�&F�&�#�
+
+M	]
+
+	��F�c��6�74��S�&F6�&�&B�FFR#��7��F6�&�&DFFW���7���7�6�74��S�&F6�&�&B�������6R"&���&V�׶
+M
+}
+	�=���G������6R���W����7�&�ֆ�FFV��'G'VR#�+r������6R�6�����7��������6R���WТ��7�����ƃ�w&VWF��w���&�f��T��W�������F�c��F�b6�74��S�&F6�&�&BֆW&��7F���2#��'WGF��6�74��S�&F6�&�&B�&��'��7F���"��6Ɩ6�׶�V��WuF6����7���ȳ��7��
+	��-
+�
+}
+M
+} ���'WGF����'WGF��6�74��S�&F6�&�&B�6V6��F'��7F���"��6Ɩ6�׶�V��Wt��FW���7��)����7��
+	��-
+�
+}
+�]-� ���'WGF�����F�c����VFW#ࠢ�F�b6�74��S�&F6�&�&B�f�7W2#���&V��F��f�#�&F�ǒ�f�7W2#��7��)x���7���7G&��s�
+M��=
+M����7G&��s����&V��Ɩ�W@��C�&F�ǒ�f�7W2 �f�VS׶F�ǔf�7W7Т��6��vSײ�WfV�B���6WDF�ǔf�7W2�WfV�B�F&vWB�f�VR�Т�6V���FW#�-
+}-�
+]=�M��
+M]�--�-]����
+-
+m��� ����V�wF�׳#Т���6����F�ǔf�7W2�G&�҂��-
+�]
+
+�]��"�-	��m��
+�}�]��-�
+"
+����
+���]�"'���6������F�cࠢ�F�b6�74��S�&F6�&�&B����WB#��6V7F���6�74��S�&F6�&�&B�6&BF6�&�&B�F�F�#��F�b6�74��S�&F6�&�&B�6&BֆVB#��F�c�ƃ#�	}
+M
+}�
+�
+]=�M�����#��7�6�74��S�&F6�&�&B�&�w&W72�6��#��F�F�F6�6�V�B�G�6���WFVEF�F�6�V�G�
+�rG�F�F�F6�6�V�G�
+-�����]���-	M]��
+���
+-��M]�'Т��7����F�c��'WGF��6�74��S�&F6�&�&B�6�V�B�Ɩ�"��6Ɩ6�ײ�����6���6UF6�f�Wr�'F�F�"��6WD��&��U6V7F���'F6�2"�����
+	-R
+}
+M
+}�(����'WGF�����F�c��F�b6�74��S�&F6�&�&B�&�w&W72"&���&V�׶
+	-�����]��G�F�F�&�w&W77�R
+}
+M
+r
+�
+]=�M�����7�7G��S׷�v�GF��G�F�F�&�w&W77�V������F�cࠢ�F�b6�74��S�&F6�&�&B�F6��Ɨ7B#��F�F�F6�2��V�wF��������F�b6�74��S�&F6�&�&B�V�G�F6�&�&B�V�G��7F���&�R#��7��)�3��7���F�c��7G&��s�F�F�F6�6�V�B�-	-R
+}
+M
+}�
+�
+]=�M��
+-�����]��"�-	�
+]=�M��
+-
+-��M��'���7G&��s��6����&��E7�W&W2��V�wF��-	��m��
+M�
+-�-�
+}
+M
+}2
+
+
+}2
+"
+�=m�=�
+M]
+2�"�-
+�}M
+�
+�]
+-=�
+M]
+2
+���
+M�
+-�
+}
+M
+}2�'���6�����&��E7�W&W2��V�wF��bb���F�b6�74��S�&F6�&�&B�V�G��7�W&W2#��&��E7�W&W2�6Ɩ6R��2�����7�W&R������'WGF���W�׷7�W&R�G���6Ɩ6�ײ����7F'D�WuF6��7�W&R�B����Ȳ�7�W&R�F�F�W���'WGF�����Т��F�c��Т��F�c���F�c�����F�F�F6�2����F6�������F�b6�74��S׶F6�&�&B�F6��&�rG�F6��B���W6�֖�uF6���B�&�2��W�B"�"'���W�׷F6��G���F6��V�6���WF&�R����7�6�74��S�&F6�&�&B�F6��F�B#�)xc��7�������'WGF��6�74��S׶6�V6��'WGF��&��&�G��&��rG�F6��&��&�G��Т��6Ɩ6�ײ����6���WFUF6��F6��Т&���&V�׶
+	-������-�
+}
+M
+}2*�G�F6��F�F�W�+�Т���Т�7�6�74��S�&F6�&�&B�F6��F��R#�F6��F��R��.(	B'���7���'WGF��6�74��S�&F6�&�&B�F6�����"��6Ɩ6�ײ�����V�FWF�F6��B����7G&��s�F6��F�F�W���7G&��s��F6��B���W6�֖�uF6���Bbb�6����	��m
+��
+���6����Т��'WGF����F6��&��V7D�Bbb���7�6�74��S�&F6�&�&B�&��V7B����#��&��V7EF��&��V7G2�F6��&��V7D�B��7ƗB�"�"��B���Т��7���Т�'WGF��6�74��S�&F6�&�&B�&�r�'&�r"&���&V�׶
+	�-�
+�-�
+}
+M
+}2*�G�F6��F�F�W�+����6Ɩ6�ײ�����V�FWF�F6��B���(���'WGF�����F�c�����Т��F�c���6V7F���ࠢ�6�FR6�74��S�&F6�&�&B�6�FRF6�&�&B�7V��'��6&G2#��'WGF��6�74��S׶F6�&�&B�7V��'��6&BF6�&�&B�7V��'���fW&GVRG��fW&GVUF6�2��V�wF��&�2�f�VR"�"'����6Ɩ6�ײ�����6���6UF6�f�Wr�&�fW&GVR"��6WD��&��U6V7F���'F6�2"������7�6�74��S�&F6�&�&B�7V��'�֖6��#���7���7�6�74��S�&F6�&�&B�7V��'��6��#��6����	�
+�
+�}]����6�����7G&��s��fW&GVUF6�2��V�wF��G��fW&GVUF6�2��V�wF��G�'W76���W&�fW&GVUF6�2��V�wF��-}
+M
+}"�-}
+M
+}�"�-}
+M
+r"���-	��}]=�'���7G&��s��V���fW&GVUF6�2��V�wF��-	�=m��
+
+
+}�
+
+-�"�-	-
+��B
+���-
+��]�'���V����7���#�(���#���'WGF��ࠢ�'WGF��6�74��S�&F6�&�&B�7V��'��6&BF6�&�&B�7V��'���W�B"��6Ɩ6�ײ����W6�֖�uF6���V�FWF�W6�֖�uF6��B���V��WuF6������7�6�74��S�&F6�&�&B�7V��'�֖6��#�){s��7���7�6�74��S�&F6�&�&B�7V��'��6��#��6����	��m
+��
+�
+}
+M
+}��6�����7G&��s�W6�֖�uF6���F�F�R��-	��
+�
+-��M]�'���7G&��s��V���W6�֖�uF6���FFP��G�W6�֖�uF6��FFR����6�F�F����-
+]=�M��"�f�&�DFFR�W6�֖�uF6��FFR��G�W6�֖�uF6��F��R��G�W6�֖�uF6��F��W��"'� ��-	M�
+-�-�
+}
+M
+}2'Т��V����7���#�(���#���'WGF��ࠢ�'WGF��6�74��S�&F6�&�&B�7V��'��6&BF6�&�&B�7V��'��vVV�"��6Ɩ6�ײ�����6���6UF6�f�Wr�'vVV�"��6WD��&��U6V7F���'F6�2"������7�6�74��S�&F6�&�&B�7V��'�֖6��#�)jc��7���7�6�74��S�&F6�&�&B�7V��'��6��#��6����
+-]�=�
+�
+�]M]����6�����7G&��s�vVV�F6�2��V�wF��G�vVV�6���WFVD6�V�G�
+�rG�vVV�F6�2��V�wF��
+-�����]���-	}
+M
+r
+���
+�]"'���7G&��s��7�6�74��S�&F6�&�&B�vVV��&�w&W72#�ƒ7G��S׷�v�GF��G�vVV�&�w&W77�V������7����7���#�(���#���'WGF�����6�FS���F�cࠢ�6V7F���6�74��S�&F6�&�&B�6V7F���#��F�b6�74��S�&F6�&�&B�6V7F���ֆVB#��F�c�ƃ#�	���
+M]
+�
+m�}�����#���F�c��'WGF����6Ɩ6�ײ�����6WE6V�V7FVE&��V7D�B��V��6WD��&��U6V7F���'&��V7G2"�����	-R
+M]
+�(���'WGF�����F�cࠢ�F�b6�74��S�'7�W&R�6&B�w&�B#��7�W&U7V��&�W2����7V��'����FW�������'WGF��6�74��S׶7�W&R�6&B7�W&R�6&B�&�6�7�W&R�F��R�G���FW�Rg�Т�W�׷7V��'��7�W&R�GТ��6Ɩ6�ײ�����6WE6V�V7FVE&��V7D�B�7V��'��7�W&R�B��6WD��&��U6V7F���'&��V7G2"���Т��7�6�74��S�'7�W&R�7��&��#絲.(�""�.)��"�.)�b"�.)j2"�.)Ȃ"�.)�%ն��FW�Re����7���7�6�74��S�'7�W&R֖�f�#��7G&��s�7V��'��7�W&R�F�F�W���7G&��s��6���6�74��S�'7�W&R��W�B�F6�#��7V��'���W�EF6���G�7V��'���W�EF6��FFR��7V��'���W�EF6��FFR����6�F�F����-
+]=�M��"�f�&�DFFR�7V��'���W�EF6��FFR���-	]r
+M
+-�'�G�7V��'���W�EF6��F��R��G�7V��'���W�EF6��F��W��"'�+rG�7V��'���W�EF6��F�F�W� ��-	�]"
+
+�-�-��R
+}
+M
+r'Т��6�����7�6�74��S�'7�W&R�6&B��WF#��7V��'��7F�fT6�V�G��'W76���W&7V��'��7F�fT6�V�B�-
+�-�-�
+�
+}
+M
+}"�-
+�-�-��R
+}
+M
+}�"�-
+�-�-��R
+}
+M
+r"��+r�7V��'����FT6�V�G��'W76���W&7V��'����FT6�V�B�-}
+�]-�"�-}
+�]-��"�-}
+�]-��"�Т��7���7�6�74��S�'7�W&R�6&B�&�w&W72�6��#�8��$z{-���jםasks"); }}>
               <span>▦</span><strong>Неделя</strong><small>{weekTaskCount} {russianPlural(weekTaskCount, "задача", "задачи", "задач")}</small>
             </button>
             <button onClick={() => { setSelectedProjectId(rootSpheres[0]?.id ?? null); setProjectTab("goals"); setMobileSection("projects"); }}>
