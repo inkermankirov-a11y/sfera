@@ -10694,3 +10694,134 @@ html,
     grid-row: auto;
   }
 }
+
+/* Final phone layout corrections: keep every row inside the viewport. */
+@media (max-width: 720px) {
+  html, body, #root {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .app-shell,
+  .tasks-page,
+  .home-dashboard,
+  .dashboard-layout,
+  .dashboard-card,
+  .dashboard-section {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .section-home .dashboard-hero {
+    grid-template-columns: minmax(0, 1fr);
+    overflow: hidden;
+  }
+
+  .section-home .dashboard-hero-copy,
+  .section-home .dashboard-hero-actions,
+  .section-home .dashboard-focus,
+  .section-home .dashboard-card-head,
+  .section-home .dashboard-task-row,
+  .section-home .sphere-card-rich {
+    min-width: 0;
+  }
+
+  .section-home .dashboard-hero h1 {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    font-size: clamp(1.45rem, 7.2vw, 1.9rem);
+  }
+
+  .section-home .dashboard-hero-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .section-home .dashboard-hero-actions button {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .section-home .dashboard-focus {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .section-home .dashboard-focus input {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .section-home .dashboard-card-head {
+    flex-wrap: wrap;
+  }
+
+  .section-home .dashboard-count-link {
+    margin-left: auto;
+  }
+
+  .section-home .dashboard-task-row {
+    grid-template-columns: 28px 36px minmax(0, 1fr) auto 20px;
+    column-gap: 0;
+  }
+
+  .section-home .dashboard-task-row .check-button {
+    margin-left: 0;
+  }
+
+  .section-home .dashboard-task-time {
+    overflow: hidden;
+    font-size: .62rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .section-home .dashboard-task-main {
+    min-width: 0;
+    overflow: hidden;
+    text-align: left;
+  }
+
+  .section-home .dashboard-task-main strong {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .section-home .dashboard-project-pill {
+    min-width: 0;
+    max-width: 72px;
+    margin-right: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .section-home .dashboard-row-arrow {
+    width: 20px;
+    min-width: 20px;
+  }
+
+  .section-home .sphere-card-rich {
+    grid-template-columns: 34px minmax(0, 1fr) 22px;
+  }
+
+  .section-home .sphere-card-rich .sphere-info strong,
+  .section-home .sphere-card-rich .sphere-next-task {
+    overflow-wrap: anywhere;
+  }
+
+  .section-home .sphere-card-rich .sphere-info strong {
+    white-space: normal;
+  }
+
+  .section-home .sphere-card-meta,
+  .section-home .sphere-card-progress-copy,
+  .section-home .sphere-last-activity {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
