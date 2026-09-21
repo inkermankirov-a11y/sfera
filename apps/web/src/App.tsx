@@ -1114,15 +1114,20 @@ export function App() {
         {items.map((project) => {
           const children = projectChildren(projects, project.id);
           const tone = sphereTone(projects, project.id);
+          const sphereIndex = rootSpheres.findIndex((sphere) => sphere.id === project.id);
+          const symbol = sphereIndex < 0 ? "◇" : ["⌂", "☾", "✦", "▣", "✈", "♡"][sphereIndex % 6];
           return (
             <button
               className={`project-tile sphere-tone-${tone} ${project.kind === "sphere" ? "sphere-root-tile" : "sphere-child-tile"}`}
               key={project.id}
               onClick={() => setSelectedProjectId(project.id)}
             >
-              <span className="project-tile-icon">{project.kind === "sphere" ? "◇" : "▰"}</span>
+              <span className="project-tile-top">
+                <span className="project-tile-icon">{project.kind === "sphere" ? symbol : "▰"}</span>
+                {project.kind === "sphere" && <span className="project-tile-number">{String(sphereIndex + 1).padStart(2, "0")} / СФЕРА</span>}
+              </span>
               <strong>{project.title}</strong>
-              <small>{projectTaskCount(project.id)} задач · {children.length} {russianPlural(children.length, "подпроект", "подпроекта", "подпроектов")}</small>
+              <small>{projectTaskCount(project.id)} {russianPlural(projectTaskCount(project.id), "задача", "задачи", "задач")} · {children.length} {russianPlural(children.length, "подпроект", "подпроекта", "подпроектов")}</small>
               <b>›</b>
             </button>
           );
@@ -1698,10 +1703,9 @@ export function App() {
         <header className="desktop-topbar">
           <button className="desktop-search" onClick={() => { setMobileSection("tasks"); setSearchOpen(true); }}>
             <span><AppIcon name="search" /></span>
-            <span>Поиск по задачам, сферам, проектам и заметкам...</span>
+            <span>Поиск по задачам...</span>
           </button>
           <div className="desktop-user-area">
-            <button className="desktop-bell" aria-label="Уведомления">♢</button>
             <div className="desktop-profile-picker">
               <button
                 type="button"
@@ -2704,12 +2708,6 @@ export function App() {
                 placeholder="Добавьте название"
               />
 
-              <div className="calendar-popover-tabs">
-                <button type="button" className="active">Задача</button>
-                <button type="button" onClick={() => setToast("События добавим отдельным типом объекта")}>Событие</button>
-                <button type="button" onClick={() => setToast("Расписание встреч — следующий слой календаря")}>Расписание встреч</button>
-              </div>
-
               <div className="calendar-popover-rows">
                 <div className="calendar-popover-row calendar-date-row">
                   <span className="calendar-row-icon">◷</span>
@@ -2722,7 +2720,7 @@ export function App() {
                         <strong>{calendarEndTime()}</strong>
                       </div>
                     ) : (
-                      <button type="button" className="calendar-all-day-pill">Весь день</button>
+                      <span className="calendar-all-day-pill">Весь день</span>
                     )}
                     <small>{timezoneLabel} · не повторять</small>
                   </div>
@@ -2919,7 +2917,7 @@ export function App() {
       )}
 
       {installHelpOpen && (
-        <div className="mobile-profile-backdrop" onClick={() => setInstallHelpOpen(false)}>
+        <div className="mobile-profile-backdrop install-help-backdrop" onClick={() => setInstallHelpOpen(false)}>
           <section className="mobile-profile-sheet install-help-sheet" onClick={(event) => event.stopPropagation()}>
             <div className="mobile-sheet-handle" />
             <div className="install-help-icon">⇧</div>
