@@ -286,6 +286,8 @@ export function App() {
   const [notes, setNotes] = useState<Note[]>(() => readNotes());
   const [goals, setGoals] = useState<Goal[]>(() => readGoals());
   const [noteView, setNoteView] = useState<NoteView>("all");
+  const [photoView, setPhotoView] = useState<"all" | "recent" | "linked" | "unlinked">("all");
+  const [photoProjectId, setPhotoProjectId] = useState("");
   const [noteCreateOpen, setNoteCreateOpen] = useState(false);
   const [noteTitle, setNoteTitle] = useState("");
   const [noteBody, setNoteBody] = useState("");
@@ -519,6 +521,13 @@ export function App() {
     if (noteView === "favorites") return notes.filter((note) => note.favorite);
     return notes;
   }, [notes, noteView]);
+  const visiblePhotos = useMemo(() => {
+    const images = attachments.filter((item) => item.mime.startsWith("image/"));
+    if (photoView === "recent") return images.filter((item) => Date.now() - new Date(item.createdAt).getTime() < 30 * 86_400_000);
+    if (photoView === "linked") return images.filter((item) => item.links.length > 0);
+    if (photoView === "unlinked") return images.filter((item) => item.links.length === 0);
+    return images;
+  }, [attachments, photoView]);
   const calendarCells = useMemo(() => monthCells(calendarCursor), [calendarCursor]);
   const calendarTitle = new Intl.DateTimeFormat("ru-RU", { month: "long", year: "numeric" }).format(calendarCursor);
   const desktopCalendarDates = useMemo(() => isoRange(calendarRangeStart, calendarRangeEnd), [calendarRangeStart, calendarRangeEnd]);
@@ -866,7 +875,7 @@ export function App() {
     );
   }
 
-  async function attachFiles(ref: ObjectRef, fileList: FileList | null) {
+  async function attachFiles(ref: ObjectRef | null, fileList: FileList | null) {
     if (!fileList?.length) return;
     const files = Array.from(fileList);
     const accepted: Attachment[] = [];
@@ -875,25 +884,36 @@ export function App() {
         setToast("Файл слишком большой для локального прототипа — максимум 1,2 МБ");
         continue;
       }
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result ?? ""));
-        reader.onerror = () => reject(reader.error);
-        reader.readAsDataURL(file);
-      });
+      let dataUrl: string;
+      try {
+        dataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result ?? ""));
+          reader.onerror = () => reject(reader.error);
+          reader.readAsDataURL(file);
+        });
+      } catch {
+        setToast("Не удалось прочитать файл");
+        continue;
+      }
       accepted.push({
         id: crypto.randomUUID(),
         name: file.name,
         mime: file.type || "application/octet-stream",
         size: file.size,
         dataUrl,
-        links: [ref],
+        links: ref ? [ref] : [],
         createdAt: new Date().toISOString()
       });
     }
     if (accepted.length) {
-      setAttachments((current) => [...accepted, ...current]);
-      setToast(accepted.length === 1 ? "Файл прикреплён" : "Файлы прикреплены");
+      try {
+        localStorage.setItem(ATTACHMENTS_STORAGE_KEY, JSON.stringify([...accepted, ...attachments]));
+        setAttachments((current) => [...accepted, ...current]);
+        setToast(accepted.length === 1 ? "Файл прикреплён" : "Файлы прикреплены");
+      } catch {
+        setToast("Недостаточно места в браузере. Файл не добавлен");
+      }
     }
   }
 
@@ -901,6 +921,29 @@ export function App() {
     setAttachments((current) => current
       .map((attachment) => attachment.id === attachmentId ? removeAttachmentLink(attachment, ref) : attachment)
       .filter((attachment) => attachment.links.length > 0));
+  }
+
+  function deleteLibraryPhoto(attachment: Attachment) {
+    if (!window.confirm(`Удалить фото «${attachment.name}» из библиотеки и всех связанных объектов?`)) return;
+    setAttachments((current) => current.filter((item) => item.id !== attachment.id));
+  }
+
+  function downloadBackup() {
+    const keys = [STORAGE_KEY, PROJECTS_STORAGE_KEY, NOTES_STORAGE_KEY, GOALS_STORAGE_KEY,
+      RELATIONS_STORAGE_KEY, ATTACHMENTS_STORAGE_KEY, PROFILE_NAME_STORAGE_KEY, DAILY_FOCUS_STORAGE_KEY, "sfera.projectView"];
+    try {
+      const data = Object.fromEntries(keys.map((key) => [key, localStorage.getItem(key)]));
+      const blob = new Blob([JSON.stringify({ format: "sfera-backup-v1", exportedAt: nowIso(), data }, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `sfera-${isoToday()}.json`;
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
+      setToast("Копия данных скачана");
+    } catch {
+      setToast("Не удалось создать копию данных");
+    }
   }
 
   function renderAttachmentsPanel(ref: ObjectRef) {
@@ -1156,8 +1199,12 @@ export function App() {
     setQuickOptionsOpen(false);
     setFilter("today");
     setTaskView("today");
-    setMobileSection("tasks");
-    window.setTimeout(() => document.getElementById("quick-add")?.focus(), 0);
+    if (window.innerWidth <= 720) {
+      setMobileQuickOpen(true);
+    } else {
+      setMobileSection("tasks");
+      window.setTimeout(() => document.getElementById("quick-add")?.focus(), 0);
+    }
   }
 
   function openNewTask() {
@@ -1196,7 +1243,7 @@ export function App() {
       parentId: null,
       projectId: quickProjectId,
       order: nextOrder(tasks, null),
-      date: quickDate || (filter === "today" && !parsed.date ? isoToday() : parsed.date),
+      date: parsed.date || quickDate || (filter === "today" ? isoToday() : null),
       time: quickTime || parsed.time,
       deadline: quickDeadline || parsed.deadline,
       recurrence: parsed.recurrence,
@@ -1400,6 +1447,12 @@ export function App() {
     if (!window.confirm(`Удалить «${task.title}» и все вложенные подзадачи?`)) return;
     const ids = new Set([task.id, ...descendantsOf(tasks, task.id).map((item) => item.id)]);
     setTasks((current) => current.filter((item) => !ids.has(item.id)));
+    setRelations((current) => current.filter((relation) =>
+      !([relation.a, relation.b].some((ref) => ref.type === "task" && ids.has(ref.id)))));
+    setAttachments((current) => current.map((attachment) => ({
+      ...attachment,
+      links: attachment.links.filter((ref) => ref.type !== "task" || !ids.has(ref.id))
+    })).filter((attachment) => attachment.links.length > 0 || attachment.mime.startsWith("image/")));
     closeDetail();
     setToast("Задача удалена");
   }
@@ -1495,13 +1548,13 @@ export function App() {
     setCommentBody("");
   }
 
-  function renderTree(parentId: string | null, depth = 0): React.ReactNode {
+  function renderTree(parentId: string | null, depth = 0, parentMatches = false): React.ReactNode {
     const children = childrenOf(tasks, parentId).filter((task) => {
       if (parentId && filter !== "done") {
         const parent = tasks.find((item) => item.id === parentId);
         if (task.status === "done" && !parent?.showCompletedSubtasks) return false;
       }
-      return matchesFilter(task) || hasMatchingDescendant(task);
+      return (parentMatches && task.status === (filter === "done" ? "done" : "active")) || matchesFilter(task) || hasMatchingDescendant(task);
     });
 
     return children.map((task) => {
@@ -1562,7 +1615,7 @@ export function App() {
           </article>
 
           {showNested && directChildren.length > 0 && (
-            <div className="subtree">{renderTree(task.id, depth + 1)}</div>
+            <div className="subtree">{renderTree(task.id, depth + 1, parentMatches || matchesFilter(task))}</div>
           )}
         </div>
       );
@@ -2302,7 +2355,10 @@ export function App() {
             {visibleNotes.length === 0 ? (
               <div className="module-empty-card"><strong>Здесь пока пусто</strong><span>Создай первую запись через кнопку «+».</span></div>
             ) : visibleNotes.map((note) => (
-              <article className={`note-card note-kind-${note.kind}`} key={note.id} onClick={() => setSelectedNoteId(note.id)}>
+              <article className={`note-card note-kind-${note.kind}`} key={note.id} role="button" tabIndex={0}
+                aria-label={`Открыть заметку «${note.title}»`}
+                onClick={() => setSelectedNoteId(note.id)}
+                onKeyDown={(event) => { if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); setSelectedNoteId(note.id); } }}>
                 <div className="note-card-top">
                   <span>{note.kind === "diary" ? "☼" : note.kind === "idea" ? "✦" : note.kind === "collection" ? "▦" : note.kind === "list" ? "☷" : "✎"}</span>
                   <small>{noteKindLabels[note.kind]}</small>
@@ -2323,13 +2379,25 @@ export function App() {
           <header className="module-page-header">
             <button className="module-back-button" onClick={() => setMobileSection("home")} aria-label="Назад">←</button>
             <div><span>Визуальная память</span><h2>Фото</h2></div>
-            <button aria-label="Добавить фото" onClick={() => setToast("Загрузка фото — следующий функциональный шаг")}>＋</button>
+            <label className="photo-add-button" aria-label="Добавить фото" title="Добавить фото">
+              ＋
+              <input type="file" accept="image/*" multiple onChange={(event) => {
+                void attachFiles(photoProjectId ? { type: "project", id: photoProjectId } : null, event.currentTarget.files);
+                event.currentTarget.value = "";
+              }} />
+            </label>
           </header>
           <div className="section-tabs photo-tabs">
-            {["Все", "Последние", "По проектам", "По сферам", "Альбомы", "Без проекта"].map((label, index) => (
-              <button key={label} className={index === 0 ? "active" : ""}>{label}</button>
+            {([ ["all", "Все"], ["recent", "За 30 дней"], ["linked", "Привязанные"], ["unlinked", "Без сферы"] ] as const).map(([value, label]) => (
+              <button key={value} className={photoView === value ? "active" : ""} onClick={() => setPhotoView(value)}>{label}</button>
             ))}
           </div>
+          <label className="photo-project-picker">Добавить в сферу
+            <select value={photoProjectId} onChange={(event) => setPhotoProjectId(event.target.value)}>
+              <option value="">Без сферы</option>
+              {flattenedProjects.map(({ project, path }) => <option key={project.id} value={project.id}>{path}</option>)}
+            </select>
+          </label>
           <div className="photo-architecture-card">
             <div className="photo-architecture-icon">▧</div>
             <div>
@@ -2337,17 +2405,18 @@ export function App() {
               <p>Фото хранится один раз и может быть прикреплено к проекту, задаче или заметке.</p>
             </div>
           </div>
-          {attachments.filter((item) => item.mime.startsWith("image/")).length === 0 ? (
+          {visiblePhotos.length === 0 ? (
             <div className="module-empty-card">
-              <strong>Фото пока нет</strong>
-              <span>Прикрепи фото внутри сферы, задачи или заметки — оно появится здесь автоматически.</span>
+              <strong>Здесь пока нет фото</strong>
+              <span>Добавь фото кнопкой «+» или прикрепи его к задаче, сфере или заметке.</span>
             </div>
           ) : (
             <div className="global-photo-grid">
-              {attachments.filter((item) => item.mime.startsWith("image/")).map((item) => (
+              {visiblePhotos.map((item) => (
                 <article key={item.id}>
                   <img src={item.dataUrl} alt={item.name} />
-                  <div><strong>{item.name}</strong><small>{item.links.map((ref) => entityTitle(ref)).join(" · ")}</small></div>
+                  <div><strong>{item.name}</strong><small>{item.links.length ? item.links.map((ref) => entityTitle(ref)).join(" · ") : "Без сферы"}</small></div>
+                  <button className="photo-delete" aria-label={`Удалить фото «${item.name}»`} onClick={() => deleteLibraryPhoto(item)}>Удалить</button>
                 </article>
               ))}
             </div>
@@ -2812,29 +2881,15 @@ export function App() {
               <em>{profileName}</em>
               <b>›</b>
             </button>
-            <button><span className="settings-icon">⚙</span><span>Основное</span><b>›</b></button>
             <button onClick={() => { setSettingsOpen(false); openCalendar("month"); }}><span className="settings-icon">▦</span><span>Календарь</span><b>›</b></button>
+            <button onClick={() => { setSettingsOpen(false); void installApp(); }}><span className="settings-icon">⇧</span><span>Установить приложение</span><b>›</b></button>
           </div>
 
-          <p className="settings-section-label">ПОЛЬЗОВАТЕЛЬСКИЕ НАСТРОЙКИ</p>
+          <p className="settings-section-label">ВАШИ ДАННЫЕ</p>
           <div className="settings-card">
-            <button><span className="settings-icon">◐</span><span>Тема</span><em>Системная</em><b>›</b></button>
-            <button><span className="settings-icon">▤</span><span>Навигация</span><b>›</b></button>
-            <button><span className="settings-icon">⊞</span><span>Быстрое добавление</span><b>›</b></button>
+            <button onClick={downloadBackup}><span className="settings-icon">↓</span><span>Скачать копию данных</span><b>›</b></button>
           </div>
-
-          <p className="settings-section-label">ПРОДУКТИВНОСТЬ</p>
-          <div className="settings-card">
-            <button><span className="settings-icon">↗</span><span>Продуктивность</span><b>›</b></button>
-            <button><span className="settings-icon">◴</span><span>Напоминания</span><b>›</b></button>
-            <button><span className="settings-icon">♢</span><span>Уведомления</span><b>›</b></button>
-          </div>
-
-          <div className="settings-card settings-spaced">
-            <button><span className="settings-icon">?</span><span>Поддержка и обратная связь</span><b>›</b></button>
-            <button><span className="settings-icon">i</span><span>О СФЕРЕ</span><b>›</b></button>
-            <button><span className="settings-icon">↻</span><span>Синхронизация</span><small>Локальные данные</small><b>›</b></button>
-          </div>
+          <p className="settings-data-note">Данные хранятся в этом браузере. Скачайте копию, чтобы сохранить их отдельно.</p>
         </div>
       </section>
 

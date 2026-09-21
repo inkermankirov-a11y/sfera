@@ -1,4 +1,121 @@
 /* Desktop and tablet share the same restrained visual language. */
+/* Shared functional controls. */
+.photo-add-button {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--s4-line, #dfe7e3);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--s4-accent, #167b77);
+  cursor: pointer;
+  font-size: 1.35rem;
+}
+.photo-add-button input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.photo-add-button:focus-within { outline: 2px solid var(--s4-accent, #167b77); outline-offset: 2px; }
+.photo-project-picker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+  color: var(--s4-muted, #72827f);
+  font-size: .82rem;
+}
+.photo-project-picker select {
+  min-width: 0;
+  max-width: 260px;
+  padding: 9px 12px;
+  border: 1px solid var(--s4-line, #dfe7e3);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--s4-ink, #253631);
+}
+.global-photo-grid .photo-delete {
+  margin: 0 9px 9px;
+  padding: 6px 0;
+  border: 0;
+  background: transparent;
+  color: #9a5149;
+  cursor: pointer;
+  font-size: .75rem;
+}
+.settings-data-note {
+  max-width: 34ch;
+  margin: 15px 4px;
+  color: var(--s4-muted, #72827f);
+  font-size: .8rem;
+  line-height: 1.5;
+}
+
+@media (min-width: 721px) {
+  .mobile-settings-screen.open {
+    position: fixed;
+    z-index: 200;
+    top: 18px;
+    right: 18px;
+    bottom: 18px;
+    width: min(390px, calc(100vw - 36px));
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    border: 1px solid var(--s4-line, #dfe7e3);
+    border-radius: 20px;
+    background: #f7f8f6;
+    box-shadow: 0 20px 70px rgba(25, 41, 36, .16);
+  }
+  .mobile-settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+  }
+  .mobile-settings-header h2 { margin: 0; font-size: 1.15rem; }
+  .mobile-settings-header button { border: 0; background: transparent; color: var(--s4-accent, #167b77); cursor: pointer; }
+  .mobile-settings-content { overflow: auto; padding: 4px 20px 24px; }
+  .settings-card { overflow: hidden; border: 1px solid var(--s4-line, #dfe7e3); border-radius: 14px; background: #fff; }
+  .settings-card button { width: 100%; min-height: 58px; display: flex; align-items: center; gap: 12px; padding: 0 16px; border: 0; border-bottom: 1px solid #edf0ec; background: #fff; color: var(--s4-ink, #253631); text-align: left; cursor: pointer; }
+  .settings-card button:last-child { border-bottom: 0; }
+  .settings-card button > span:nth-child(2) { flex: 1; }
+  .settings-card em { font-style: normal; color: var(--s4-muted, #72827f); }
+  .settings-section-label { margin: 18px 4px 8px; color: var(--s4-muted, #72827f); font-size: .7rem; letter-spacing: .08em; }
+  .mobile-profile-backdrop {
+    position: fixed;
+    z-index: 260;
+    inset: 0;
+    display: grid !important;
+    place-items: center;
+    background: rgba(20, 30, 27, .3);
+  }
+  .mobile-profile-sheet {
+    width: min(420px, calc(100vw - 32px));
+    display: grid;
+    gap: 12px;
+    padding: 24px;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 24px 70px rgba(20,30,27,.2);
+  }
+  .mobile-profile-heading { display: flex; align-items: center; gap: 12px; }
+  .mobile-profile-heading strong { display: block; }
+  .mobile-profile-heading small { color: var(--s4-muted, #72827f); }
+  .mobile-profile-avatar { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: #e6f3f0; }
+  .mobile-profile-sheet input { min-height: 42px; padding: 8px 12px; border: 1px solid var(--s4-line, #dfe7e3); border-radius: 10px; }
+  .mobile-profile-actions { display: flex; justify-content: flex-end; gap: 8px; }
+  .mobile-profile-actions button, .install-help-done { min-height: 40px; padding: 0 15px; border: 1px solid var(--s4-line, #dfe7e3); border-radius: 10px; background: #fff; cursor: pointer; }
+  .mobile-profile-actions button[type="submit"], .install-help-done { background: var(--s4-accent, #167b77); color: #fff; }
+  .install-help-sheet { line-height: 1.5; }
+  .install-help-sheet h2, .install-help-sheet p { margin: 0; }
+}
+
 @media (min-width: 721px) {
   .dashboard-hero {
     min-height: 142px !important;

@@ -51,7 +51,7 @@ export function isoToday() {
 export function isoTomorrow() {
   const d = new Date(isoToday() + "T12:00:00");
   d.setDate(d.getDate() + 1);
-  return d.toISOString().slice(0, 10);
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
 }
 
 export function nowIso() {
@@ -279,9 +279,15 @@ export function nextRecurringDate(date: string | null, rule: string | null) {
   } else if (/^(каждую неделю|еженедельно|every week|weekly)$/.test(r)) {
     base.setDate(base.getDate() + 7);
   } else if (/^(каждый месяц|ежемесячно|every month|monthly)$/.test(r)) {
+    const day = base.getDate();
+    base.setDate(1);
     base.setMonth(base.getMonth() + 1);
+    base.setDate(Math.min(day, new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate()));
   } else if (/^(каждый год|ежегодно|every year|yearly)$/.test(r)) {
+    const day = base.getDate();
+    base.setDate(1);
     base.setFullYear(base.getFullYear() + 1);
+    base.setDate(Math.min(day, new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate()));
   } else if (/^(по будням|каждый будний день|every weekday|every workday)$/.test(r)) {
     do {
       base.setDate(base.getDate() + 1);
@@ -296,7 +302,7 @@ export function nextRecurringDate(date: string | null, rule: string | null) {
     } while (base.getDay() !== target);
   }
 
-  return base.toISOString().slice(0, 10);
+  return new Date(base.getTime() - base.getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
 }
 
 export type ParsedQuickAdd = {
@@ -333,12 +339,12 @@ export function parseQuickAdd(input: string): ParsedQuickAdd {
 
   let date: string | null = null;
   let time: string | null = null;
-  if (/\b(сегодня|today)\b/i.test(text)) {
+  if (/(^|\s)(сегодня|today)(?=\s|$)/i.test(text)) {
     date = isoToday();
-    text = text.replace(/\b(сегодня|today)\b/gi, " ");
-  } else if (/\b(завтра|tomorrow)\b/i.test(text)) {
+    text = text.replace(/(^|\s)(сегодня|today)(?=\s|$)/i, " ");
+  } else if (/(^|\s)(завтра|tomorrow)(?=\s|$)/i.test(text)) {
     date = isoTomorrow();
-    text = text.replace(/\b(завтра|tomorrow)\b/gi, " ");
+    text = text.replace(/(^|\s)(завтра|tomorrow)(?=\s|$)/i, " ");
   }
 
   const tm = text.match(/(?:^|\s)([01]?\d|2[0-3]):([0-5]\d)(?:\s|$)/);
