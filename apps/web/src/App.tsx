@@ -95,6 +95,41 @@ type InstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
 
+type AppIconName = "home" | "check" | "plus" | "orbit" | "note" | "search" | "settings" | "calendar" | "target" | "clock" | "alert" | "chevron" | "image" | "link";
+
+function AppIcon({ name, size = 20 }: { name: AppIconName; size?: number }) {
+  const common = {
+    width: size,
+    height: size,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.8,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    "aria-hidden": true
+  };
+
+  const paths: Record<AppIconName, React.ReactNode> = {
+    home: <><path d="M3.8 10.7 12 4l8.2 6.7"/><path d="M5.8 9.5V20h12.4V9.5"/><path d="M9.3 20v-6.3h5.4V20"/></>,
+    check: <path d="m5 12.6 4.2 4.2L19.3 6.7"/>,
+    plus: <><path d="M12 5v14"/><path d="M5 12h14"/></>,
+    orbit: <><circle cx="12" cy="12" r="3.1"/><ellipse cx="12" cy="12" rx="9" ry="4.6" transform="rotate(32 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="4.6" transform="rotate(-32 12 12)"/></>,
+    note: <><path d="M6 3.8h8.8L19 8v12.2H6z"/><path d="M14.5 3.8V8H19"/><path d="M9 12h6M9 15.5h4.5"/></>,
+    search: <><circle cx="10.6" cy="10.6" r="5.8"/><path d="m15 15 4.4 4.4"/></>,
+    settings: <><circle cx="12" cy="12" r="3"/><path d="M19 13.4v-2.8l-2-.7a7 7 0 0 0-.7-1.6l.9-1.9-2-2-1.9.9a7 7 0 0 0-1.6-.7L11 2.7H8.2l-.7 1.9a7 7 0 0 0-1.6.7L4 4.4l-2 2 .9 1.9a7 7 0 0 0-.7 1.6l-2 .7v2.8l2 .7a7 7 0 0 0 .7 1.6L2 17.6l2 2 1.9-.9a7 7 0 0 0 1.6.7l.7 1.9H11l.7-1.9a7 7 0 0 0 1.6-.7l1.9.9 2-2-.9-1.9a7 7 0 0 0 .7-1.6z" transform="translate(1.4) scale(.88)"/></>,
+    calendar: <><rect x="4" y="5.5" width="16" height="14" rx="2"/><path d="M8 3.5v4M16 3.5v4M4 10h16"/></>,
+    target: <><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.3"/></>,
+    clock: <><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></>,
+    alert: <><path d="M12 4.2 21 20H3z"/><path d="M12 9v4.8M12 17.2h.01"/></>,
+    chevron: <path d="m9 5 7 7-7 7"/>,
+    image: <><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="m5.5 17 4.3-4.2 3.2 3 2.2-2.1 3.3 3.3"/></>,
+    link: <><path d="M9.5 14.5 14.5 9"/><path d="M7.2 16.8 5.6 18.4a3.4 3.4 0 0 1-4.8-4.8l3.4-3.4A3.4 3.4 0 0 1 9 10" transform="translate(2)"/><path d="m14.8 7.2 1.6-1.6a3.4 3.4 0 0 1 4.8 4.8l-3.4 3.4A3.4 3.4 0 0 1 13 14" transform="translate(-2)"/></>
+  };
+
+  return <svg {...common}>{paths[name]}</svg>;
+}
+
 const noteKindLabels: Record<NoteKind, string> = {
   note: "Заметка",
   idea: "Идея",
@@ -1570,17 +1605,18 @@ export function App() {
     <div className={`app-shell section-${mobileSection} ${selected ? "has-detail" : ""}`}>
       <aside className="sidebar" aria-label="Навигация СФЕРА">
         <button className="brand brand-button" onClick={() => setMobileSection("home")} aria-label="Главная СФЕРА">
-          <img className="brand-logo" src="/sfera/sfera-logo.webp?v=20260920-clean" alt="СФЕРА" />
+          <span className="brand-emblem"><img className="brand-logo" src="/sfera/sfera-emblem.png?v=20260921" alt="" /></span>
+          <span className="brand-name">СФЕРА</span>
         </button>
 
         <nav className="side-nav">
-          <button className={mobileSection === "home" ? "active" : ""} onClick={() => setMobileSection("home")}><span>⌂</span>Главная</button>
-          <button className={mobileSection === "projects" ? "active" : ""} onClick={() => setMobileSection("projects")}><span>◇</span>Сферы</button>
-          <button className={mobileSection === "tasks" ? "active" : ""} onClick={() => setMobileSection("tasks")}><span>✓</span>Задачи</button>
-          <button className={mobileSection === "notes" ? "active" : ""} onClick={() => setMobileSection("notes")}><span>✎</span>Заметки</button>
-          <button className={mobileSection === "photos" ? "active" : ""} onClick={() => setMobileSection("photos")}><span>▧</span>Фото</button>
+          <button className={mobileSection === "home" ? "active" : ""} onClick={() => setMobileSection("home")}><span><AppIcon name="home" /></span>Главная</button>
+          <button className={mobileSection === "projects" ? "active" : ""} onClick={() => setMobileSection("projects")}><span><AppIcon name="orbit" /></span>Сферы</button>
+          <button className={mobileSection === "tasks" ? "active" : ""} onClick={() => setMobileSection("tasks")}><span><AppIcon name="check" /></span>Задачи</button>
+          <button className={mobileSection === "notes" ? "active" : ""} onClick={() => setMobileSection("notes")}><span><AppIcon name="note" /></span>Заметки</button>
+          <button className={mobileSection === "photos" ? "active" : ""} onClick={() => setMobileSection("photos")}><span><AppIcon name="image" /></span>Фото</button>
           <div className={`calendar-nav-group ${mobileSection === "calendar" ? "open" : ""}`}>
-            <button className={mobileSection === "calendar" ? "active" : ""} onClick={() => openCalendar("month")}><span>▦</span>Календарь</button>
+            <button className={mobileSection === "calendar" ? "active" : ""} onClick={() => openCalendar("month")}><span><AppIcon name="calendar" /></span>Календарь</button>
             {mobileSection === "calendar" && (
               <CalendarMiniMonth
                 title={calendarTitle}
@@ -1597,18 +1633,18 @@ export function App() {
               />
             )}
           </div>
-          <button className={mobileSection === "relations" ? "active" : ""} onClick={() => setMobileSection("relations")}><span>↔</span>Связи</button>
+          <button className={mobileSection === "relations" ? "active" : ""} onClick={() => setMobileSection("relations")}><span><AppIcon name="link" /></span>Связи</button>
         </nav>
 
         <div className="sidebar-bottom">
-          <button className="ghost-button" onClick={() => setSettingsOpen(true)}>⚙ Настройки</button>
+          <button className="ghost-button" onClick={() => setSettingsOpen(true)}><AppIcon name="settings" /> Настройки</button>
         </div>
       </aside>
 
       <main className={`tasks-page section-${mobileSection}`}>
         <header className="desktop-topbar">
           <button className="desktop-search" onClick={() => { setMobileSection("tasks"); setSearchOpen(true); }}>
-            <span>⌕</span>
+            <span><AppIcon name="search" /></span>
             <span>Поиск по задачам, сферам, проектам и заметкам...</span>
           </button>
           <div className="desktop-user-area">
@@ -1665,9 +1701,9 @@ export function App() {
           </div>
           <div className="mobile-app-actions">
             {mobileSection === "tasks" && (
-              <button className="mobile-icon-action" aria-label="Поиск" onClick={() => setSearchOpen((value) => !value)}>⌕</button>
+              <button className="mobile-icon-action" aria-label="Поиск" onClick={() => setSearchOpen((value) => !value)}><AppIcon name="search" /></button>
             )}
-            <button className="mobile-icon-action" aria-label="Настройки" onClick={() => setSettingsOpen(true)}>⚙</button>
+            <button className="mobile-icon-action" aria-label="Настройки" onClick={() => setSettingsOpen(true)}><AppIcon name="settings" /></button>
           </div>
         </header>
 
@@ -1685,17 +1721,17 @@ export function App() {
             </div>
             <div className="dashboard-hero-actions">
               <button className="dashboard-primary-action" onClick={openNewTask}>
-                <span>＋</span> Новая задача
+                <AppIcon name="plus" /> Новая задача
               </button>
               <button className="dashboard-secondary-action" onClick={openNewNote}>
-                <span>✎</span> Новая заметка
+                <AppIcon name="note" /> Новая заметка
               </button>
             </div>
           </header>
 
           <div className="dashboard-focus">
             <label htmlFor="daily-focus">
-              <span>◎</span>
+              <span><AppIcon name="target" /></span>
               <strong>Фокус дня</strong>
             </label>
             <input
@@ -1772,17 +1808,17 @@ export function App() {
 
             <aside className="dashboard-side dashboard-summary-cards">
               <button className={`dashboard-summary-card dashboard-summary-overdue ${overdueTasks.length ? "has-value" : ""}`} onClick={() => { chooseTaskView("overdue"); setMobileSection("tasks"); }}>
-                <span className="dashboard-summary-icon">!</span>
+                <span className="dashboard-summary-icon"><AppIcon name="alert" /></span>
                 <span className="dashboard-summary-copy">
                   <small>Просрочено</small>
                   <strong>{overdueTasks.length ? `${overdueTasks.length} ${russianPlural(overdueTasks.length, "задача", "задачи", "задач")}` : "Ничего"}</strong>
                   <em>{overdueTasks.length ? "Нужно разобрать" : "Всё под контролем"}</em>
                 </span>
-                <b>›</b>
+                <b><AppIcon name="chevron" /></b>
               </button>
 
               <button className="dashboard-summary-card dashboard-summary-next" onClick={() => upcomingTask ? openDetail(upcomingTask.id) : openNewTask()}>
-                <span className="dashboard-summary-icon">◷</span>
+                <span className="dashboard-summary-icon"><AppIcon name="clock" /></span>
                 <span className="dashboard-summary-copy">
                   <small>Ближайшая задача</small>
                   <strong>{upcomingTask?.title ?? "План свободен"}</strong>
@@ -1792,17 +1828,17 @@ export function App() {
                       : "Добавить задачу"}
                   </em>
                 </span>
-                <b>›</b>
+                <b><AppIcon name="chevron" /></b>
               </button>
 
               <button className="dashboard-summary-card dashboard-summary-week" onClick={() => { chooseTaskView("week"); setMobileSection("tasks"); }}>
-                <span className="dashboard-summary-icon">▦</span>
+                <span className="dashboard-summary-icon"><AppIcon name="calendar" /></span>
                 <span className="dashboard-summary-copy">
                   <small>Текущая неделя</small>
                   <strong>{weekTasks.length ? `${weekCompletedCount} из ${weekTasks.length} выполнено` : "Задач пока нет"}</strong>
                   <span className="dashboard-week-progress"><i style={{ width: `${weekProgress}%` }} /></span>
                 </span>
-                <b>›</b>
+                <b><AppIcon name="chevron" /></b>
               </button>
             </aside>
           </div>
@@ -2470,11 +2506,11 @@ export function App() {
         </section>
 
         <nav className="bottom-nav mobile-tabbar" aria-label="Основная навигация">
-          <button className={mobileSection === "home" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("home"); setSettingsOpen(false); }}><span>⌂</span>Сегодня</button>
-          <button className={mobileSection === "tasks" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("tasks"); setSettingsOpen(false); }}><span>✓</span>Задачи</button>
-          <button className="mobile-add-nav" aria-label="Добавить" onClick={() => setQuickMenuOpen(true)}><span>＋</span>Добавить</button>
-          <button className={mobileSection === "projects" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("projects"); setSettingsOpen(false); }}><span>◇</span>Сферы</button>
-          <button className={mobileSection === "notes" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("notes"); setSettingsOpen(false); }}><span>✎</span>Заметки</button>
+          <button className={mobileSection === "home" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("home"); setSettingsOpen(false); }}><span><AppIcon name="home" /></span>Сегодня</button>
+          <button className={mobileSection === "tasks" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("tasks"); setSettingsOpen(false); }}><span><AppIcon name="check" /></span>Задачи</button>
+          <button className="mobile-add-nav" aria-label="Добавить" onClick={() => setQuickMenuOpen(true)}><span><AppIcon name="plus" /></span>Добавить</button>
+          <button className={mobileSection === "projects" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("projects"); setSettingsOpen(false); }}><span><AppIcon name="orbit" /></span>Сферы</button>
+          <button className={mobileSection === "notes" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("notes"); setSettingsOpen(false); }}><span><AppIcon name="note" /></span>Заметки</button>
         </nav>
 
         {quickMenuOpen && (
