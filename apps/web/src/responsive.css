@@ -1770,3 +1770,114 @@
     display: none;
   }
 }
+
+
+/* Esoterica location-aware lunar days */
+.esoterica-lunar-day-times {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.esoterica-lunar-day-times > div {
+  padding: 10px 11px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.72);
+  border: 1px solid #e6eae7;
+}
+
+.esoterica-lunar-day-times span,
+.esoterica-lunar-day-times strong {
+  display: block;
+}
+
+.esoterica-lunar-day-times span {
+  color: #939c98;
+  font-size: .61rem;
+}
+
+.esoterica-lunar-day-times strong {
+  margin-top: 3px;
+  color: #46544f;
+  font-size: .72rem;
+}
+
+.esoterica-location-controls {
+  display: grid;
+  gap: 8px;
+  margin-top: 13px;
+  padding-top: 12px;
+  border-top: 1px solid #e7ebe8;
+}
+
+.esoterica-coordinate-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 7px;
+}
+
+.esoterica-coordinate-fields label {
+  min-width: 0;
+}
+
+.esoterica-coordinate-fields label > span {
+  display: block;
+  margin: 0 0 4px 2px;
+  color: #8d9692;
+  font-size: .6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.esoterica-coordinate-fields input {
+  width: 100%;
+  min-width: 0;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid #dfe5e1;
+  border-radius: 11px;
+  background: #fff;
+  color: #3f4e48;
+  font: inherit;
+  font-size: .73rem;
+  box-shadow: none;
+}
+
+.esoterica-location-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 7px;
+}
+
+.esoterica-location-actions button {
+  min-height: 38px;
+  padding: 0 9px;
+  border: 1px solid #dce3df;
+  border-radius: 11px;
+  background: #fff;
+  color: #51615a;
+  font-size: .67rem;
+  font-weight: 660;
+  cursor: pointer;
+}
+
+.esoterica-location-actions button:first-child {
+  border-color: #34433d;
+  background: #34433d;
+  color: #fff;
+}
+
+.esoterica-location-status {
+  color: #78827e;
+  font-size: .63rem;
+  line-height: 1.35;
+}
+
+@media (max-width: 390px) {
+  .esoterica-coordinate-fields,
+  .esoterica-location-actions,
+  .esoterica-lunar-day-times {
+    grid-template-columns: 1fr;
+  }
+}
