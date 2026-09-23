@@ -64,6 +64,8 @@ import {
 import { CalendarMiniMonth } from "./calendar/CalendarMiniMonth";
 import { DesktopCalendar } from "./calendar/DesktopCalendar";
 import { RelationsGraph } from "./RelationsGraph";
+import { HomeDashboard } from "./HomeDashboard";
+import { AppIcon } from "./ui/AppIcon";
 import { MoonCalendar } from "./MoonCalendar";
 import { getMoonDayData } from "./moon-engine";
 import {
@@ -96,41 +98,6 @@ type InstallPromptEvent = Event & {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
-
-type AppIconName = "home" | "check" | "plus" | "orbit" | "note" | "search" | "settings" | "calendar" | "target" | "clock" | "alert" | "chevron" | "image" | "link";
-
-function AppIcon({ name, size = 20 }: { name: AppIconName; size?: number }) {
-  const common = {
-    width: size,
-    height: size,
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: 1.8,
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-    "aria-hidden": true
-  };
-
-  const paths: Record<AppIconName, React.ReactNode> = {
-    home: <><path d="M3.8 10.7 12 4l8.2 6.7"/><path d="M5.8 9.5V20h12.4V9.5"/><path d="M9.3 20v-6.3h5.4V20"/></>,
-    check: <path d="m5 12.6 4.2 4.2L19.3 6.7"/>,
-    plus: <><path d="M12 5v14"/><path d="M5 12h14"/></>,
-    orbit: <><circle cx="12" cy="12" r="3.1"/><ellipse cx="12" cy="12" rx="9" ry="4.6" transform="rotate(32 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="4.6" transform="rotate(-32 12 12)"/></>,
-    note: <><path d="M6 3.8h8.8L19 8v12.2H6z"/><path d="M14.5 3.8V8H19"/><path d="M9 12h6M9 15.5h4.5"/></>,
-    search: <><circle cx="10.6" cy="10.6" r="5.8"/><path d="m15 15 4.4 4.4"/></>,
-    settings: <><circle cx="12" cy="12" r="3"/><path d="M19 13.4v-2.8l-2-.7a7 7 0 0 0-.7-1.6l.9-1.9-2-2-1.9.9a7 7 0 0 0-1.6-.7L11 2.7H8.2l-.7 1.9a7 7 0 0 0-1.6.7L4 4.4l-2 2 .9 1.9a7 7 0 0 0-.7 1.6l-2 .7v2.8l2 .7a7 7 0 0 0 .7 1.6L2 17.6l2 2 1.9-.9a7 7 0 0 0 1.6.7l.7 1.9H11l.7-1.9a7 7 0 0 0 1.6-.7l1.9.9 2-2-.9-1.9a7 7 0 0 0 .7-1.6z" transform="translate(1.4) scale(.88)"/></>,
-    calendar: <><rect x="4" y="5.5" width="16" height="14" rx="2"/><path d="M8 3.5v4M16 3.5v4M4 10h16"/></>,
-    target: <><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.3"/></>,
-    clock: <><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></>,
-    alert: <><path d="M12 4.2 21 20H3z"/><path d="M12 9v4.8M12 17.2h.01"/></>,
-    chevron: <path d="m9 5 7 7-7 7"/>,
-    image: <><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="m5.5 17 4.3-4.2 3.2 3 2.2-2.1 3.3 3.3"/></>,
-    link: <><path d="M9.5 14.5 14.5 9"/><path d="M7.2 16.8 5.6 18.4a3.4 3.4 0 0 1-4.8-4.8l3.4-3.4A3.4 3.4 0 0 1 9 10" transform="translate(2)"/><path d="m14.8 7.2 1.6-1.6a3.4 3.4 0 0 1 4.8 4.8l-3.4 3.4A3.4 3.4 0 0 1 13 14" transform="translate(-2)"/></>
-  };
-
-  return <svg {...common}>{paths[name]}</svg>;
-}
 
 const noteKindLabels: Record<NoteKind, string> = {
   note: "Заметка",
@@ -1746,217 +1713,34 @@ export function App() {
           </div>
         </header>
 
-        <section className={`home-dashboard ${mobileSection === "home" ? "active" : ""}`} aria-hidden={mobileSection !== "home"}>
-          <header className={`dashboard-hero dashboard-hero-${dayPart}`}>
-            <div className="dashboard-hero-copy">
-              <div className="dashboard-wordmark">СФЕРА</div>
-              <p className="dashboard-date">
-                <span>{dashboardDate}</span>
-                <button
-                  type="button"
-                  className="dashboard-moon-phase"
-                  aria-label={`Открыть лунный календарь. Сейчас: ${moonPhase.name}`}
-                  onClick={() => setMoonCalendarOpen(true)}
-                >
-                  <span aria-hidden="true">· {moonPhase.icon}</span> {moonPhase.name}
-                </button>
-              </p>
-              <h1>{greeting}, {profileName}!</h1>
-            </div>
-            <div className="dashboard-hero-actions">
-              <button className="dashboard-primary-action" onClick={openNewTask}>
-                <AppIcon name="plus" /> Новая задача
-              </button>
-              <button className="dashboard-secondary-action" onClick={openNewNote}>
-                <AppIcon name="note" /> Новая заметка
-              </button>
-            </div>
-          </header>
-
-          <div className="dashboard-focus">
-            <label htmlFor="daily-focus">
-              <span><AppIcon name="target" /></span>
-              <strong>Фокус дня</strong>
-            </label>
-            <input
-              id="daily-focus"
-              value={dailyFocus}
-              onChange={(event) => setDailyFocus(event.target.value)}
-              placeholder="Что сегодня действительно важно?"
-              maxLength={120}
-            />
-            <small>{dailyFocus.trim() ? "Сохранено" : "Можно изменить в любой момент"}</small>
-          </div>
-
-          <div className="dashboard-layout">
-            <section className="dashboard-card dashboard-today">
-              <div className="dashboard-card-head">
-                <div>
-                  <h2>Задачи на сегодня</h2>
-                  <span className="dashboard-progress-copy">
-                    {todayTaskCount ? `${completedTodayCount} из ${todayTaskCount} выполнено` : "День пока свободен"}
-                  </span>
-                </div>
-                <button className="dashboard-count-link" onClick={() => { chooseTaskView("today"); setMobileSection("tasks"); }}>
-                  Все задачи ›
-                </button>
-              </div>
-              <div className="dashboard-progress" aria-label={`Выполнено ${todayProgress}% задач на сегодня`}>
-                <span style={{ width: `${todayProgress}%` }} />
-              </div>
-
-              <div className="dashboard-task-list">
-                {todayTasks.length === 0 ? (
-                  <div className="dashboard-empty dashboard-empty-actionable">
-                    <span>✓</span>
-                    <div>
-                      <strong>{todayTaskCount ? "Все задачи на сегодня выполнены" : "На сегодня всё свободно"}</strong>
-                      <small>{rootSpheres.length ? "Можно добавить задачу сразу в нужную сферу." : "Создай первую сферу или добавь задачу."}</small>
-                      {rootSpheres.length > 0 && (
-                        <div className="dashboard-empty-spheres">
-                          {rootSpheres.slice(0, 3).map((sphere) => (
-                            <button key={sphere.id} onClick={() => startNewTask(sphere.id)}>＋ {sphere.title}</button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  todayTasks.map((task) => (
-                    <div className={`dashboard-task-row ${task.id === upcomingTask?.id ? "is-next" : ""}`} key={task.id}>
-                      {task.uncompletable ? (
-                        <span className="dashboard-task-dot">◆</span>
-                      ) : (
-                        <button
-                          className={`check-button priority-ring p${task.priority}`}
-                          onClick={() => completeTask(task)}
-                          aria-label={`Выполнить задачу «${task.title}»`}
-                        />
-                      )}
-                      <span className="dashboard-task-time">{task.time || "—"}</span>
-                      <button className="dashboard-task-main" onClick={() => openDetail(task.id)}>
-                        <strong>{task.title}</strong>
-                        {task.id === upcomingTask?.id && <small>Ближайшая</small>}
-                      </button>
-                      {task.projectId && (
-                        <span className="dashboard-project-pill">
-                          {projectPath(projects, task.projectId).split(" / ").at(-1)}
-                        </span>
-                      )}
-                      <button className="dashboard-row-arrow" aria-label={`Открыть задачу «${task.title}»`} onClick={() => openDetail(task.id)}>›</button>
-                    </div>
-                  ))
-                )}
-              </div>
-            </section>
-
-            <aside className="dashboard-side dashboard-summary-cards">
-              <button className={`dashboard-summary-card dashboard-summary-overdue ${overdueTasks.length ? "has-value" : ""}`} onClick={() => { chooseTaskView("overdue"); setMobileSection("tasks"); }}>
-                <span className="dashboard-summary-icon"><AppIcon name="alert" /></span>
-                <span className="dashboard-summary-copy">
-                  <small>Просрочено</small>
-                  <strong>{overdueTasks.length ? `${overdueTasks.length} ${russianPlural(overdueTasks.length, "задача", "задачи", "задач")}` : "Ничего"}</strong>
-                  <em>{overdueTasks.length ? "Нужно разобрать" : "Всё под контролем"}</em>
-                </span>
-                <b><AppIcon name="chevron" /></b>
-              </button>
-
-              <button className="dashboard-summary-card dashboard-summary-next" onClick={() => upcomingTask ? openDetail(upcomingTask.id) : openNewTask()}>
-                <span className="dashboard-summary-icon"><AppIcon name="clock" /></span>
-                <span className="dashboard-summary-copy">
-                  <small>Ближайшая задача</small>
-                  <strong>{upcomingTask?.title ?? "План свободен"}</strong>
-                  <em>
-                    {upcomingTask?.date
-                      ? `${upcomingTask.date === isoToday() ? "Сегодня" : formatDate(upcomingTask.date)}${upcomingTask.time ? `, ${upcomingTask.time}` : ""}`
-                      : "Добавить задачу"}
-                  </em>
-                </span>
-                <b><AppIcon name="chevron" /></b>
-              </button>
-
-              <button className="dashboard-summary-card dashboard-summary-week" onClick={() => { chooseTaskView("week"); setMobileSection("tasks"); }}>
-                <span className="dashboard-summary-icon"><AppIcon name="calendar" /></span>
-                <span className="dashboard-summary-copy">
-                  <small>Текущая неделя</small>
-                  <strong>{weekTasks.length ? `${weekCompletedCount} из ${weekTasks.length} выполнено` : "Задач пока нет"}</strong>
-                  <span className="dashboard-week-progress"><i style={{ width: `${weekProgress}%` }} /></span>
-                </span>
-                <b><AppIcon name="chevron" /></b>
-              </button>
-            </aside>
-          </div>
-
-          <section className="dashboard-section">
-            <div className="dashboard-section-head">
-              <div>
-                <h2>Мои сферы жизни</h2>
-              </div>
-              <button onClick={() => { setSelectedProjectId(null); setMobileSection("projects"); }}>Все сферы ›</button>
-            </div>
-
-            <div className="sphere-card-grid">
-              {sphereSummaries.map((summary, index) => (
-                <button
-                  className={`sphere-card sphere-card-rich sphere-tone-${index % 6}`}
-                  key={summary.sphere.id}
-                  onClick={() => { setSelectedProjectId(summary.sphere.id); setMobileSection("projects"); }}
-                >
-                  <span className="sphere-symbol">{["⌂","☾","✦","▣","✈","♡"][index % 6]}</span>
-                  <span className="sphere-info">
-                    <strong>{summary.sphere.title}</strong>
-                    <small className="sphere-next-task">
-                      {summary.nextTask
-                        ? `${summary.nextTask.date ? (summary.nextTask.date === isoToday() ? "Сегодня" : formatDate(summary.nextTask.date)) : "Без даты"}${summary.nextTask.time ? `, ${summary.nextTask.time}` : ""} · ${summary.nextTask.title}`
-                        : "Нет активных задач"}
-                    </small>
-                    <span className="sphere-card-meta">
-                      {summary.activeCount} {russianPlural(summary.activeCount, "активная задача", "активные задачи", "активных задач")} · {summary.noteCount} {russianPlural(summary.noteCount, "заметка", "заметки", "заметок")}
-                    </span>
-                    <span className="sphere-card-progress-copy">
-                      <span>{summary.totalCount ? `Готово ${summary.progress}%` : "Задач пока нет"}</span>
-                      <span>{summary.totalCount ? `${summary.completedCount}/${summary.totalCount}` : ""}</span>
-                    </span>
-                    <span className="sphere-card-progress" aria-hidden="true">
-                      <i style={{ width: `${summary.progress}%` }} />
-                    </span>
-                    <span className="sphere-last-activity">Обновлено {recentActivityLabel(summary.lastActivity)}</span>
-                  </span>
-                  <b>›</b>
-                </button>
-              ))}
-              <button className="sphere-card sphere-create sphere-card-rich" onClick={() => { setProjectParentId(""); setProjectCreateOpen(true); }}>
-                <span className="sphere-symbol">＋</span>
-                <span className="sphere-info">
-                  <strong>Новая сфера</strong>
-                  <small className="sphere-next-task">Добавить новую область жизни</small>
-                </span>
-                <b>›</b>
-              </button>
-            </div>
-          </section>
-
-          <div className="home-function-strip">
-            <button onClick={() => { chooseTaskView("week"); setMobileSection("tasks"); }}>
-              <span>▦</span><strong>Неделя</strong><small>{weekTaskCount} {russianPlural(weekTaskCount, "задача", "задачи", "задач")}</small>
-            </button>
-            <button onClick={() => { setSelectedProjectId(rootSpheres[0]?.id ?? null); setProjectTab("goals"); setMobileSection("projects"); }}>
-              <span>◎</span><strong>Цели</strong><small>{goals.length} активных</small>
-            </button>
-            <button onClick={() => openCalendar("month")}>
-              <span>◫</span><strong>Календарь</strong><small>Даты и история</small>
-            </button>
-          </div>
-
-          {!isStandalone && (
-            <button className="install-app-link" onClick={installApp}>
-              <span>⇧</span>
-              <span><strong>Установить СФЕРУ</strong><small>Открывать с главного экрана как приложение</small></span>
-              <b>›</b>
-            </button>
-          )}
-
-        </section>
+        <HomeDashboard
+          active={mobileSection === "home"}
+          dayPart={dayPart}
+          dashboardDate={dashboardDate}
+          moonPhase={moonPhase}
+          profileName={profileName}
+          dailyFocus={dailyFocus}
+          todayTaskCount={todayTaskCount}
+          completedTodayCount={completedTodayCount}
+          todayProgress={todayProgress}
+          todayTasks={todayTasks}
+          upcomingTask={upcomingTask}
+          overdueCount={overdueTasks.length}
+          sphereSummaries={sphereSummaries}
+          isStandalone={isStandalone}
+          projectLabelForTask={(task) => task.projectId ? (projectPath(projects, task.projectId).split(" / ").at(-1) ?? null) : null}
+          onDailyFocusChange={setDailyFocus}
+          onOpenMoon={() => setMoonCalendarOpen(true)}
+          onNewTask={openNewTask}
+          onNewNote={openNewNote}
+          onCompleteTask={completeTask}
+          onOpenTask={openDetail}
+          onOpenTodayTasks={() => { chooseTaskView("today"); setMobileSection("tasks"); }}
+          onOpenOverdue={() => { chooseTaskView("overdue"); setMobileSection("tasks"); }}
+          onOpenSphere={(sphereId) => { setSelectedProjectId(sphereId); setMobileSection("projects"); }}
+          onCreateSphere={() => { setProjectParentId(""); setProjectCreateOpen(true); }}
+          onInstallApp={installApp}
+        />
 
         <div className={`tasks-module-content ${mobileSection === "tasks" ? "mobile-section-active" : "mobile-section-hidden"}`}>
         <div className="page-header">
