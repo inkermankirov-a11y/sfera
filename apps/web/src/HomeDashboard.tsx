@@ -73,6 +73,12 @@ export function HomeDashboard({
   onCreateSphere,
   onInstallApp
 }: HomeDashboardProps) {
+  const greeting = dayPart === "morning"
+    ? "Доброе утро"
+    : dayPart === "day"
+      ? "Добрый день"
+      : "Добрый вечер";
+
   return (
     <section className={`home-dashboard ${active ? "active" : ""}`} aria-hidden={!active}>
       <header className={`dashboard-hero dashboard-hero-${dayPart}`}>
@@ -89,7 +95,7 @@ export function HomeDashboard({
               <span aria-hidden="true">· {moonPhase.icon}</span> {moonPhase.name}
             </button>
           </p>
-          <h1>{profileName}, сегодня главное — не распыляться.</h1>
+          <h1>{greeting}, {profileName}</h1>
         </div>
 
         <div className="dashboard-hero-actions">
@@ -111,10 +117,10 @@ export function HomeDashboard({
           id="daily-focus"
           value={dailyFocus}
           onChange={(event) => onDailyFocusChange(event.target.value)}
-          placeholder="Один результат, который сделает день не зря"
+          placeholder="Главный результат дня"
           maxLength={120}
         />
-        <small>{dailyFocus.trim() ? "Фокус сохранён" : "Выбери один главный результат дня"}</small>
+        <small>{dailyFocus.trim() ? "Сохранено" : "Один главный результат"}</small>
       </div>
 
       <div className="dashboard-priority-layout">
@@ -143,7 +149,7 @@ export function HomeDashboard({
                 <span><AppIcon name="check" /></span>
                 <div>
                   <strong>{todayTaskCount ? "На сегодня всё выполнено" : "Сегодня свободно"}</strong>
-                  <small>Добавляй только то, что действительно нужно сделать сегодня.</small>
+                  <small>Здесь будут только задачи на сегодня.</small>
                 </div>
               </div>
             ) : (
@@ -205,7 +211,6 @@ export function HomeDashboard({
       <section className="dashboard-section dashboard-spheres-section">
         <div className="dashboard-section-head">
           <div>
-            <span className="dashboard-section-kicker">ОБЛАСТИ ЖИЗНИ</span>
             <h2>Сферы</h2>
           </div>
         </div>
