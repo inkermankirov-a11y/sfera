@@ -64,6 +64,7 @@ import {
 import { CalendarMiniMonth } from "./calendar/CalendarMiniMonth";
 import { DesktopCalendar } from "./calendar/DesktopCalendar";
 import { RelationsGraph } from "./RelationsGraph";
+import { MoonCalendar } from "./MoonCalendar";
 import {
   addDaysIso,
   calendarRangeLabel,
@@ -276,6 +277,7 @@ export function App() {
   const [mobileQuickOpen, setMobileQuickOpen] = useState(false);
   const [quickMenuOpen, setQuickMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [moonCalendarOpen, setMoonCalendarOpen] = useState(false);
   const [mobileSection, setMobileSection] = useState<Section>("home");
   const [projects, setProjects] = useState<ProjectNode[]>(() => readProjects());
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
@@ -1770,9 +1772,14 @@ export function App() {
               <div className="dashboard-wordmark">СФЕРА</div>
               <p className="dashboard-date">
                 <span>{dashboardDate}</span>
-                <span className="dashboard-moon-phase" aria-label={`Фаза Луны: ${moonPhase.name}`}>
+                <button
+                  type="button"
+                  className="dashboard-moon-phase"
+                  aria-label={`Открыть лунный календарь. Сейчас: ${moonPhase.name}`}
+                  onClick={() => setMoonCalendarOpen(true)}
+                >
                   <span aria-hidden="true">· {moonPhase.icon}</span> {moonPhase.name}
-                </span>
+                </button>
               </p>
               <h1>{greeting}, {profileName}!</h1>
             </div>
@@ -3252,6 +3259,7 @@ export function App() {
         )}
       </aside>
 
+      <MoonCalendar open={moonCalendarOpen} onClose={() => setMoonCalendarOpen(false)} />
       {selected && <button className="detail-backdrop" aria-label="Закрыть детали" onClick={closeDetail} />}
       {toast && <div className="toast" role="status">{toast}</div>}
     </div>
