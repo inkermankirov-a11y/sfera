@@ -211,6 +211,7 @@ export function App() {
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [mobileQuickOpen, setMobileQuickOpen] = useState(false);
   const [quickMenuOpen, setQuickMenuOpen] = useState(false);
+  const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [moonCalendarOpen, setMoonCalendarOpen] = useState(false);
   const [mobileSection, setMobileSection] = useState<Section>("home");
@@ -1587,11 +1588,12 @@ export function App() {
         </button>
 
         <nav className="side-nav">
-          <button className={mobileSection === "home" ? "active" : ""} onClick={() => setMobileSection("home")}><span><AppIcon name="home" /></span>Главная</button>
-          <button className={mobileSection === "projects" ? "active" : ""} onClick={() => setMobileSection("projects")}><span><AppIcon name="orbit" /></span>Сферы</button>
+          <button className={mobileSection === "home" ? "active" : ""} onClick={() => setMobileSection("home")}><span><AppIcon name="home" /></span>Сегодня</button>
           <button className={mobileSection === "tasks" ? "active" : ""} onClick={() => setMobileSection("tasks")}><span><AppIcon name="check" /></span>Задачи</button>
+          <button className={mobileSection === "projects" ? "active" : ""} onClick={() => setMobileSection("projects")}><span><AppIcon name="orbit" /></span>Сферы</button>
           <button className={mobileSection === "notes" ? "active" : ""} onClick={() => setMobileSection("notes")}><span><AppIcon name="note" /></span>Заметки</button>
-          <button className={mobileSection === "photos" ? "active" : ""} onClick={() => setMobileSection("photos")}><span><AppIcon name="image" /></span>Фото</button>
+
+          <span className="side-nav-label">Ещё</span>
           <div className={`calendar-nav-group ${mobileSection === "calendar" ? "open" : ""}`}>
             <button className={mobileSection === "calendar" ? "active" : ""} onClick={() => openCalendar("month")}><span><AppIcon name="calendar" /></span>Календарь</button>
             {mobileSection === "calendar" && (
@@ -1610,6 +1612,7 @@ export function App() {
               />
             )}
           </div>
+          <button className={mobileSection === "photos" ? "active" : ""} onClick={() => setMobileSection("photos")}><span><AppIcon name="image" /></span>Фото</button>
           <button className={mobileSection === "relations" ? "active" : ""} onClick={() => setMobileSection("relations")}><span><AppIcon name="link" /></span>Связи</button>
         </nav>
 
@@ -2324,8 +2327,27 @@ export function App() {
           <button className={mobileSection === "tasks" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("tasks"); setSettingsOpen(false); }}><span><AppIcon name="check" /></span>Задачи</button>
           <button className="mobile-add-nav" aria-label="Добавить" onClick={() => setQuickMenuOpen(true)}><span><AppIcon name="plus" /></span>Добавить</button>
           <button className={mobileSection === "projects" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("projects"); setSettingsOpen(false); }}><span><AppIcon name="orbit" /></span>Сферы</button>
-          <button className={mobileSection === "notes" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("notes"); setSettingsOpen(false); }}><span><AppIcon name="note" /></span>Заметки</button>
+          <button
+            className={["notes","photos","calendar","relations"].includes(mobileSection) || settingsOpen ? "active" : ""}
+            onClick={() => setMobileMoreOpen(true)}
+          ><span><AppIcon name="more" /></span>Ещё</button>
         </nav>
+
+        {mobileMoreOpen && (
+          <div className="mobile-quick-backdrop" onClick={() => setMobileMoreOpen(false)}>
+            <div className="mobile-quick-sheet mobile-more-sheet" onClick={(event) => event.stopPropagation()}>
+              <div className="mobile-sheet-handle" />
+              <div className="mobile-quick-head"><strong>Ещё</strong><button onClick={() => setMobileMoreOpen(false)}>Закрыть</button></div>
+              <div className="mobile-more-grid">
+                <button onClick={() => { setMobileMoreOpen(false); setSettingsOpen(false); setMobileSection("notes"); }}><AppIcon name="note" /><span><strong>Заметки</strong><small>Записи и идеи</small></span></button>
+                <button onClick={() => { setMobileMoreOpen(false); setSettingsOpen(false); openCalendar("month"); }}><AppIcon name="calendar" /><span><strong>Календарь</strong><small>Даты и история</small></span></button>
+                <button onClick={() => { setMobileMoreOpen(false); setSettingsOpen(false); setMobileSection("photos"); }}><AppIcon name="image" /><span><strong>Фото</strong><small>Изображения и файлы</small></span></button>
+                <button onClick={() => { setMobileMoreOpen(false); setSettingsOpen(false); setMobileSection("relations"); }}><AppIcon name="link" /><span><strong>Связи</strong><small>Карта объектов</small></span></button>
+                <button onClick={() => { setMobileMoreOpen(false); setSettingsOpen(true); }}><AppIcon name="settings" /><span><strong>Настройки</strong><small>Профиль и приложение</small></span></button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {quickMenuOpen && (
           <div className="mobile-quick-backdrop" onClick={() => setQuickMenuOpen(false)}>
