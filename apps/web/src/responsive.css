@@ -1088,35 +1088,13 @@
   }
 }
 
-
 /* Full moon emphasis */
 .moon-day.full-moon {
-  border: 2px solid #8a744c;
-  background: linear-gradient(180deg, #fffdf6 0%, #f3ead2 100%);
-  color: #3c3528;
-  box-shadow: 0 0 0 3px rgba(138,116,76,.12), 0 6px 18px rgba(63,52,31,.08);
-}
-
-.moon-day.full-moon > b {
-  font-size: 1.45rem;
-  filter: drop-shadow(0 2px 5px rgba(55,47,32,.14));
-}
-
-.moon-day.full-moon > em {
-  display: block;
-  color: #7a6338;
-  font-size: .52rem;
-  font-style: normal;
-  font-weight: 780;
-  letter-spacing: .035em;
-  line-height: 1;
-  text-transform: uppercase;
+  border: 2px solid #d94b4b;
 }
 
 .moon-day.full-moon.selected {
-  border-color: #5d4b2d;
-  background: linear-gradient(180deg, #fffaf0 0%, #ead9ae 100%);
-  box-shadow: 0 0 0 4px rgba(93,75,45,.16), 0 8px 22px rgba(63,52,31,.12);
+  border-color: #d94b4b;
 }
 
 .moon-calendar-summary.is-full-moon {
@@ -1160,48 +1138,9 @@
   letter-spacing: .08em;
 }
 
-.moon-calendar-legend {
-  padding: 18px;
-}
-
-.moon-calendar-legend > div {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 11px 12px;
-  border-radius: 13px;
-  background: #f8f6ef;
-}
-
-.moon-calendar-legend .legend-full-moon {
-  font-size: 1.2rem;
-}
-
-.moon-calendar-legend strong {
-  color: #4a4539;
-  font-size: .75rem;
-}
-
-.moon-calendar-legend p {
-  margin: 12px 0 0;
-  color: #7c8581;
-  font-size: .67rem;
-  line-height: 1.48;
-}
-
 @media (max-width: 760px) {
   .moon-calendar-event {
     grid-column: 1 / -1;
     min-width: 0;
-  }
-
-  .moon-day.full-moon > em {
-    font-size: .43rem;
-  }
-}
-
-@media (max-width: 380px) {
-  .moon-day.full-moon > em {
-    display: none;
   }
 }
