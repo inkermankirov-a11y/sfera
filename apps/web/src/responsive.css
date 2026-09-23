@@ -1087,3 +1087,681 @@
     text-align: left;
   }
 }
+
+
+/* Esoterica module */
+.esoterica-screen {
+  color: #28342f;
+}
+
+.esoterica-page-header .esoterica-header-symbol {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: #27332f;
+  color: #fff;
+  font-size: 1.2rem;
+}
+
+.esoterica-intro {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 16px;
+  padding: 22px 24px;
+  border: 1px solid #e1e6e2;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 86% 18%, rgba(132,150,140,.14), transparent 34%),
+    linear-gradient(135deg, #fbfcfb, #f2f5f2);
+}
+
+.esoterica-eyebrow {
+  color: #7f8985;
+  font-size: .64rem;
+  font-weight: 760;
+  letter-spacing: .12em;
+}
+
+.esoterica-intro h1 {
+  margin: 5px 0 7px;
+  color: #24312c;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  font-weight: 740;
+  letter-spacing: -.04em;
+}
+
+.esoterica-intro p {
+  max-width: 680px;
+  margin: 0;
+  color: #6b7671;
+  font-size: .8rem;
+  line-height: 1.5;
+}
+
+.esoterica-date-control {
+  min-width: 210px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+}
+
+.esoterica-date-control label {
+  grid-column: 1 / -1;
+  color: #8b9490;
+  font-size: .62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.esoterica-date-control input,
+.esoterica-date-control button {
+  min-height: 38px;
+  border: 1px solid #dfe5e1;
+  border-radius: 11px;
+  background: #fff;
+  color: #40504a;
+  font: inherit;
+}
+
+.esoterica-date-control input {
+  min-width: 0;
+  padding: 0 10px;
+  font-size: .75rem;
+}
+
+.esoterica-date-control button {
+  padding: 0 12px;
+  font-size: .7rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.esoterica-tabs {
+  display: flex;
+  gap: 6px;
+  margin: 0 0 16px;
+  padding: 4px;
+  border: 1px solid #e2e7e3;
+  border-radius: 14px;
+  background: rgba(255,255,255,.68);
+  overflow-x: auto;
+}
+
+.esoterica-tabs button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #6e7974;
+  font-size: .74rem;
+  font-weight: 650;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.esoterica-tabs button.active {
+  background: #26332e;
+  color: #fff;
+}
+
+.esoterica-grid,
+.esoterica-astrology-layout,
+.esoterica-sources-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 14px;
+}
+
+.esoterica-card {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #e1e6e2;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 8px 28px rgba(32,43,38,.035);
+}
+
+.esoterica-card-label {
+  margin-bottom: 10px;
+  color: #8a9490;
+  font-size: .63rem;
+  font-weight: 760;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.esoterica-card h3 {
+  margin: 0 0 7px;
+  color: #2a3732;
+  font-size: 1.05rem;
+  font-weight: 720;
+  letter-spacing: -.025em;
+}
+
+.esoterica-card > p {
+  margin: 0;
+  color: #68736e;
+  font-size: .76rem;
+  line-height: 1.52;
+}
+
+.esoterica-moon-hero {
+  grid-column: span 2;
+  background:
+    radial-gradient(circle at 88% 14%, rgba(44,57,52,.08), transparent 34%),
+    #fff;
+}
+
+.esoterica-moon-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.esoterica-big-moon {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #222d29;
+  font-size: 2.3rem;
+  box-shadow: 0 8px 26px rgba(25,34,30,.13);
+}
+
+.esoterica-moon-main h3 {
+  margin: 0 0 3px;
+  font-size: 1.4rem;
+}
+
+.esoterica-moon-main p {
+  margin: 0;
+  color: #77817d;
+  font-size: .78rem;
+}
+
+.esoterica-stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.esoterica-stat-row > div,
+.esoterica-definition,
+.esoterica-tradition-note,
+.esoterica-school-list > div {
+  border-radius: 13px;
+  background: #f5f7f5;
+}
+
+.esoterica-stat-row > div {
+  padding: 10px 12px;
+}
+
+.esoterica-stat-row span,
+.esoterica-stat-row strong {
+  display: block;
+}
+
+.esoterica-stat-row span {
+  color: #909995;
+  font-size: .62rem;
+}
+
+.esoterica-stat-row strong {
+  margin-top: 3px;
+  color: #40504a;
+  font-size: .75rem;
+}
+
+.esoterica-tradition-note {
+  margin-top: 12px;
+  padding: 11px 12px;
+}
+
+.esoterica-tradition-note strong,
+.esoterica-tradition-note span {
+  display: block;
+}
+
+.esoterica-tradition-note strong {
+  color: #46544f;
+  font-size: .76rem;
+}
+
+.esoterica-tradition-note span {
+  margin-top: 4px;
+  color: #707a76;
+  font-size: .69rem;
+  line-height: 1.45;
+}
+
+.esoterica-definition {
+  margin-top: 12px;
+  padding: 10px 12px;
+  color: #6f7975;
+  font-size: .69rem;
+  line-height: 1.45;
+}
+
+.esoterica-caution-card {
+  border-style: dashed;
+  background: #fafbfa;
+}
+
+.esoterica-caution-card small {
+  display: block;
+  margin-top: 10px;
+  color: #929b97;
+  font-size: .64rem;
+  line-height: 1.4;
+}
+
+.esoterica-moon-layout {
+  display: grid;
+  grid-template-columns: minmax(0,1.25fr) minmax(290px,.75fr);
+  gap: 14px;
+}
+
+.esoterica-month-card {
+  padding: 14px;
+}
+
+.esoterica-month-head {
+  display: grid;
+  grid-template-columns: 38px minmax(0,1fr) 38px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.esoterica-month-head strong {
+  text-align: center;
+  text-transform: capitalize;
+  font-size: .88rem;
+}
+
+.esoterica-month-head button {
+  width: 38px;
+  height: 36px;
+  border: 1px solid #e2e7e3;
+  border-radius: 11px;
+  background: #f8faf8;
+  color: #5b6863;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.esoterica-weekdays,
+.esoterica-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0,1fr));
+}
+
+.esoterica-weekdays {
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.esoterica-weekdays span {
+  padding: 4px 0;
+  color: #9aa29f;
+  font-size: .58rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.esoterica-month-grid {
+  gap: 4px;
+}
+
+.esoterica-moon-day {
+  min-width: 0;
+  min-height: 62px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 1px 4px;
+  padding: 6px 7px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: #f7f9f7;
+  color: #46534e;
+  cursor: pointer;
+}
+
+.esoterica-moon-day > span {
+  font-size: .66rem;
+  font-weight: 680;
+}
+
+.esoterica-moon-day > b {
+  grid-column: 1 / -1;
+  justify-self: center;
+  font-size: 1rem;
+}
+
+.esoterica-moon-day > small {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.esoterica-moon-day.outside {
+  opacity: .35;
+}
+
+.esoterica-moon-day.selected {
+  border-color: #607a6f;
+  background: #eaf0eb;
+}
+
+.esoterica-selected-phase {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.esoterica-selected-phase > span {
+  font-size: 2rem;
+}
+
+.esoterica-selected-phase h3,
+.esoterica-selected-phase p {
+  margin: 0;
+}
+
+.esoterica-selected-phase p {
+  margin-top: 2px;
+  color: #818b87;
+  font-size: .69rem;
+}
+
+.esoterica-selected-day dl {
+  display: grid;
+  gap: 6px;
+  margin: 14px 0 0;
+}
+
+.esoterica-selected-day dl > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid #edf0ed;
+}
+
+.esoterica-selected-day dt {
+  color: #8a938f;
+  font-size: .65rem;
+}
+
+.esoterica-selected-day dd {
+  margin: 0;
+  color: #42504b;
+  font-size: .71rem;
+  font-weight: 650;
+  text-align: right;
+}
+
+.esoterica-planets {
+  margin-top: 12px;
+  border-top: 1px solid #edf0ed;
+}
+
+.esoterica-planet-row {
+  display: grid;
+  grid-template-columns: 28px minmax(80px,.8fr) minmax(120px,1fr) 70px 22px;
+  align-items: center;
+  gap: 7px;
+  min-height: 42px;
+  border-bottom: 1px solid #edf0ed;
+  color: #66716d;
+  font-size: .7rem;
+}
+
+.esoterica-planet-row .planet-symbol {
+  font-size: 1rem;
+  color: #3f5049;
+}
+
+.esoterica-planet-row strong {
+  color: #3c4944;
+  font-size: .72rem;
+}
+
+.esoterica-planet-row b {
+  justify-self: end;
+  color: #9b7068;
+  font-size: .65rem;
+}
+
+.esoterica-school-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.esoterica-school-list > div {
+  padding: 11px 12px;
+}
+
+.esoterica-school-list strong,
+.esoterica-school-list span {
+  display: block;
+}
+
+.esoterica-school-list strong {
+  color: #45524d;
+  font-size: .73rem;
+}
+
+.esoterica-school-list span {
+  margin-top: 3px;
+  color: #747e7a;
+  font-size: .67rem;
+  line-height: 1.43;
+}
+
+.esoterica-method-card {
+  grid-column: span 2;
+}
+
+.esoterica-source-list {
+  grid-column: span 2;
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 10px;
+}
+
+.esoterica-source-card {
+  display: block;
+  padding: 15px;
+  border: 1px solid #e1e6e2;
+  border-radius: 16px;
+  background: #fff;
+  color: inherit;
+  text-decoration: none;
+}
+
+.esoterica-source-card > span {
+  color: #909995;
+  font-size: .6rem;
+  font-weight: 730;
+  text-transform: uppercase;
+}
+
+.esoterica-source-card > strong {
+  display: block;
+  margin-top: 4px;
+  color: #34413c;
+  font-size: .81rem;
+}
+
+.esoterica-source-card p {
+  margin: 5px 0 8px;
+  color: #75807b;
+  font-size: .68rem;
+  line-height: 1.43;
+}
+
+.esoterica-source-card b {
+  color: #557064;
+  font-size: .65rem;
+}
+
+@media (max-width: 760px) {
+  .mobile-module-screen.esoterica-screen.active {
+    display: block !important;
+    padding: 0 0 26px !important;
+  }
+
+  .esoterica-page-header {
+    justify-content: space-between !important;
+  }
+
+  .esoterica-page-header > .module-back-button {
+    display: grid !important;
+  }
+
+  .esoterica-page-header > div {
+    display: block !important;
+    margin-right: auto;
+  }
+
+  .esoterica-page-header > div span {
+    display: none;
+  }
+
+  .esoterica-page-header > div h2 {
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  .esoterica-page-header .esoterica-header-symbol {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+  }
+
+  .esoterica-intro {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .esoterica-intro h1 {
+    font-size: 1.35rem;
+  }
+
+  .esoterica-intro p {
+    font-size: .73rem;
+  }
+
+  .esoterica-date-control {
+    min-width: 0;
+  }
+
+  .esoterica-tabs {
+    margin-right: -16px;
+    margin-left: -16px;
+    padding-right: 16px;
+    padding-left: 16px;
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+  }
+
+  .esoterica-grid,
+  .esoterica-astrology-layout,
+  .esoterica-sources-layout,
+  .esoterica-moon-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .esoterica-moon-hero,
+  .esoterica-method-card,
+  .esoterica-source-list {
+    grid-column: auto;
+  }
+
+  .esoterica-card {
+    padding: 14px;
+    border-radius: 17px;
+  }
+
+  .esoterica-stat-row {
+    grid-template-columns: 1fr;
+  }
+
+  .esoterica-month-grid {
+    gap: 3px;
+  }
+
+  .esoterica-moon-day {
+    min-height: 50px;
+    padding: 4px;
+    border-radius: 9px;
+  }
+
+  .esoterica-source-list {
+    grid-template-columns: 1fr;
+  }
+
+  .esoterica-planet-row {
+    grid-template-columns: 24px minmax(70px,.8fr) minmax(95px,1fr) 58px 18px;
+    gap: 4px;
+    font-size: .61rem;
+  }
+
+  .esoterica-planet-row strong {
+    font-size: .65rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .esoterica-intro {
+    padding: 14px;
+  }
+
+  .esoterica-date-control {
+    grid-template-columns: 1fr;
+  }
+
+  .esoterica-date-control label {
+    grid-column: auto;
+  }
+
+  .esoterica-moon-main {
+    align-items: flex-start;
+  }
+
+  .esoterica-big-moon {
+    width: 54px;
+    height: 54px;
+    font-size: 1.9rem;
+  }
+
+  .esoterica-moon-main h3 {
+    font-size: 1.1rem;
+  }
+
+  .esoterica-planet-row {
+    grid-template-columns: 24px minmax(68px,.7fr) minmax(90px,1fr) 18px;
+  }
+
+  .esoterica-planet-row > span:nth-child(4) {
+    display: none;
+  }
+}
