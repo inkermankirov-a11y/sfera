@@ -65,7 +65,7 @@ import { CalendarMiniMonth } from "./calendar/CalendarMiniMonth";
 import { DesktopCalendar } from "./calendar/DesktopCalendar";
 import { RelationsGraph } from "./RelationsGraph";
 import { EsotericaScreen } from "./esoterica/EsotericaScreen";
-import { getMoonSnapshot } from "./esoterica/astro-engine";
+import { getMoonCalendarSnapshot } from "./esoterica/astro-engine";
 import {
   addDaysIso,
   calendarRangeLabel,
@@ -428,7 +428,7 @@ export function App() {
     day: "numeric",
     month: "long"
   }).format(new Date());
-  const moonPhase = getMoonSnapshot(new Date()).phase;
+  const moonPhase = getMoonCalendarSnapshot(new Date()).phase;
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Доброе утро" : hour < 18 ? "Добрый день" : "Добрый вечер";
   const dayPart = hour < 6 ? "night" : hour < 12 ? "morning" : hour < 18 ? "day" : "evening";
