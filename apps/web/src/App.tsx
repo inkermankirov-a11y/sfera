@@ -144,18 +144,6 @@ function russianPlural(count: number, one: string, few: string, many: string) {
   return many;
 }
 
-function recentActivityLabel(at: string) {
-  const date = new Date(at);
-  if (Number.isNaN(date.getTime())) return "недавно";
-  const activityDay = localIso(date);
-  const today = isoToday();
-  if (activityDay === today) return "сегодня";
-  if (activityDay === addDaysIso(today, -1)) return "вчера";
-  return new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short" })
-    .format(date)
-    .replace(".", "");
-}
-
 function rootSphereId(projects: ProjectNode[], projectId: string | null | undefined) {
   if (!projectId) return null;
   let current = projects.find((item) => item.id === projectId);
@@ -398,16 +386,8 @@ export function App() {
   }).format(new Date());
   const moonPhase = getMoonDayData(new Date()).phase;
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Доброе утро" : hour < 18 ? "Добрый день" : "Добрый вечер";
   const dayPart = hour < 6 ? "night" : hour < 12 ? "morning" : hour < 18 ? "day" : "evening";
   const weekDates = useMemo(() => currentWeekDates(), []);
-  const weekTasks = useMemo(
-    () => tasks.filter((task) => task.date && weekDates.some((day) => day.iso === task.date)),
-    [tasks, weekDates]
-  );
-  const weekTaskCount = weekTasks.filter((task) => task.status === "active").length;
-  const weekCompletedCount = weekTasks.filter((task) => task.status === "done").length;
-  const weekProgress = weekTasks.length ? Math.round((weekCompletedCount / weekTasks.length) * 100) : 0;
   const completedTodayCount = useMemo(
     () => tasks.filter((task) => task.status === "done" && task.date === isoToday()).length,
     [tasks]
@@ -433,8 +413,6 @@ export function App() {
       const scopeIds = new Set([sphere.id, ...descendants.map((project) => project.id)]);
       const sphereTasks = tasks.filter((task) => task.projectId && scopeIds.has(task.projectId));
       const activeTasks = sphereTasks.filter((task) => task.status === "active");
-      const completedCount = sphereTasks.filter((task) => task.status === "done").length;
-      const sphereNotes = notes.filter((note) => note.projectId && scopeIds.has(note.projectId));
       const datedActiveTasks = activeTasks
         .filter((task) => task.date && task.date >= today)
         .sort((a, b) =>
@@ -442,26 +420,18 @@ export function App() {
           (a.time ?? "99:99").localeCompare(b.time ?? "99:99") ||
           a.order - b.order
         );
-      const nextTask = datedActiveTasks[0] ?? [...activeTasks].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0] ?? null;
-      const activityDates = [
-        sphere.updatedAt,
-        ...descendants.map((project) => project.updatedAt),
-        ...sphereTasks.map((task) => task.updatedAt),
-        ...sphereNotes.map((note) => note.updatedAt)
-      ].sort();
+      const nextTask = datedActiveTasks[0]
+        ?? [...activeTasks].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0]
+        ?? null;
 
       return {
         sphere,
         activeCount: activeTasks.length,
-        noteCount: sphereNotes.length,
-        totalCount: sphereTasks.length,
-        completedCount,
-        progress: sphereTasks.length ? Math.round((completedCount / sphereTasks.length) * 100) : 0,
-        nextTask,
-        lastActivity: activityDates.at(-1) ?? sphere.updatedAt
+        nextTask
       };
     });
-  }, [rootSpheres, projects, tasks, notes]);
+  }, [rootSpheres, projects, tasks]);
+
   const visibleNotes = useMemo(() => {
     if (noteView === "ideas") return notes.filter((note) => note.kind === "idea");
     if (noteView === "diary") return notes.filter((note) => note.kind === "diary");
