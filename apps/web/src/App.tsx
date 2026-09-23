@@ -61,10 +61,10 @@ import {
   readAttachments,
   removeAttachmentLink
 } from "./attachments-model";
-import { CalendarMiniMonth } from "./calendar/CalendarMiniMonth";
 import { DesktopCalendar } from "./calendar/DesktopCalendar";
 import { RelationsGraph } from "./RelationsGraph";
 import { HomeDashboard } from "./HomeDashboard";
+import { DesktopSidebar, MobileNavigation, type AppSection } from "./AppNavigation";
 import { AppIcon } from "./ui/AppIcon";
 import { MoonCalendar } from "./MoonCalendar";
 import { getMoonDayData } from "./moon-engine";
@@ -88,7 +88,6 @@ const filterLabels: Record<Filter, string> = {
   done: "Выполнено"
 };
 
-type Section = "home" | "projects" | "tasks" | "notes" | "photos" | "calendar" | "relations";
 type TaskView = Filter | "week";
 type NoteView = "all" | "ideas" | "diary" | "collections" | "lists" | "favorites";
 type ProjectTab = "overview" | "tasks" | "notes" | "photos" | "goals" | "history";
@@ -214,7 +213,7 @@ export function App() {
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [moonCalendarOpen, setMoonCalendarOpen] = useState(false);
-  const [mobileSection, setMobileSection] = useState<Section>("home");
+  const [mobileSection, setMobileSection] = useState<AppSection>("home");
   const [projects, setProjects] = useState<ProjectNode[]>(() => readProjects());
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [projectCreateOpen, setProjectCreateOpen] = useState(false);
@@ -1581,45 +1580,23 @@ export function App() {
 
   return (
     <div className={`app-shell section-${mobileSection} ${selected ? "has-detail" : ""}`}>
-      <aside className="sidebar" aria-label="Навигация СФЕРА">
-        <button className="brand brand-button" onClick={() => setMobileSection("home")} aria-label="Главная СФЕРА">
-          <span className="brand-emblem"><img className="brand-logo" src="/sfera/sfera-emblem.png?v=20260921" alt="" /></span>
-          <span className="brand-name">СФЕРА</span>
-        </button>
-
-        <nav className="side-nav">
-          <button className={mobileSection === "home" ? "active" : ""} onClick={() => setMobileSection("home")}><span><AppIcon name="home" /></span>Сегодня</button>
-          <button className={mobileSection === "tasks" ? "active" : ""} onClick={() => setMobileSection("tasks")}><span><AppIcon name="check" /></span>Задачи</button>
-          <button className={mobileSection === "projects" ? "active" : ""} onClick={() => setMobileSection("projects")}><span><AppIcon name="orbit" /></span>Сферы</button>
-          <button className={mobileSection === "notes" ? "active" : ""} onClick={() => setMobileSection("notes")}><span><AppIcon name="note" /></span>Заметки</button>
-
-          <span className="side-nav-label">Ещё</span>
-          <div className={`calendar-nav-group ${mobileSection === "calendar" ? "open" : ""}`}>
-            <button className={mobileSection === "calendar" ? "active" : ""} onClick={() => openCalendar("month")}><span><AppIcon name="calendar" /></span>Календарь</button>
-            {mobileSection === "calendar" && (
-              <CalendarMiniMonth
-                title={calendarTitle}
-                cells={calendarCells}
-                rangeStart={calendarRangeStart}
-                rangeEnd={calendarRangeEnd}
-                pickingEnd={calendarPickingEnd}
-                dayCount={desktopCalendarDayCount}
-                todayIso={isoToday()}
-                onPreviousMonth={() => setMonthOffset(-1)}
-                onNextMonth={() => setMonthOffset(1)}
-                onSelectDay={selectMiniCalendarDay}
-                onSetDays={(days) => setDesktopCalendarPeriod(calendarRangeStart, days)}
-              />
-            )}
-          </div>
-          <button className={mobileSection === "photos" ? "active" : ""} onClick={() => setMobileSection("photos")}><span><AppIcon name="image" /></span>Фото</button>
-          <button className={mobileSection === "relations" ? "active" : ""} onClick={() => setMobileSection("relations")}><span><AppIcon name="link" /></span>Связи</button>
-        </nav>
-
-        <div className="sidebar-bottom">
-          <button className="ghost-button" onClick={() => setSettingsOpen(true)}><AppIcon name="settings" /> Настройки</button>
-        </div>
-      </aside>
+      <DesktopSidebar
+        section={mobileSection}
+        calendarTitle={calendarTitle}
+        calendarCells={calendarCells}
+        rangeStart={calendarRangeStart}
+        rangeEnd={calendarRangeEnd}
+        pickingEnd={calendarPickingEnd}
+        dayCount={desktopCalendarDayCount}
+        todayIso={isoToday()}
+        onSection={setMobileSection}
+        onOpenCalendar={() => openCalendar("month")}
+        onPreviousMonth={() => setMonthOffset(-1)}
+        onNextMonth={() => setMonthOffset(1)}
+        onSelectDay={selectMiniCalendarDay}
+        onSetDays={(days) => setDesktopCalendarPeriod(calendarRangeStart, days)}
+        onSettings={() => setSettingsOpen(true)}
+      />
 
       <main className={`tasks-page section-${mobileSection}`}>
         <header className="desktop-topbar">
@@ -2322,32 +2299,16 @@ export function App() {
           )}
         </section>
 
-        <nav className="bottom-nav mobile-tabbar" aria-label="Основная навигация">
-          <button className={mobileSection === "home" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("home"); setSettingsOpen(false); }}><span><AppIcon name="home" /></span>Сегодня</button>
-          <button className={mobileSection === "tasks" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("tasks"); setSettingsOpen(false); }}><span><AppIcon name="check" /></span>Задачи</button>
-          <button className="mobile-add-nav" aria-label="Добавить" onClick={() => setQuickMenuOpen(true)}><span><AppIcon name="plus" /></span>Добавить</button>
-          <button className={mobileSection === "projects" && !settingsOpen ? "active" : ""} onClick={() => { setMobileSection("projects"); setSettingsOpen(false); }}><span><AppIcon name="orbit" /></span>Сферы</button>
-          <button
-            className={["notes","photos","calendar","relations"].includes(mobileSection) || settingsOpen ? "active" : ""}
-            onClick={() => setMobileMoreOpen(true)}
-          ><span><AppIcon name="more" /></span>Ещё</button>
-        </nav>
-
-        {mobileMoreOpen && (
-          <div className="mobile-quick-backdrop" onClick={() => setMobileMoreOpen(false)}>
-            <div className="mobile-quick-sheet mobile-more-sheet" onClick={(event) => event.stopPropagation()}>
-              <div className="mobile-sheet-handle" />
-              <div className="mobile-quick-head"><strong>Ещё</strong><button onClick={() => setMobileMoreOpen(false)}>Закрыть</button></div>
-              <div className="mobile-more-grid">
-                <button onClick={() => { setMobileMoreOpen(false); setSettingsOpen(false); setMobileSection("notes"); }}><AppIcon name="note" /><span><strong>Заметки</strong><small>Записи и идеи</small></span></button>
-                <button onClick={() => { setMobileMoreOpen(false); setSettingsOpen(false); openCalendar("month"); }}><AppIcon name="calendar" /><span><strong>Календарь</strong><small>Даты и история</small></span></button>
-                <button onClick={() => { setMobileMoreOpen(false); setSettingsOpen(false); setMobileSection("photos"); }}><AppIcon name="image" /><span><strong>Фото</strong><small>Изображения и файлы</small></span></button>
-                <button onClick={() => { setMobileMoreOpen(false); setSettingsOpen(false); setMobileSection("relations"); }}><AppIcon name="link" /><span><strong>Связи</strong><small>Карта объектов</small></span></button>
-                <button onClick={() => { setMobileMoreOpen(false); setSettingsOpen(true); }}><AppIcon name="settings" /><span><strong>Настройки</strong><small>Профиль и приложение</small></span></button>
-              </div>
-            </div>
-          </div>
-        )}
+        <MobileNavigation
+          section={mobileSection}
+          settingsOpen={settingsOpen}
+          moreOpen={mobileMoreOpen}
+          onSection={(section) => { setMobileSection(section); setSettingsOpen(false); }}
+          onAdd={() => setQuickMenuOpen(true)}
+          onMoreOpenChange={setMobileMoreOpen}
+          onOpenCalendar={() => { setSettingsOpen(false); openCalendar("month"); }}
+          onSettings={() => setSettingsOpen(true)}
+        />
 
         {quickMenuOpen && (
           <div className="mobile-quick-backdrop" onClick={() => setQuickMenuOpen(false)}>
