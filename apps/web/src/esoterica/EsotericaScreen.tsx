@@ -4,6 +4,8 @@ import {
   getMoonCalendarSnapshot,
   getMoonSnapshot,
   getPlanetSnapshots,
+  getRussianLunarDay,
+  ObserverLocation,
   phaseTraditionText
 } from "./astro-engine";
 
@@ -59,15 +61,89 @@ function sameDay(a: Date, b: Date) {
     && a.getDate() === b.getDate();
 }
 
+const OBSERVER_STORAGE_KEY = "sfera.esoterica.observer";
+
+function readObserverLocation(): ObserverLocation | null {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(OBSERVER_STORAGE_KEY) ?? "null") as ObserverLocation | null;
+    if (!parsed) return null;
+    if (!Number.isFinite(parsed.latitude) || !Number.isFinite(parsed.longitude)) return null;
+    if (parsed.latitude < -90 || parsed.latitude > 90 || parsed.longitude < -180 || parsed.longitude > 180) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function storeObserverLocation(location: ObserverLocation) {
+  try {
+    localStorage.setItem(OBSERVER_STORAGE_KEY, JSON.stringify(location));
+  } catch {}
+}
+
+function formatCoordinate(value: number, positive: string, negative: string) {
+  return `${Math.abs(value).toFixed(3)}° ${value >= 0 ? positive : negative}`;
+}
+
 export function EsotericaScreen({ active, onBack }: Props) {
   const [tab, setTab] = useState<Tab>("today");
   const [selectedDate, setSelectedDate] = useState(() => new Date());
   const [monthCursor, setMonthCursor] = useState(() => new Date());
+  const [observerLocation, setObserverLocation] = useState<ObserverLocation | null>(() => readObserverLocation());
+  const [latitudeDraft, setLatitudeDraft] = useState(() => {
+    const saved = readObserverLocation();
+    return saved ? String(saved.latitude) : "";
+  });
+  const [longitudeDraft, setLongitudeDraft] = useState(() => {
+    const saved = readObserverLocation();
+    return saved ? String(saved.longitude) : "";
+  });
+  const [locationStatus, setLocationStatus] = useState("");
 
   const moon = useMemo(() => getMoonSnapshot(selectedDate), [selectedDate]);
   const planets = useMemo(() => getPlanetSnapshots(selectedDate), [selectedDate]);
   const phaseText = useMemo(() => phaseTraditionText(moon), [moon]);
   const cells = useMemo(() => monthCells(monthCursor), [monthCursor]);
+  const russianLunarDay = useMemo(
+    () => observerLocation ? getRussianLunarDay(selectedDate, observerLocation) : null,
+    [selectedDate, observerLocation]
+  );
+
+  const applyObserverLocation = (location: ObserverLocation) => {
+    setObserverLocation(location);
+    setLatitudeDraft(String(location.latitude));
+    setLongitudeDraft(String(location.longitude));
+    storeObserverLocation(location);
+    setLocationStatus("Место сохранено");
+  };
+
+  const saveManualLocation = () => {
+    const latitude = Number(latitudeDraft.replace(",", "."));
+    const longitude = Number(longitudeDraft.replace(",", "."));
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)
+      || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+      setLocationStatus("Проверь координаты: широта −90…90, долгота −180…180");
+      return;
+    }
+    applyObserverLocation({ latitude, longitude, label: "Сохранённое место" });
+  };
+
+  const detectObserverLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationStatus("Геолокация недоступна в этом браузере");
+      return;
+    }
+    setLocationStatus("Определяю местоположение…");
+    navigator.geolocation.getCurrentPosition(
+      (position) => applyObserverLocation({
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        label: "Моё местоположение"
+      }),
+      () => setLocationStatus("Не удалось получить координаты. Их можно ввести вручную."),
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 }
+    );
+  };
 
   return (
     <section className={`mobile-module-screen esoterica-screen ${active ? "active" : ""}`} aria-hidden={!active}>
@@ -151,10 +227,42 @@ export function EsotericaScreen({ active, onBack }: Props) {
           </article>
 
           <article className="esoterica-card esoterica-caution-card">
-            <div className="esoterica-card-label">Русскоязычные «лунные сутки»</div>
-            <h3>Не подменяем расчёт</h3>
-            <p>В русскоязычной школе лунной астрологии П. Глобы сутки привязаны к новолунию и местным восходам Луны. Без выбранного места наблюдения модуль не показывает фиктивный номер суток.</p>
-            <small>Позже добавим место наблюдения и корректный расчёт восходов Луны.</small>
+            <div className="esoterica-card-label">Школа П. Глобы · лунные сутки</div>
+            {russianLunarDay ? (
+              <>
+                <h3>{russianLunarDay.number}-й лунный день</h3>
+                <p>
+                  Для сохранённых координат: {formatCoordinate(observerLocation!.latitude, "с.ш.", "ю.ш.")} · {formatCoordinate(observerLocation!.longitude, "в.д.", "з.д.")}.
+                </p>
+                <div className="esoterica-lunar-day-times">
+                  <div><span>Начало</span><strong>{formatDate(russianLunarDay.start, true)}</strong></div>
+                  <div><span>Конец</span><strong>{formatDate(russianLunarDay.end, true)}</strong></div>
+                </div>
+                <small>В этой школе 1-й день начинается в момент новолуния, а следующие границы определяются местными восходами Луны.</small>
+              </>
+            ) : (
+              <>
+                <h3>Нужно место наблюдения</h3>
+                <p>В этой системе номер лунного дня зависит от местного восхода Луны. Поэтому без координат модуль намеренно не показывает приблизительное значение.</p>
+              </>
+            )}
+            <div className="esoterica-location-controls">
+              <div className="esoterica-coordinate-fields">
+                <label>
+                  <span>Широта</span>
+                  <input inputMode="decimal" value={latitudeDraft} onChange={(event) => setLatitudeDraft(event.target.value)} placeholder="55.7558" />
+                </label>
+                <label>
+                  <span>Долгота</span>
+                  <input inputMode="decimal" value={longitudeDraft} onChange={(event) => setLongitudeDraft(event.target.value)} placeholder="37.6173" />
+                </label>
+              </div>
+              <div className="esoterica-location-actions">
+                <button type="button" onClick={saveManualLocation}>Сохранить координаты</button>
+                <button type="button" onClick={detectObserverLocation}>Определить автоматически</button>
+              </div>
+              {locationStatus && <span className="esoterica-location-status">{locationStatus}</span>}
+            </div>
           </article>
         </div>
       )}
