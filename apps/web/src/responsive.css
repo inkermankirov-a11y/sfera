@@ -522,8 +522,574 @@
   .projects-screen .sphere-root-tile small { font-size: .64rem !important; }
 }
 
+/* UI cleanup v5 — one hierarchy, fewer cards, readable secondary text. */
+.side-nav-label {
+  display: block;
+  margin: 18px 12px 6px;
+  color: #a0a8a4;
+  font-size: .68rem;
+  font-weight: 760;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
 
-/* Lunar calendar module */
+.dashboard-hero {
+  min-height: 118px !important;
+  padding: 22px 24px !important;
+  border-radius: 20px !important;
+}
+
+.dashboard-hero h1 {
+  max-width: 720px;
+  margin-top: 7px !important;
+  font-size: clamp(1.7rem, 2.7vw, 2.35rem) !important;
+  line-height: 1.08 !important;
+}
+
+.dashboard-hero-actions {
+  gap: 8px !important;
+}
+
+.dashboard-hero-actions button {
+  min-height: 42px !important;
+  padding-inline: 14px !important;
+  border-radius: 12px !important;
+  font-size: .78rem !important;
+}
+
+.dashboard-focus.dashboard-focus-primary {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  margin: 14px 0 16px !important;
+  padding: 15px 17px !important;
+  overflow: hidden;
+  border: 1px solid #cadbd5 !important;
+  border-radius: 17px !important;
+  background: linear-gradient(135deg, #f7fbf9 0%, #eef5f2 100%) !important;
+  box-shadow: none !important;
+}
+
+.dashboard-focus-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--s4-accent);
+}
+
+.dashboard-focus-primary label {
+  min-width: 112px;
+}
+
+.dashboard-focus-primary label span {
+  color: var(--s4-accent-dark);
+}
+
+.dashboard-focus-primary input {
+  min-width: 0;
+  height: 42px !important;
+  padding: 0 13px !important;
+  border: 1px solid #d9e5e0 !important;
+  border-radius: 11px !important;
+  background: rgba(255,255,255,.88) !important;
+  font-size: .9rem !important;
+}
+
+.dashboard-focus-primary small {
+  min-width: 132px;
+  color: #75817c !important;
+  font-size: .75rem !important;
+  text-align: right;
+}
+
+.dashboard-priority-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(270px, 320px);
+  gap: 14px;
+  align-items: start;
+}
+
+.dashboard-priority-layout .dashboard-today {
+  min-width: 0;
+  margin: 0 !important;
+}
+
+.dashboard-card.dashboard-today {
+  padding: 18px !important;
+  border: 1px solid var(--s4-line) !important;
+  border-radius: 18px !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+
+.dashboard-card-head {
+  align-items: center !important;
+}
+
+.dashboard-card-head h2,
+.dashboard-section-head h2 {
+  font-size: 1.08rem !important;
+}
+
+.dashboard-progress-copy,
+.dashboard-count-link,
+.dashboard-task-time,
+.dashboard-project-pill {
+  font-size: .75rem !important;
+}
+
+.dashboard-task-row {
+  min-height: 50px !important;
+}
+
+.dashboard-task-main strong {
+  font-size: .86rem !important;
+}
+
+.dashboard-task-main small {
+  font-size: .72rem !important;
+}
+
+.dashboard-empty-quiet {
+  min-height: 112px;
+  align-items: center;
+}
+
+.dashboard-empty-quiet > span {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #eef5f2;
+  color: var(--s4-accent);
+}
+
+.dashboard-empty-quiet small {
+  font-size: .75rem !important;
+}
+
+.dashboard-brief {
+  display: grid;
+  gap: 9px;
+}
+
+.dashboard-brief-row {
+  width: 100%;
+  min-height: 72px;
+  display: grid;
+  grid-template-columns: 38px minmax(0,1fr) 18px;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 13px;
+  border: 1px solid var(--s4-line);
+  border-radius: 15px;
+  background: #fff;
+  color: var(--s4-ink);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.dashboard-brief-row:hover {
+  border-color: #d4ddd8;
+  background: #fbfcfb;
+}
+
+.dashboard-brief-row.has-alert {
+  border-color: #ecd1cd;
+  background: #fffafa;
+}
+
+.dashboard-brief-icon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: #f0f3f1;
+  color: #66736d;
+}
+
+.dashboard-brief-row.has-alert .dashboard-brief-icon {
+  background: #f8e9e6;
+  color: #a44d45;
+}
+
+.dashboard-brief-row > span:nth-child(2) {
+  min-width: 0;
+}
+
+.dashboard-brief-row small,
+.dashboard-brief-row strong,
+.dashboard-brief-row em {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-brief-row small {
+  color: #8b9490;
+  font-size: .72rem;
+}
+
+.dashboard-brief-row strong {
+  margin-top: 2px;
+  color: #35423d;
+  font-size: .83rem;
+  font-weight: 680;
+}
+
+.dashboard-brief-row em {
+  margin-top: 2px;
+  color: #7e8883;
+  font-size: .72rem;
+  font-style: normal;
+}
+
+.dashboard-spheres-section {
+  margin-top: 20px !important;
+}
+
+.dashboard-section-kicker {
+  display: block;
+  margin-bottom: 3px;
+  color: #98a19d;
+  font-size: .68rem;
+  font-weight: 760;
+  letter-spacing: .11em;
+}
+
+.sphere-card-grid.sphere-card-grid-clean {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.section-home .sphere-card.sphere-card-clean {
+  min-height: 106px !important;
+  display: grid !important;
+  grid-template-columns: 40px minmax(0,1fr) 18px !important;
+  align-items: center !important;
+  gap: 11px !important;
+  padding: 14px !important;
+  overflow: hidden !important;
+  border: 1px solid var(--sphere-border, #dce6e1) !important;
+  border-radius: 16px !important;
+  background: var(--sphere-bg, #f3f7f5) !important;
+  color: #2e3a35 !important;
+  box-shadow: none !important;
+  text-align: left !important;
+}
+
+.section-home .sphere-card-clean::before,
+.section-home .sphere-card-clean::after {
+  display: none !important;
+}
+
+.section-home .sphere-card-clean .sphere-symbol {
+  width: 38px !important;
+  height: 38px !important;
+  display: grid !important;
+  place-items: center !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: rgba(255,255,255,.66) !important;
+  color: var(--sphere-accent, #356f68) !important;
+}
+
+.section-home .sphere-card-clean .sphere-info {
+  min-width: 0;
+  display: grid !important;
+  gap: 3px !important;
+}
+
+.section-home .sphere-card-clean .sphere-info strong {
+  color: #2d3934 !important;
+  font-size: .95rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+
+.section-home .sphere-card-clean .sphere-card-meta {
+  color: #69756f !important;
+  font-size: .74rem !important;
+}
+
+.section-home .sphere-card-clean .sphere-next-task {
+  display: -webkit-box !important;
+  overflow: hidden !important;
+  color: #7b8680 !important;
+  font-size: .72rem !important;
+  line-height: 1.3 !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 1 !important;
+}
+
+.section-home .sphere-card-clean > svg {
+  color: #87918c;
+}
+
+.section-home .sphere-tone-0 { --sphere-bg: #edf6f4; --sphere-border: #d2e6e1; --sphere-accent: #36786f; }
+.section-home .sphere-tone-1 { --sphere-bg: #f0f6ed; --sphere-border: #d9e7d2; --sphere-accent: #5f7d53; }
+.section-home .sphere-tone-2 { --sphere-bg: #f4f1f8; --sphere-border: #e1d8eb; --sphere-accent: #725f89; }
+.section-home .sphere-tone-3 { --sphere-bg: #fbf1ef; --sphere-border: #efd9d4; --sphere-accent: #986258; }
+.section-home .sphere-tone-4 { --sphere-bg: #f8f4e9; --sphere-border: #e8dfc6; --sphere-accent: #8a743e; }
+.section-home .sphere-tone-5 { --sphere-bg: #eef4f8; --sphere-border: #d5e2ea; --sphere-accent: #52758a; }
+
+.section-home .sphere-card-clean.sphere-create {
+  --sphere-bg: #fafbfa;
+  --sphere-border: #dfe5e1;
+  --sphere-accent: #65726c;
+  border-style: dashed !important;
+}
+
+.install-app-link.install-app-link-quiet {
+  margin-top: 18px !important;
+  border-color: #e2e7e3 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.install-app-link-quiet small {
+  font-size: .74rem !important;
+}
+
+.side-nav-label + .calendar-nav-group {
+  margin-top: 0;
+}
+
+.mobile-more-grid {
+  display: grid;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.mobile-more-grid > button {
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: 34px minmax(0,1fr);
+  align-items: center;
+  gap: 11px;
+  padding: 9px 10px;
+  border: 1px solid #e3e8e4;
+  border-radius: 13px;
+  background: #fbfcfb;
+  color: #3f4d47;
+  text-align: left;
+}
+
+.mobile-more-grid > button > svg {
+  justify-self: center;
+  color: #68756f;
+}
+
+.mobile-more-grid strong,
+.mobile-more-grid small {
+  display: block;
+}
+
+.mobile-more-grid strong {
+  font-size: .83rem;
+}
+
+.mobile-more-grid small {
+  margin-top: 2px;
+  color: #818b86;
+  font-size: .72rem;
+}
+
+.task-row small,
+.note-card small,
+.project-tile small,
+.module-empty-card span,
+.relations-page-card small {
+  font-size: .72rem !important;
+}
+
+@media (min-width: 721px) and (max-width: 1040px) {
+  .side-nav-label {
+    display: none;
+  }
+
+  .dashboard-priority-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-brief {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+
+  .sphere-card-grid.sphere-card-grid-clean {
+    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .section-home .home-dashboard.active {
+    padding-top: 0 !important;
+  }
+
+  .section-home .dashboard-hero {
+    margin-bottom: 12px !important;
+    padding: 8px 0 0 !important;
+  }
+
+  .section-home .dashboard-wordmark {
+    margin-bottom: 5px !important;
+    font-size: .64rem !important;
+  }
+
+  .section-home .dashboard-date {
+    gap: 4px !important;
+    font-size: .75rem !important;
+  }
+
+  .section-home .dashboard-hero h1 {
+    max-width: 330px;
+    margin-top: 7px !important;
+    font-size: 1.4rem !important;
+    line-height: 1.13 !important;
+  }
+
+  .section-home .dashboard-hero-actions {
+    margin-top: 12px !important;
+  }
+
+  .section-home .dashboard-hero-actions button {
+    min-height: 39px !important;
+    padding: 0 11px !important;
+    font-size: .75rem !important;
+  }
+
+  .section-home .dashboard-focus.dashboard-focus-primary {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    margin: 10px 0 12px !important;
+    padding: 13px 13px 13px 16px !important;
+    border: 1px solid #cadbd5 !important;
+    border-radius: 15px !important;
+    background: linear-gradient(135deg, #f7fbf9 0%, #eef5f2 100%) !important;
+  }
+
+  .section-home .dashboard-focus-primary label {
+    min-width: 0;
+  }
+
+  .section-home .dashboard-focus-primary input {
+    width: 100% !important;
+    height: 42px !important;
+    font-size: .88rem !important;
+  }
+
+  .section-home .dashboard-focus-primary small {
+    min-width: 0;
+    text-align: left;
+    font-size: .72rem !important;
+  }
+
+  .dashboard-priority-layout {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .section-home .dashboard-card.dashboard-today {
+    padding: 14px !important;
+    border: 1px solid var(--s4-line) !important;
+    border-radius: 16px !important;
+    background: #fff !important;
+  }
+
+  .dashboard-brief {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 8px;
+  }
+
+  .dashboard-brief-row {
+    min-height: 74px;
+    grid-template-columns: 32px minmax(0,1fr);
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .dashboard-brief-row > svg:last-child {
+    display: none;
+  }
+
+  .dashboard-brief-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+  }
+
+  .dashboard-spheres-section {
+    margin-top: 16px !important;
+  }
+
+  .sphere-card-grid.sphere-card-grid-clean {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .section-home .sphere-card.sphere-card-clean {
+    min-height: 122px !important;
+    grid-template-columns: 34px minmax(0,1fr) !important;
+    grid-template-rows: auto 1fr !important;
+    align-content: start !important;
+    gap: 8px !important;
+    padding: 12px !important;
+    border-radius: 15px !important;
+  }
+
+  .section-home .sphere-card-clean .sphere-symbol {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 10px !important;
+  }
+
+  .section-home .sphere-card-clean .sphere-info {
+    grid-column: 1 / -1;
+    gap: 4px !important;
+  }
+
+  .section-home .sphere-card-clean .sphere-info strong {
+    font-size: .9rem !important;
+  }
+
+  .section-home .sphere-card-clean > svg {
+    display: none;
+  }
+
+  .mobile-more-sheet {
+    max-height: 76dvh;
+  }
+}
+
+@media (max-width: 370px) {
+  .dashboard-brief {
+    grid-template-columns: 1fr;
+  }
+
+  .sphere-card-grid.sphere-card-grid-clean {
+    grid-template-columns: 1fr !important;
+  }
+
+  .section-home .sphere-card.sphere-card-clean {
+    min-height: 96px !important;
+    grid-template-columns: 36px minmax(0,1fr) !important;
+  }
+
+  .section-home .sphere-card-clean .sphere-info {
+    grid-column: auto;
+  }
+}
+
+/* Lunar calendar module — compact and factual. */
 .dashboard-moon-phase {
   appearance: none;
   display: inline-flex;
@@ -537,19 +1103,14 @@
   color: inherit;
   font: inherit;
   cursor: pointer;
-  transition: background .18s ease, color .18s ease, transform .18s ease;
 }
 
 .dashboard-moon-phase:hover {
-  background: rgba(255,255,255,.52);
-}
-
-.dashboard-moon-phase:active {
-  transform: translateY(1px);
+  background: rgba(255,255,255,.55);
 }
 
 .dashboard-moon-phase:focus-visible {
-  outline: 2px solid rgba(91,119,105,.45);
+  outline: 2px solid rgba(91,119,105,.42);
   outline-offset: 2px;
 }
 
@@ -559,20 +1120,20 @@
   inset: 0;
   display: grid;
   place-items: center;
-  padding: 24px;
-  background: rgba(21,27,25,.42);
-  backdrop-filter: blur(12px);
+  padding: 20px;
+  background: rgba(21,27,25,.4);
+  backdrop-filter: blur(10px);
 }
 
 .moon-calendar-dialog {
-  width: min(1040px, 100%);
-  max-height: min(860px, calc(100dvh - 48px));
+  width: min(900px, 100%);
+  max-height: min(760px, calc(100dvh - 40px));
   overflow: auto;
-  border: 1px solid rgba(255,255,255,.72);
-  border-radius: 28px;
+  border: 1px solid rgba(255,255,255,.74);
+  border-radius: 24px;
   background: #f7f8f6;
   color: #25312d;
-  box-shadow: 0 28px 90px rgba(18,25,22,.22);
+  box-shadow: 0 24px 72px rgba(18,25,22,.2);
 }
 
 .moon-calendar-header {
@@ -582,43 +1143,40 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  padding: 22px 24px 16px;
+  gap: 18px;
+  padding: 17px 20px 13px;
   border-bottom: 1px solid #e4e8e4;
-  background: rgba(247,248,246,.94);
-  backdrop-filter: blur(18px);
+  background: rgba(247,248,246,.95);
+  backdrop-filter: blur(16px);
 }
 
 .moon-calendar-kicker {
   display: block;
-  margin-bottom: 4px;
-  color: #7c8782;
-  font-size: .65rem;
+  margin-bottom: 3px;
+  color: #818b86;
+  font-size: .7rem;
   font-weight: 760;
-  letter-spacing: .12em;
+  letter-spacing: .1em;
 }
 
 .moon-calendar-header h2 {
   margin: 0;
-  color: #25312d;
-  font-size: 1.45rem;
-  font-weight: 730;
-  letter-spacing: -.035em;
+  font-size: 1.25rem;
+  font-weight: 720;
+  letter-spacing: -.03em;
 }
 
 .moon-calendar-close {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   display: grid;
   place-items: center;
-  flex: 0 0 auto;
   padding: 0;
   border: 1px solid #e0e5e1;
   border-radius: 50%;
   background: #fff;
   color: #5e6964;
-  font-size: 1.55rem;
-  font-weight: 350;
+  font-size: 1.35rem;
   line-height: 1;
   cursor: pointer;
 }
@@ -627,110 +1185,108 @@
   display: grid;
   grid-template-columns: auto minmax(0,1fr) auto;
   align-items: center;
-  gap: 18px;
-  margin: 18px 24px 0;
-  padding: 18px 20px;
+  gap: 14px;
+  margin: 14px 18px 0;
+  padding: 14px 16px;
   border: 1px solid #e2e7e3;
-  border-radius: 20px;
-  background: linear-gradient(135deg, #ffffff 0%, #f1f4f1 100%);
+  border-radius: 17px;
+  background: #fff;
+}
+
+.moon-calendar-summary.is-full-moon {
+  border-color: #d94b4b;
 }
 
 .moon-calendar-orb {
-  width: 70px;
-  height: 70px;
+  width: 56px;
+  height: 56px;
   display: grid;
   place-items: center;
   border-radius: 50%;
   background: #202927;
-  font-size: 2.5rem;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.09), 0 8px 22px rgba(22,30,27,.12);
+  font-size: 2rem;
 }
 
-.moon-calendar-summary-copy > span {
-  color: #77817d;
-  font-size: .76rem;
-  font-weight: 600;
+.moon-calendar-summary-copy > span,
+.moon-calendar-summary-copy p {
+  color: #74807a;
+  font-size: .75rem;
 }
 
 .moon-calendar-summary-copy h3 {
-  margin: 3px 0 2px;
-  color: #25312d;
-  font-size: 1.35rem;
-  font-weight: 720;
-  letter-spacing: -.03em;
+  margin: 2px 0;
+  font-size: 1.12rem;
+  font-weight: 710;
 }
 
 .moon-calendar-summary-copy p {
   margin: 0;
-  color: #69736f;
-  font-size: .84rem;
 }
 
-.moon-calendar-zodiac {
-  min-width: 180px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
+.moon-calendar-event {
+  min-width: 175px;
+  padding: 9px 11px;
   border: 1px solid #e3e7e4;
-  border-radius: 15px;
-  background: rgba(255,255,255,.74);
+  border-radius: 13px;
+  background: #f8faf8;
 }
 
-.moon-calendar-zodiac > span {
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  background: #edf1ed;
-  color: #485953;
-  font-size: 1.25rem;
-}
-
-.moon-calendar-zodiac small {
+.moon-calendar-event span,
+.moon-calendar-event strong {
   display: block;
-  color: #88918d;
-  font-size: .65rem;
 }
 
-.moon-calendar-zodiac strong {
-  display: block;
-  margin-top: 1px;
-  color: #2f3b37;
-  font-size: .88rem;
+.moon-calendar-event span {
+  color: #89938e;
+  font-size: .7rem;
+  font-weight: 680;
+}
+
+.moon-calendar-event strong {
+  margin-top: 2px;
+  color: #3d4a45;
+  font-size: .77rem;
+}
+
+.moon-calendar-event.full-moon-event {
+  border-color: #e4b5b1;
+  background: #fffafa;
 }
 
 .moon-calendar-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
-  gap: 16px;
-  padding: 16px 24px 24px;
+  grid-template-columns: minmax(0,1.2fr) minmax(260px,.8fr);
+  align-items: start;
+  gap: 12px;
+  padding: 12px 18px 18px;
 }
 
 .moon-month-card,
 .moon-day-card {
   border: 1px solid #e2e7e3;
-  border-radius: 20px;
+  border-radius: 17px;
   background: #fff;
 }
 
 .moon-month-card {
-  padding: 16px;
+  padding: 13px;
+}
+
+.moon-day-card {
+  overflow: hidden;
 }
 
 .moon-month-nav {
   display: grid;
-  grid-template-columns: 38px minmax(0,1fr) 38px;
+  grid-template-columns: 34px minmax(0,1fr) 34px;
   align-items: center;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .moon-month-nav strong {
   text-align: center;
-  color: #2d3935;
-  font-size: .94rem;
+  font-size: .87rem;
   font-weight: 690;
   text-transform: capitalize;
 }
@@ -744,16 +1300,16 @@
 }
 
 .moon-month-nav button {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  font-size: 1.35rem;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  font-size: 1.2rem;
 }
 
 .moon-weekdays,
 .moon-month-grid {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0,1fr));
 }
 
 .moon-weekdays {
@@ -762,34 +1318,32 @@
 }
 
 .moon-weekdays span {
-  padding: 5px 0;
-  color: #9aa29f;
-  font-size: .62rem;
-  font-weight: 700;
+  padding: 4px 0;
+  color: #929c97;
+  font-size: .7rem;
+  font-weight: 680;
   text-align: center;
-  text-transform: uppercase;
 }
 
 .moon-month-grid {
-  gap: 5px;
+  gap: 4px;
 }
 
 .moon-day {
   position: relative;
   min-width: 0;
-  min-height: 64px;
+  min-height: 55px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  padding: 5px 2px;
+  gap: 2px;
+  padding: 4px 2px;
   border: 1px solid transparent;
-  border-radius: 13px;
+  border-radius: 11px;
   background: #f8faf8;
   color: #44514d;
   cursor: pointer;
-  transition: border-color .15s ease, background .15s ease, transform .15s ease;
 }
 
 .moon-day:hover {
@@ -803,20 +1357,20 @@
 }
 
 .moon-day > b {
-  font-size: 1.18rem;
+  font-size: 1.05rem;
   font-weight: 400;
   line-height: 1;
 }
 
 .moon-day.outside {
-  opacity: .36;
+  opacity: .34;
 }
 
 .moon-day.today::after {
   content: "";
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 5px;
+  right: 5px;
   width: 5px;
   height: 5px;
   border-radius: 50%;
@@ -824,140 +1378,73 @@
 }
 
 .moon-day.selected {
-  border-color: #5f796d;
+  border-color: #60796e;
   background: #eaf0eb;
-  color: #203029;
-  box-shadow: inset 0 0 0 1px rgba(95,121,109,.14);
+}
+
+.moon-day.full-moon,
+.moon-day.full-moon.selected {
+  border: 2px solid #d94b4b;
 }
 
 .moon-today-button {
-  min-height: 36px;
-  margin-top: 10px;
-  padding: 0 13px;
-  border-radius: 11px;
+  min-height: 34px;
+  margin-top: 8px;
+  padding: 0 12px;
+  border-radius: 10px;
   font-size: .72rem;
   font-weight: 650;
 }
 
-.moon-day-card {
-  overflow: hidden;
-}
-
-.moon-fact-section,
-.moon-astro-section {
-  padding: 18px;
-}
-
 .moon-fact-section {
-  border-bottom: 1px solid #e8ece9;
+  padding: 15px;
 }
 
 .moon-section-label {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
 .moon-section-label span {
   color: #66726d;
-  font-size: .68rem;
+  font-size: .7rem;
   font-weight: 760;
-  letter-spacing: .08em;
+  letter-spacing: .07em;
   text-transform: uppercase;
 }
 
 .moon-section-label small {
-  color: #a0a8a4;
-  font-size: .61rem;
+  color: #98a19d;
+  font-size: .7rem;
   text-align: right;
 }
 
 .moon-facts {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0,1fr));
-  gap: 8px;
+  grid-template-columns: 1fr;
+  gap: 7px;
   margin: 0;
 }
 
 .moon-facts > div {
-  padding: 11px 12px;
-  border-radius: 13px;
+  padding: 10px 11px;
+  border-radius: 11px;
   background: #f6f8f6;
 }
 
 .moon-facts dt {
-  color: #8a938f;
-  font-size: .64rem;
+  color: #87918d;
+  font-size: .7rem;
 }
 
 .moon-facts dd {
-  margin: 3px 0 0;
+  margin: 2px 0 0;
   color: #33403b;
-  font-size: .84rem;
-  font-weight: 680;
-}
-
-.moon-astro-section h3 {
-  margin: 0 0 7px;
-  color: #2c3934;
-  font-size: 1.05rem;
-  font-weight: 720;
-  letter-spacing: -.025em;
-}
-
-.moon-astro-section > p {
-  margin: 0;
-  color: #68736e;
-  font-size: .77rem;
-  line-height: 1.52;
-}
-
-.moon-zodiac-note {
-  margin-top: 12px;
-  padding: 11px 12px;
-  border-radius: 13px;
-  background: #f2f4f6;
-  color: #5e6864;
-  font-size: .72rem;
-  line-height: 1.45;
-}
-
-.moon-guidance-columns {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0,1fr));
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.moon-guidance-columns > div {
-  min-width: 0;
-  padding: 11px 12px;
-  border: 1px solid #e6eae7;
-  border-radius: 13px;
-}
-
-.moon-guidance-columns strong {
-  display: block;
-  margin-bottom: 7px;
-  color: #45524d;
-  font-size: .69rem;
-}
-
-.moon-guidance-columns span {
-  display: block;
-  margin-top: 4px;
-  color: #707a76;
-  font-size: .68rem;
-  line-height: 1.35;
-}
-
-.moon-calendar-footer {
-  padding: 0 24px 20px;
-  color: #929b97;
-  font-size: .63rem;
-  line-height: 1.45;
+  font-size: .78rem;
+  font-weight: 670;
 }
 
 @media (max-width: 760px) {
@@ -968,179 +1455,68 @@
     background: transparent !important;
     color: var(--s4-muted) !important;
     box-shadow: none !important;
-    font-size: .72rem !important;
+    font-size: .75rem !important;
   }
 
   .moon-calendar-backdrop {
     align-items: end;
     padding: 0;
-    background: rgba(21,27,25,.34);
   }
 
   .moon-calendar-dialog {
     width: 100%;
-    max-height: 94dvh;
+    max-height: 92dvh;
     border: 0;
-    border-radius: 24px 24px 0 0;
-    box-shadow: 0 -18px 60px rgba(18,25,22,.18);
+    border-radius: 22px 22px 0 0;
   }
 
   .moon-calendar-header {
-    padding: 15px 16px 12px;
-  }
-
-  .moon-calendar-header h2 {
-    font-size: 1.2rem;
-  }
-
-  .moon-calendar-close {
-    width: 36px;
-    height: 36px;
+    padding: 14px 15px 11px;
   }
 
   .moon-calendar-summary {
     grid-template-columns: auto minmax(0,1fr);
-    gap: 12px;
-    margin: 12px 14px 0;
-    padding: 14px;
+    gap: 11px;
+    margin: 10px 12px 0;
+    padding: 12px;
   }
 
   .moon-calendar-orb {
-    width: 58px;
-    height: 58px;
-    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    font-size: 1.8rem;
   }
 
-  .moon-calendar-summary-copy h3 {
-    font-size: 1.05rem;
-  }
-
-  .moon-calendar-summary-copy p {
-    font-size: .72rem;
-  }
-
-  .moon-calendar-zodiac {
+  .moon-calendar-event {
     grid-column: 1 / -1;
     min-width: 0;
-    padding: 8px 10px;
   }
 
   .moon-calendar-layout {
     grid-template-columns: 1fr;
-    gap: 10px;
-    padding: 10px 14px 18px;
+    gap: 9px;
+    padding: 9px 12px 14px;
   }
 
-  .moon-month-card,
   .moon-day-card {
-    border-radius: 17px;
-  }
-
-  .moon-month-card {
-    padding: 12px;
-  }
-
-  .moon-month-grid {
-    gap: 3px;
+    align-self: start;
   }
 
   .moon-day {
-    min-height: 52px;
-    border-radius: 10px;
+    min-height: 48px;
   }
 
-  .moon-day > span {
-    font-size: .66rem;
-  }
-
-  .moon-day > b {
-    font-size: 1rem;
-  }
-
-  .moon-fact-section,
-  .moon-astro-section {
-    padding: 14px;
-  }
-
-  .moon-calendar-footer {
-    padding: 0 16px calc(18px + env(safe-area-inset-bottom));
+  .moon-facts {
+    grid-template-columns: repeat(2,minmax(0,1fr));
   }
 }
 
 @media (max-width: 380px) {
   .moon-day {
-    min-height: 47px;
+    min-height: 44px;
   }
 
-  .moon-facts,
-  .moon-guidance-columns {
+  .moon-facts {
     grid-template-columns: 1fr;
-  }
-
-  .moon-section-label {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .moon-section-label small {
-    text-align: left;
-  }
-}
-
-/* Full moon emphasis */
-.moon-day.full-moon {
-  border: 2px solid #d94b4b;
-}
-
-.moon-day.full-moon.selected {
-  border-color: #d94b4b;
-}
-
-.moon-calendar-summary.is-full-moon {
-  border-color: #cdbb8e;
-  background: linear-gradient(135deg, #fffef9 0%, #f1e6c8 100%);
-  box-shadow: inset 0 0 0 1px rgba(138,116,76,.08);
-}
-
-.moon-calendar-event {
-  min-width: 190px;
-  padding: 10px 12px;
-  border: 1px solid #e3e7e4;
-  border-radius: 15px;
-  background: rgba(255,255,255,.74);
-}
-
-.moon-calendar-event span,
-.moon-calendar-event strong {
-  display: block;
-}
-
-.moon-calendar-event span {
-  color: #8b9490;
-  font-size: .62rem;
-  font-weight: 700;
-}
-
-.moon-calendar-event strong {
-  margin-top: 3px;
-  color: #3d4a45;
-  font-size: .79rem;
-}
-
-.moon-calendar-event.full-moon-event {
-  border-color: #cdbb8e;
-  background: #fffaf0;
-}
-
-.moon-calendar-event.full-moon-event span {
-  color: #7a6338;
-  letter-spacing: .08em;
-}
-
-@media (max-width: 760px) {
-  .moon-calendar-event {
-    grid-column: 1 / -1;
-    min-width: 0;
   }
 }
