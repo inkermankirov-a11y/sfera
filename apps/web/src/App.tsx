@@ -64,7 +64,8 @@ import {
 import { CalendarMiniMonth } from "./calendar/CalendarMiniMonth";
 import { DesktopCalendar } from "./calendar/DesktopCalendar";
 import { RelationsGraph } from "./RelationsGraph";
-import { MoonCalendar } from "./MoonCalendar";
+import { EsotericaScreen } from "./esoterica/EsotericaScreen";
+import { getMoonSnapshot } from "./esoterica/astro-engine";
 import {
   addDaysIso,
   calendarRangeLabel,
@@ -85,7 +86,7 @@ const filterLabels: Record<Filter, string> = {
   done: "Выполнено"
 };
 
-type Section = "home" | "projects" | "tasks" | "notes" | "photos" | "calendar" | "relations";
+type Section = "home" | "projects" | "tasks" | "notes" | "photos" | "calendar" | "relations" | "esoterica";
 type TaskView = Filter | "week";
 type NoteView = "all" | "ideas" | "diary" | "collections" | "lists" | "favorites";
 type ProjectTab = "overview" | "tasks" | "notes" | "photos" | "goals" | "history";
@@ -176,27 +177,6 @@ function russianPlural(count: number, one: string, few: string, many: string) {
   return many;
 }
 
-const moonPhases = [
-  { icon: "🌑", name: "Новолуние" },
-  { icon: "🌒", name: "Растущий серп" },
-  { icon: "🌓", name: "Первая четверть" },
-  { icon: "🌔", name: "Растущая Луна" },
-  { icon: "🌕", name: "Полнолуние" },
-  { icon: "🌖", name: "Убывающая Луна" },
-  { icon: "🌗", name: "Последняя четверть" },
-  { icon: "🌘", name: "Убывающий серп" }
-] as const;
-
-function moonPhaseFor(date: Date) {
-  const synodicMonth = 29.530588853;
-  const knownNewMoonUtc = Date.UTC(2000, 0, 6, 18, 14);
-  const localNoonUtc = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 12);
-  const daysSinceNewMoon = (localNoonUtc - knownNewMoonUtc) / 86_400_000;
-  const age = ((daysSinceNewMoon % synodicMonth) + synodicMonth) % synodicMonth;
-  const phaseIndex = Math.floor((age / synodicMonth) * 8 + 0.5) % 8;
-  return moonPhases[phaseIndex];
-}
-
 function recentActivityLabel(at: string) {
   const date = new Date(at);
   if (Number.isNaN(date.getTime())) return "недавно";
@@ -277,7 +257,6 @@ export function App() {
   const [mobileQuickOpen, setMobileQuickOpen] = useState(false);
   const [quickMenuOpen, setQuickMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [moonCalendarOpen, setMoonCalendarOpen] = useState(false);
   const [mobileSection, setMobileSection] = useState<Section>("home");
   const [projects, setProjects] = useState<ProjectNode[]>(() => readProjects());
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
@@ -449,7 +428,7 @@ export function App() {
     day: "numeric",
     month: "long"
   }).format(new Date());
-  const moonPhase = moonPhaseFor(new Date());
+  const moonPhase = getMoonSnapshot(new Date()).phase;
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Доброе утро" : hour < 18 ? "Добрый день" : "Добрый вечер";
   const dayPart = hour < 6 ? "night" : hour < 12 ? "morning" : hour < 18 ? "day" : "evening";
@@ -1694,6 +1673,7 @@ export function App() {
             )}
           </div>
           <button className={mobileSection === "relations" ? "active" : ""} onClick={() => setMobileSection("relations")}><span><AppIcon name="link" /></span>Связи</button>
+          <button className={mobileSection === "esoterica" ? "active" : ""} onClick={() => setMobileSection("esoterica")}><span><AppIcon name="orbit" /></span>Эзотерика</button>
         </nav>
 
         <div className="sidebar-bottom">
@@ -1756,7 +1736,7 @@ export function App() {
           </button>
           <div className="mobile-app-title">
             <strong>СФЕРА</strong>
-            <span>{mobileSection === "home" ? "Сегодня" : mobileSection === "projects" ? "Сферы" : mobileSection === "tasks" ? "Задачи" : mobileSection === "notes" ? "Заметки" : mobileSection === "photos" ? "Фото" : mobileSection === "relations" ? "Связи" : "Календарь"}</span>
+            <span>{mobileSection === "home" ? "Сегодня" : mobileSection === "projects" ? "Сферы" : mobileSection === "tasks" ? "Задачи" : mobileSection === "notes" ? "Заметки" : mobileSection === "photos" ? "Фото" : mobileSection === "relations" ? "Связи" : mobileSection === "esoterica" ? "Эзотерика" : "Календарь"}</span>
           </div>
           <div className="mobile-app-actions">
             {mobileSection === "tasks" && (
@@ -1776,7 +1756,7 @@ export function App() {
                   type="button"
                   className="dashboard-moon-phase"
                   aria-label={`Открыть лунный календарь. Сейчас: ${moonPhase.name}`}
-                  onClick={() => setMoonCalendarOpen(true)}
+                  onClick={() => setMobileSection("esoterica")}
                 >
                   <span aria-hidden="true">· {moonPhase.icon}</span> {moonPhase.name}
                 </button>
@@ -2532,6 +2512,8 @@ export function App() {
           </div>
         </section>
 
+        <EsotericaScreen active={mobileSection === "esoterica"} onBack={() => setMobileSection("home")} />
+
         <section className={`mobile-module-screen relations-screen ${mobileSection === "relations" ? "active" : ""}`} aria-hidden={mobileSection !== "relations"}>
           <header className="module-page-header">
             <button className="module-back-button" onClick={() => setMobileSection("home")} aria-label="Назад">←</button>
@@ -3259,7 +3241,6 @@ export function App() {
         )}
       </aside>
 
-      <MoonCalendar open={moonCalendarOpen} onClose={() => setMoonCalendarOpen(false)} />
       {selected && <button className="detail-backdrop" aria-label="Закрыть детали" onClick={closeDetail} />}
       {toast && <div className="toast" role="status">{toast}</div>}
     </div>
