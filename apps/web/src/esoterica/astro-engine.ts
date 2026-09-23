@@ -5,7 +5,9 @@ import {
   GeoVector,
   Illumination,
   MoonPhase,
-  SearchMoonPhase
+  Observer,
+  SearchMoonPhase,
+  SearchRiseSet
 } from "astronomy-engine";
 
 export type ZodiacSign = {
@@ -234,6 +236,84 @@ export function phaseTraditionText(snapshot: MoonSnapshot) {
   return {
     title: "Завершение цикла",
     text: "Последнюю часть лунного цикла обычно трактуют как время завершения, сокращения нагрузки, освобождения от лишнего и подготовки к следующему новолунию."
+  };
+}
+
+
+export type ObserverLocation = {
+  latitude: number;
+  longitude: number;
+  label?: string;
+};
+
+export type RussianLunarDay = {
+  number: number;
+  start: Date;
+  end: Date;
+  previousNewMoon: Date;
+  nextNewMoon: Date;
+};
+
+const DAY_MS = 86_400_000;
+
+function lunationAround(date: Date) {
+  const searchStart = new Date(date.getTime() - 35 * DAY_MS);
+  let previous = SearchMoonPhase(0, searchStart, 40);
+  if (!previous) return null;
+
+  while (true) {
+    const next = SearchMoonPhase(0, new Date(previous.date.getTime() + 60 * 60 * 1000), 35);
+    if (!next) return null;
+    if (next.date.getTime() > date.getTime()) {
+      return { previous: previous.date, next: next.date };
+    }
+    previous = next;
+  }
+}
+
+export function getRussianLunarDay(
+  date: Date,
+  location: ObserverLocation
+): RussianLunarDay | null {
+  if (!Number.isFinite(location.latitude) || !Number.isFinite(location.longitude)) return null;
+  if (location.latitude < -90 || location.latitude > 90) return null;
+  if (location.longitude < -180 || location.longitude > 180) return null;
+
+  const lunation = lunationAround(date);
+  if (!lunation) return null;
+
+  const observer = new Observer(location.latitude, location.longitude, 0);
+  let number = 1;
+  let start = lunation.previous;
+  let cursor = new Date(lunation.previous.getTime() + 1000);
+  let end = lunation.next;
+
+  for (let guard = 0; guard < 35; guard += 1) {
+    const rise = SearchRiseSet(Body.Moon, observer, +1, cursor, 4);
+    if (!rise) break;
+
+    const riseDate = rise.date;
+    if (riseDate.getTime() >= lunation.next.getTime()) {
+      end = lunation.next;
+      break;
+    }
+
+    if (riseDate.getTime() > date.getTime()) {
+      end = riseDate;
+      break;
+    }
+
+    number += 1;
+    start = riseDate;
+    cursor = new Date(riseDate.getTime() + 60 * 1000);
+  }
+
+  return {
+    number: Math.min(number, 30),
+    start,
+    end,
+    previousNewMoon: lunation.previous,
+    nextNewMoon: lunation.next
   };
 }
 
