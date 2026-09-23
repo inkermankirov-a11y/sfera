@@ -64,8 +64,8 @@ import {
 import { CalendarMiniMonth } from "./calendar/CalendarMiniMonth";
 import { DesktopCalendar } from "./calendar/DesktopCalendar";
 import { RelationsGraph } from "./RelationsGraph";
-import { EsotericaScreen } from "./esoterica/EsotericaScreen";
-import { getMoonCalendarSnapshot } from "./esoterica/astro-engine";
+import { MoonCalendar } from "./MoonCalendar";
+import { getMoonDayData } from "./moon-engine";
 import {
   addDaysIso,
   calendarRangeLabel,
@@ -86,7 +86,7 @@ const filterLabels: Record<Filter, string> = {
   done: "Выполнено"
 };
 
-type Section = "home" | "projects" | "tasks" | "notes" | "photos" | "calendar" | "relations" | "esoterica";
+type Section = "home" | "projects" | "tasks" | "notes" | "photos" | "calendar" | "relations";
 type TaskView = Filter | "week";
 type NoteView = "all" | "ideas" | "diary" | "collections" | "lists" | "favorites";
 type ProjectTab = "overview" | "tasks" | "notes" | "photos" | "goals" | "history";
@@ -257,6 +257,7 @@ export function App() {
   const [mobileQuickOpen, setMobileQuickOpen] = useState(false);
   const [quickMenuOpen, setQuickMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [moonCalendarOpen, setMoonCalendarOpen] = useState(false);
   const [mobileSection, setMobileSection] = useState<Section>("home");
   const [projects, setProjects] = useState<ProjectNode[]>(() => readProjects());
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
@@ -428,7 +429,7 @@ export function App() {
     day: "numeric",
     month: "long"
   }).format(new Date());
-  const moonPhase = getMoonCalendarSnapshot(new Date()).phase;
+  const moonPhase = getMoonDayData(new Date()).phase;
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Доброе утро" : hour < 18 ? "Добрый день" : "Добрый вечер";
   const dayPart = hour < 6 ? "night" : hour < 12 ? "morning" : hour < 18 ? "day" : "evening";
@@ -1673,7 +1674,6 @@ export function App() {
             )}
           </div>
           <button className={mobileSection === "relations" ? "active" : ""} onClick={() => setMobileSection("relations")}><span><AppIcon name="link" /></span>Связи</button>
-          <button className={mobileSection === "esoterica" ? "active" : ""} onClick={() => setMobileSection("esoterica")}><span><AppIcon name="orbit" /></span>Эзотерика</button>
         </nav>
 
         <div className="sidebar-bottom">
@@ -1736,7 +1736,7 @@ export function App() {
           </button>
           <div className="mobile-app-title">
             <strong>СФЕРА</strong>
-            <span>{mobileSection === "home" ? "Сегодня" : mobileSection === "projects" ? "Сферы" : mobileSection === "tasks" ? "Задачи" : mobileSection === "notes" ? "Заметки" : mobileSection === "photos" ? "Фото" : mobileSection === "relations" ? "Связи" : mobileSection === "esoterica" ? "Эзотерика" : "Календарь"}</span>
+            <span>{mobileSection === "home" ? "Сегодня" : mobileSection === "projects" ? "Сферы" : mobileSection === "tasks" ? "Задачи" : mobileSection === "notes" ? "Заметки" : mobileSection === "photos" ? "Фото" : mobileSection === "relations" ? "Связи" : "Календарь"}</span>
           </div>
           <div className="mobile-app-actions">
             {mobileSection === "tasks" && (
@@ -1756,7 +1756,7 @@ export function App() {
                   type="button"
                   className="dashboard-moon-phase"
                   aria-label={`Открыть лунный календарь. Сейчас: ${moonPhase.name}`}
-                  onClick={() => setMobileSection("esoterica")}
+                  onClick={() => setMoonCalendarOpen(true)}
                 >
                   <span aria-hidden="true">· {moonPhase.icon}</span> {moonPhase.name}
                 </button>
@@ -2512,8 +2512,6 @@ export function App() {
           </div>
         </section>
 
-        <EsotericaScreen active={mobileSection === "esoterica"} onBack={() => setMobileSection("home")} />
-
         <section className={`mobile-module-screen relations-screen ${mobileSection === "relations" ? "active" : ""}`} aria-hidden={mobileSection !== "relations"}>
           <header className="module-page-header">
             <button className="module-back-button" onClick={() => setMobileSection("home")} aria-label="Назад">←</button>
@@ -3241,6 +3239,7 @@ export function App() {
         )}
       </aside>
 
+      <MoonCalendar open={moonCalendarOpen} onClose={() => setMoonCalendarOpen(false)} />
       {selected && <button className="detail-backdrop" aria-label="Закрыть детали" onClick={closeDetail} />}
       {toast && <div className="toast" role="status">{toast}</div>}
     </div>
