@@ -521,3 +521,569 @@
   .projects-screen .sphere-root-tile strong { margin-top: 16px !important; font-size: 1.02rem !important; }
   .projects-screen .sphere-root-tile small { font-size: .64rem !important; }
 }
+
+
+/* Lunar calendar module */
+.dashboard-moon-phase {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  padding: 2px 6px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background .18s ease, color .18s ease, transform .18s ease;
+}
+
+.dashboard-moon-phase:hover {
+  background: rgba(255,255,255,.52);
+}
+
+.dashboard-moon-phase:active {
+  transform: translateY(1px);
+}
+
+.dashboard-moon-phase:focus-visible {
+  outline: 2px solid rgba(91,119,105,.45);
+  outline-offset: 2px;
+}
+
+.moon-calendar-backdrop {
+  position: fixed;
+  z-index: 420;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(21,27,25,.42);
+  backdrop-filter: blur(12px);
+}
+
+.moon-calendar-dialog {
+  width: min(1040px, 100%);
+  max-height: min(860px, calc(100dvh - 48px));
+  overflow: auto;
+  border: 1px solid rgba(255,255,255,.72);
+  border-radius: 28px;
+  background: #f7f8f6;
+  color: #25312d;
+  box-shadow: 0 28px 90px rgba(18,25,22,.22);
+}
+
+.moon-calendar-header {
+  position: sticky;
+  z-index: 3;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid #e4e8e4;
+  background: rgba(247,248,246,.94);
+  backdrop-filter: blur(18px);
+}
+
+.moon-calendar-kicker {
+  display: block;
+  margin-bottom: 4px;
+  color: #7c8782;
+  font-size: .65rem;
+  font-weight: 760;
+  letter-spacing: .12em;
+}
+
+.moon-calendar-header h2 {
+  margin: 0;
+  color: #25312d;
+  font-size: 1.45rem;
+  font-weight: 730;
+  letter-spacing: -.035em;
+}
+
+.moon-calendar-close {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 1px solid #e0e5e1;
+  border-radius: 50%;
+  background: #fff;
+  color: #5e6964;
+  font-size: 1.55rem;
+  font-weight: 350;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.moon-calendar-summary {
+  display: grid;
+  grid-template-columns: auto minmax(0,1fr) auto;
+  align-items: center;
+  gap: 18px;
+  margin: 18px 24px 0;
+  padding: 18px 20px;
+  border: 1px solid #e2e7e3;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #ffffff 0%, #f1f4f1 100%);
+}
+
+.moon-calendar-orb {
+  width: 70px;
+  height: 70px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #202927;
+  font-size: 2.5rem;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.09), 0 8px 22px rgba(22,30,27,.12);
+}
+
+.moon-calendar-summary-copy > span {
+  color: #77817d;
+  font-size: .76rem;
+  font-weight: 600;
+}
+
+.moon-calendar-summary-copy h3 {
+  margin: 3px 0 2px;
+  color: #25312d;
+  font-size: 1.35rem;
+  font-weight: 720;
+  letter-spacing: -.03em;
+}
+
+.moon-calendar-summary-copy p {
+  margin: 0;
+  color: #69736f;
+  font-size: .84rem;
+}
+
+.moon-calendar-zodiac {
+  min-width: 180px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #e3e7e4;
+  border-radius: 15px;
+  background: rgba(255,255,255,.74);
+}
+
+.moon-calendar-zodiac > span {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #edf1ed;
+  color: #485953;
+  font-size: 1.25rem;
+}
+
+.moon-calendar-zodiac small {
+  display: block;
+  color: #88918d;
+  font-size: .65rem;
+}
+
+.moon-calendar-zodiac strong {
+  display: block;
+  margin-top: 1px;
+  color: #2f3b37;
+  font-size: .88rem;
+}
+
+.moon-calendar-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
+  gap: 16px;
+  padding: 16px 24px 24px;
+}
+
+.moon-month-card,
+.moon-day-card {
+  border: 1px solid #e2e7e3;
+  border-radius: 20px;
+  background: #fff;
+}
+
+.moon-month-card {
+  padding: 16px;
+}
+
+.moon-month-nav {
+  display: grid;
+  grid-template-columns: 38px minmax(0,1fr) 38px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.moon-month-nav strong {
+  text-align: center;
+  color: #2d3935;
+  font-size: .94rem;
+  font-weight: 690;
+  text-transform: capitalize;
+}
+
+.moon-month-nav button,
+.moon-today-button {
+  border: 1px solid #e2e7e3;
+  background: #f8faf8;
+  color: #52605b;
+  cursor: pointer;
+}
+
+.moon-month-nav button {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  font-size: 1.35rem;
+}
+
+.moon-weekdays,
+.moon-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.moon-weekdays {
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.moon-weekdays span {
+  padding: 5px 0;
+  color: #9aa29f;
+  font-size: .62rem;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.moon-month-grid {
+  gap: 5px;
+}
+
+.moon-day {
+  position: relative;
+  min-width: 0;
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 5px 2px;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  background: #f8faf8;
+  color: #44514d;
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease, transform .15s ease;
+}
+
+.moon-day:hover {
+  border-color: #d9e0dc;
+  background: #f2f5f2;
+}
+
+.moon-day > span {
+  font-size: .72rem;
+  font-weight: 680;
+}
+
+.moon-day > b {
+  font-size: 1.18rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.moon-day.outside {
+  opacity: .36;
+}
+
+.moon-day.today::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #6b8579;
+}
+
+.moon-day.selected {
+  border-color: #5f796d;
+  background: #eaf0eb;
+  color: #203029;
+  box-shadow: inset 0 0 0 1px rgba(95,121,109,.14);
+}
+
+.moon-today-button {
+  min-height: 36px;
+  margin-top: 10px;
+  padding: 0 13px;
+  border-radius: 11px;
+  font-size: .72rem;
+  font-weight: 650;
+}
+
+.moon-day-card {
+  overflow: hidden;
+}
+
+.moon-fact-section,
+.moon-astro-section {
+  padding: 18px;
+}
+
+.moon-fact-section {
+  border-bottom: 1px solid #e8ece9;
+}
+
+.moon-section-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.moon-section-label span {
+  color: #66726d;
+  font-size: .68rem;
+  font-weight: 760;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.moon-section-label small {
+  color: #a0a8a4;
+  font-size: .61rem;
+  text-align: right;
+}
+
+.moon-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.moon-facts > div {
+  padding: 11px 12px;
+  border-radius: 13px;
+  background: #f6f8f6;
+}
+
+.moon-facts dt {
+  color: #8a938f;
+  font-size: .64rem;
+}
+
+.moon-facts dd {
+  margin: 3px 0 0;
+  color: #33403b;
+  font-size: .84rem;
+  font-weight: 680;
+}
+
+.moon-astro-section h3 {
+  margin: 0 0 7px;
+  color: #2c3934;
+  font-size: 1.05rem;
+  font-weight: 720;
+  letter-spacing: -.025em;
+}
+
+.moon-astro-section > p {
+  margin: 0;
+  color: #68736e;
+  font-size: .77rem;
+  line-height: 1.52;
+}
+
+.moon-zodiac-note {
+  margin-top: 12px;
+  padding: 11px 12px;
+  border-radius: 13px;
+  background: #f2f4f6;
+  color: #5e6864;
+  font-size: .72rem;
+  line-height: 1.45;
+}
+
+.moon-guidance-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.moon-guidance-columns > div {
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid #e6eae7;
+  border-radius: 13px;
+}
+
+.moon-guidance-columns strong {
+  display: block;
+  margin-bottom: 7px;
+  color: #45524d;
+  font-size: .69rem;
+}
+
+.moon-guidance-columns span {
+  display: block;
+  margin-top: 4px;
+  color: #707a76;
+  font-size: .68rem;
+  line-height: 1.35;
+}
+
+.moon-calendar-footer {
+  padding: 0 24px 20px;
+  color: #929b97;
+  font-size: .63rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 760px) {
+  .section-home .dashboard-moon-phase {
+    min-height: 28px !important;
+    padding: 2px 5px !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: var(--s4-muted) !important;
+    box-shadow: none !important;
+    font-size: .72rem !important;
+  }
+
+  .moon-calendar-backdrop {
+    align-items: end;
+    padding: 0;
+    background: rgba(21,27,25,.34);
+  }
+
+  .moon-calendar-dialog {
+    width: 100%;
+    max-height: 94dvh;
+    border: 0;
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -18px 60px rgba(18,25,22,.18);
+  }
+
+  .moon-calendar-header {
+    padding: 15px 16px 12px;
+  }
+
+  .moon-calendar-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .moon-calendar-close {
+    width: 36px;
+    height: 36px;
+  }
+
+  .moon-calendar-summary {
+    grid-template-columns: auto minmax(0,1fr);
+    gap: 12px;
+    margin: 12px 14px 0;
+    padding: 14px;
+  }
+
+  .moon-calendar-orb {
+    width: 58px;
+    height: 58px;
+    font-size: 2rem;
+  }
+
+  .moon-calendar-summary-copy h3 {
+    font-size: 1.05rem;
+  }
+
+  .moon-calendar-summary-copy p {
+    font-size: .72rem;
+  }
+
+  .moon-calendar-zodiac {
+    grid-column: 1 / -1;
+    min-width: 0;
+    padding: 8px 10px;
+  }
+
+  .moon-calendar-layout {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 10px 14px 18px;
+  }
+
+  .moon-month-card,
+  .moon-day-card {
+    border-radius: 17px;
+  }
+
+  .moon-month-card {
+    padding: 12px;
+  }
+
+  .moon-month-grid {
+    gap: 3px;
+  }
+
+  .moon-day {
+    min-height: 52px;
+    border-radius: 10px;
+  }
+
+  .moon-day > span {
+    font-size: .66rem;
+  }
+
+  .moon-day > b {
+    font-size: 1rem;
+  }
+
+  .moon-fact-section,
+  .moon-astro-section {
+    padding: 14px;
+  }
+
+  .moon-calendar-footer {
+    padding: 0 16px calc(18px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 380px) {
+  .moon-day {
+    min-height: 47px;
+  }
+
+  .moon-facts,
+  .moon-guidance-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .moon-section-label {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .moon-section-label small {
+    text-align: left;
+  }
+}
