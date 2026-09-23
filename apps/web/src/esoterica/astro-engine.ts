@@ -152,7 +152,7 @@ export function getPlanetSnapshots(date = new Date()): PlanetSnapshot[] {
   });
 }
 
-export function getMoonSnapshot(date = new Date()): MoonSnapshot {
+function buildMoonSnapshot(date: Date, includeEvents: boolean): MoonSnapshot {
   const phaseAngle = normalizeDegrees(MoonPhase(date));
   const phaseIndex = Math.round((phaseAngle / 360) * 8) % 8;
   const moonPosition = EclipticGeoMoon(date);
@@ -166,8 +166,8 @@ export function getMoonSnapshot(date = new Date()): MoonSnapshot {
     ? (waxing ? "Пурнима" : "Амавасья")
     : TITHI_NAMES[numberInPaksha - 1];
 
-  const newMoon = SearchMoonPhase(0, date, 35);
-  const fullMoon = SearchMoonPhase(180, date, 35);
+  const newMoon = includeEvents ? SearchMoonPhase(0, date, 35) : null;
+  const fullMoon = includeEvents ? SearchMoonPhase(180, date, 35) : null;
 
   return {
     at: date,
@@ -188,6 +188,15 @@ export function getMoonSnapshot(date = new Date()): MoonSnapshot {
     nextNewMoon: newMoon?.date ?? null,
     nextFullMoon: fullMoon?.date ?? null
   };
+}
+
+
+export function getMoonSnapshot(date = new Date()): MoonSnapshot {
+  return buildMoonSnapshot(date, true);
+}
+
+export function getMoonCalendarSnapshot(date = new Date()): MoonSnapshot {
+  return buildMoonSnapshot(date, false);
 }
 
 export function phaseTraditionText(snapshot: MoonSnapshot) {
