@@ -167,7 +167,6 @@ export function MoonCalendar({ open, onClose }: MoonCalendarProps) {
                   >
                     <span>{day.getDate()}</span>
                     <b aria-hidden="true">{data.phase.icon}</b>
-                    {isFullMoon && <em>Полнолуние</em>}
                   </button>
                 );
               })}
@@ -200,10 +199,6 @@ export function MoonCalendar({ open, onClose }: MoonCalendarProps) {
               </dl>
             </div>
 
-            <div className="moon-calendar-legend">
-              <div><span className="legend-full-moon">🌕</span><strong>Полнолуние выделено в календаре</strong></div>
-              <p>Фаза и время новолуния/полнолуния рассчитываются астрономически. Эзотерические трактовки в этом календаре не используются.</p>
-            </div>
           </aside>
         </div>
       </section>
