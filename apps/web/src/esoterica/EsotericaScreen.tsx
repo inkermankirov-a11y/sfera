@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import {
   ESOTERICA_SOURCES,
+  getMoonCalendarSnapshot,
   getMoonSnapshot,
   getPlanetSnapshots,
   phaseTraditionText
@@ -171,7 +172,7 @@ export function EsotericaScreen({ active, onBack }: Props) {
             </div>
             <div className="esoterica-month-grid">
               {cells.map((day) => {
-                const data = getMoonSnapshot(day);
+                const data = getMoonCalendarSnapshot(day);
                 return (
                   <button
                     type="button"
