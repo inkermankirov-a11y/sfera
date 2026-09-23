@@ -267,5 +267,11 @@ export const ESOTERICA_SOURCES = [
     title: "The Hindu Calendar — Sewell & Dikshit",
     note: "Титхи как 12° углового расстояния Луны от Солнца; 30 титхи составляют лунный месяц.",
     url: "https://ignca.gov.in/Asi_data/34958.pdf"
+  },
+  {
+    group: "Русскоязычная лунная астрология",
+    title: "Павел Глоба — «Лунная астрология»",
+    note: "Отдельная школа с системой 1–30 лунных суток, символами и трактовками. Для расчёта суток учитывается местный восход Луны, поэтому значения зависят от региона.",
+    url: "https://globaastra.by/lunnaya-astrologiya/"
   }
 ] as const;
