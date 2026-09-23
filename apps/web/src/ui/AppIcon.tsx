@@ -15,7 +15,10 @@ export type AppIconName =
   | "chevron"
   | "image"
   | "link"
-  | "more";
+  | "more"
+  | "folder"
+  | "edit"
+  | "diary";
 
 export function AppIcon({ name, size = 20 }: { name: AppIconName; size?: number }) {
   const common = {
@@ -45,7 +48,10 @@ export function AppIcon({ name, size = 20 }: { name: AppIconName; size?: number 
     chevron: <path d="m9 5 7 7-7 7"/>,
     image: <><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="m5.5 17 4.3-4.2 3.2 3 2.2-2.1 3.3 3.3"/></>,
     link: <><path d="M9.5 14.5 14.5 9"/><path d="M7.2 16.8 5.6 18.4a3.4 3.4 0 0 1-4.8-4.8l3.4-3.4A3.4 3.4 0 0 1 9 10" transform="translate(2)"/><path d="m14.8 7.2 1.6-1.6a3.4 3.4 0 0 1 4.8 4.8l-3.4 3.4A3.4 3.4 0 0 1 13 14" transform="translate(-2)"/></>,
-    more: <><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></>
+    more: <><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></>,
+    folder: <><path d="M3.8 6.8h6l2 2h8.4v9.4a1.8 1.8 0 0 1-1.8 1.8H5.6a1.8 1.8 0 0 1-1.8-1.8z"/><path d="M3.8 9h16.4"/></>,
+    edit: <><path d="M5 19h4l10-10-4-4L5 15z"/><path d="m13.8 6.2 4 4"/></>,
+    diary: <><path d="M6 4h11a2 2 0 0 1 2 2v14H8a2 2 0 0 1-2-2z"/><path d="M8 4v16M10.5 9h5M10.5 12.5h4"/></>
   };
 
   return <svg {...common}>{paths[name]}</svg>;
