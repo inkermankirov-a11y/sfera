@@ -1090,6 +1090,11 @@
 
 
 /* Esoterica module */
+.mobile-module-screen.esoterica-screen.active {
+  display: block;
+  padding: 0 0 28px;
+}
+
 .esoterica-screen {
   color: #28342f;
 }
