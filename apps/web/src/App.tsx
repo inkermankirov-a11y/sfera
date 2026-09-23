@@ -1034,7 +1034,6 @@ export function App() {
           const children = projectChildren(projects, project.id);
           const tone = sphereTone(projects, project.id);
           const sphereIndex = rootSpheres.findIndex((sphere) => sphere.id === project.id);
-          const symbol = sphereIndex < 0 ? "◇" : ["⌂", "☾", "✦", "▣", "✈", "♡"][sphereIndex % 6];
           return (
             <button
               className={`project-tile sphere-tone-${tone} ${project.kind === "sphere" ? "sphere-root-tile" : "sphere-child-tile"}`}
@@ -1042,12 +1041,12 @@ export function App() {
               onClick={() => setSelectedProjectId(project.id)}
             >
               <span className="project-tile-top">
-                <span className="project-tile-icon">{project.kind === "sphere" ? symbol : "▰"}</span>
+                <span className="project-tile-icon"><AppIcon name={project.kind === "sphere" ? "orbit" : "folder"} size={20} /></span>
                 {project.kind === "sphere" && <span className="project-tile-number">{String(sphereIndex + 1).padStart(2, "0")} / СФЕРА</span>}
               </span>
               <strong>{project.title}</strong>
               <small>{projectTaskCount(project.id)} {russianPlural(projectTaskCount(project.id), "задача", "задачи", "задач")} · {children.length} {russianPlural(children.length, "подпроект", "подпроекта", "подпроектов")}</small>
-              <b>›</b>
+              <b><AppIcon name="chevron" size={16} /></b>
             </button>
           );
         })}
@@ -1070,13 +1069,13 @@ export function App() {
               {children.length ? (project.collapsed ? "›" : "⌄") : ""}
             </button>
             <button className="project-main" onClick={() => setSelectedProjectId(project.id)}>
-              <span className="project-folder-icon">{project.kind === "sphere" ? "◇" : "▰"}</span>
+              <span className="project-folder-icon"><AppIcon name={project.kind === "sphere" ? "orbit" : "folder"} size={18} /></span>
               <span>
                 <strong>{project.title}</strong>
                 <small>{projectTaskCount(project.id)} активных задач</small>
               </span>
             </button>
-            <button className="project-open" aria-label={`Открыть ${project.kind === "sphere" ? "сферу" : "проект"} «${project.title}»`} onClick={() => setSelectedProjectId(project.id)}>›</button>
+            <button className="project-open" aria-label={`Открыть ${project.kind === "sphere" ? "сферу" : "проект"} «${project.title}»`} onClick={() => setSelectedProjectId(project.id)}><AppIcon name="chevron" size={16} /></button>
           </div>
           {!project.collapsed && children.length > 0 && (
             <div className="project-subtree">{renderProjectTree(project.id, depth + 1)}</div>
@@ -1910,12 +1909,12 @@ export function App() {
                     className="project-edit-button"
                     aria-label="Редактировать проект"
                     onClick={() => openProjectEditor(selectedProject)}
-                  >✎</button>
+                  ><AppIcon name="edit" size={18} /></button>
                   <button
                     className="project-add-folder"
                     aria-label="Добавить подпроект"
                     onClick={() => { setProjectParentId(selectedProject.id); setProjectCreateOpen(true); }}
-                  >＋</button>
+                  ><AppIcon name="plus" size={18} /></button>
                 </div>
               </header>
 
@@ -1951,8 +1950,8 @@ export function App() {
                       <div className="project-section-title-row">
                         <div className="project-section-title">Подпроекты</div>
                         <div className="project-view-toggle compact" role="group" aria-label="Вид подпроектов">
-                          <button aria-label="Плитка" title="Плитка" className={projectView === "grid" ? "active" : ""} onClick={() => setProjectViewMode("grid")}>▦</button>
-                          <button aria-label="Список" title="Список" className={projectView === "list" ? "active" : ""} onClick={() => setProjectViewMode("list")}>☷</button>
+                          <button aria-label="Плитка" title="Плитка" className={projectView === "grid" ? "active" : ""} onClick={() => setProjectViewMode("grid")}><AppIcon name="grid" size={17} /></button>
+                          <button aria-label="Список" title="Список" className={projectView === "list" ? "active" : ""} onClick={() => setProjectViewMode("list")}><AppIcon name="list" size={17} /></button>
                         </div>
                       </div>
                       {projectView === "grid" ? renderProjectGrid(selectedProject.id) : <div className="project-subtree-list">{renderProjectTree(selectedProject.id)}</div>}
@@ -2320,11 +2319,11 @@ export function App() {
                   setQuickMenuOpen(false);
                   setQuickProjectId(mobileSection === "projects" && selectedProject ? selectedProject.id : null);
                   setMobileQuickOpen(true);
-                }}><span>✓</span><strong>Задачу</strong><small>Дело, дата, приоритет</small></button>
-                <button onClick={() => { setQuickMenuOpen(false); setNoteKind("note"); setNoteProjectId(mobileSection === "projects" && selectedProject ? selectedProject.id : null); setNoteCreateOpen(true); }}><span>✎</span><strong>Заметку</strong><small>Мысль или запись</small></button>
-                <button onClick={() => { setQuickMenuOpen(false); setNoteKind("diary"); setNoteProjectId(mobileSection === "projects" && selectedProject ? selectedProject.id : null); setNoteCreateOpen(true); }}><span>☼</span><strong>Дневник</strong><small>Запись сегодняшнего дня</small></button>
-                <button onClick={() => { setQuickMenuOpen(false); setMobileSection("photos"); setToast("Открыт раздел фото"); }}><span>▧</span><strong>Фото</strong><small>Визуальные материалы</small></button>
-                <button onClick={() => { setQuickMenuOpen(false); setProjectParentId(selectedProject?.id ?? ""); setProjectCreateOpen(true); }}><span>◇</span><strong>Проект</strong><small>Сфера или подпроект</small></button>
+                }}><span><AppIcon name="check" /></span><strong>Задачу</strong><small>Дело, дата, приоритет</small></button>
+                <button onClick={() => { setQuickMenuOpen(false); setNoteKind("note"); setNoteProjectId(mobileSection === "projects" && selectedProject ? selectedProject.id : null); setNoteCreateOpen(true); }}><span><AppIcon name="note" /></span><strong>Заметку</strong><small>Мысль или запись</small></button>
+                <button onClick={() => { setQuickMenuOpen(false); setNoteKind("diary"); setNoteProjectId(mobileSection === "projects" && selectedProject ? selectedProject.id : null); setNoteCreateOpen(true); }}><span><AppIcon name="diary" /></span><strong>Дневник</strong><small>Запись сегодняшнего дня</small></button>
+                <button onClick={() => { setQuickMenuOpen(false); setMobileSection("photos"); setToast("Открыт раздел фото"); }}><span><AppIcon name="image" /></span><strong>Фото</strong><small>Визуальные материалы</small></button>
+                <button onClick={() => { setQuickMenuOpen(false); setProjectParentId(selectedProject?.id ?? ""); setProjectCreateOpen(true); }}><span><AppIcon name="folder" /></span><strong>Проект</strong><small>Сфера или подпроект</small></button>
               </div>
             </div>
           </div>
