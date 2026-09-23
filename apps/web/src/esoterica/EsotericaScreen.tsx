@@ -238,7 +238,7 @@ export function EsotericaScreen({ active, onBack }: Props) {
                   <div><span>Начало</span><strong>{formatDate(russianLunarDay.start, true)}</strong></div>
                   <div><span>Конец</span><strong>{formatDate(russianLunarDay.end, true)}</strong></div>
                 </div>
-                <small>В этой школе 1-й день начинается в момент новолуния, а следующие границы определяются местными восходами Луны.</small>
+                <small>В этой школе 1-й день начинается в момент новолуния, а следующие границы определяются местными восходами Луны. Время границ показано в часовом поясе устройства.</small>
               </>
             ) : (
               <>
