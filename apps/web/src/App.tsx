@@ -1315,6 +1315,20 @@ export function App() {
     const items = projectChildren(projects, parentId);
     return (
       <div className="project-grid">
+        {parentId === null && (
+          <button
+            className="project-tile sphere-root-tile shopping-sphere-tile"
+            onClick={() => setMobileSection("shopping")}
+          >
+            <span className="project-tile-top">
+              <span className="project-tile-icon"><AppIcon name="cart" size={20} /></span>
+              <span className="project-tile-number">ПОКУПКИ</span>
+            </span>
+            <strong>Покупки</strong>
+            <small>Списки покупок</small>
+            <b><AppIcon name="chevron" size={16} /></b>
+          </button>
+        )}
         {items.map((project) => {
           const children = projectChildren(projects, project.id);
           const tone = sphereTone(projects, project.id);
@@ -1340,7 +1354,7 @@ export function App() {
   }
 
   function renderProjectTree(parentId: string | null, depth = 0): React.ReactNode {
-    return projectChildren(projects, parentId).map((project) => {
+    const rows = projectChildren(projects, parentId).map((project) => {
       const children = projectChildren(projects, project.id);
       return (
         <div className="project-tree-node" key={project.id}>
@@ -1368,6 +1382,26 @@ export function App() {
         </div>
       );
     });
+
+    return (
+      <>
+        {parentId === null && (
+          <div className="project-tree-node shopping-sphere-tree-node">
+            <div className="project-tree-row sphere-root-row shopping-sphere-row">
+              <button className="project-toggle" disabled aria-hidden="true" />
+              <button className="project-main" onClick={() => setMobileSection("shopping")}>
+                <span className="project-folder-icon"><AppIcon name="cart" size={18} /></span>
+                <span><strong>Покупки</strong><small>Списки покупок</small></span>
+              </button>
+              <button className="project-open" aria-label="Открыть покупки" onClick={() => setMobileSection("shopping")}>
+                <AppIcon name="chevron" size={16} />
+              </button>
+            </div>
+          </div>
+        )}
+        {rows}
+      </>
+    );
   }
 
   function saveProfileName(event?: FormEvent) {
@@ -2331,7 +2365,7 @@ export function App() {
           )}
         </section>
 
-        <ShoppingList active={mobileSection === "shopping"} />
+        <ShoppingList active={mobileSection === "shopping"} onBack={() => setMobileSection("projects")} />
 
         <section className={`mobile-module-screen notes-screen ${mobileSection === "notes" ? "active" : ""}`} aria-hidden={mobileSection !== "notes"}>
           <header className="module-page-header">
