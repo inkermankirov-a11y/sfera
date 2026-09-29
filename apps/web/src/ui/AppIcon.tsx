@@ -20,7 +20,8 @@ export type AppIconName =
   | "edit"
   | "diary"
   | "grid"
-  | "list";
+  | "list"
+  | "cart";
 
 export function AppIcon({ name, size = 20 }: { name: AppIconName; size?: number }) {
   const common = {
@@ -55,7 +56,8 @@ export function AppIcon({ name, size = 20 }: { name: AppIconName; size?: number 
     edit: <><path d="M5 19h4l10-10-4-4L5 15z"/><path d="m13.8 6.2 4 4"/></>,
     diary: <><path d="M6 4h11a2 2 0 0 1 2 2v14H8a2 2 0 0 1-2-2z"/><path d="M8 4v16M10.5 9h5M10.5 12.5h4"/></>,
     grid: <><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></>,
-    list: <><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="5" cy="6" r=".8"/><circle cx="5" cy="12" r=".8"/><circle cx="5" cy="18" r=".8"/></>
+    list: <><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="5" cy="6" r=".8"/><circle cx="5" cy="12" r=".8"/><circle cx="5" cy="18" r=".8"/></>,
+    cart: <><path d="M3.5 5h2l1.7 9.2h9.7l2-6.4H7.2"/><circle cx="9.2" cy="18.5" r="1.2"/><circle cx="16.5" cy="18.5" r="1.2"/></>
   };
 
   return <svg {...common}>{paths[name]}</svg>;
