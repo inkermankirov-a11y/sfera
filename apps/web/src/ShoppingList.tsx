@@ -8,7 +8,7 @@ import {
   readShoppingLists
 } from "./shopping-model";
 
-export function ShoppingList({ active }: { active: boolean }) {
+export function ShoppingList({ active, onBack }: { active: boolean; onBack: () => void }) {
   const [lists, setLists] = useState<ShoppingListData[]>(() => readShoppingLists());
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const [newListTitle, setNewListTitle] = useState("");
@@ -172,6 +172,7 @@ export function ShoppingList({ active }: { active: boolean }) {
   return (
     <section className={`mobile-module-screen shopping-screen ${active ? "active" : ""}`} aria-hidden={!active}>
       <header className="module-page-header shopping-header">
+        <button className="shopping-back shopping-root-back" onClick={onBack} aria-label="Назад в сферы">←</button>
         <div>
           <span>Списки покупок</span>
           <h2>Покупки</h2>
