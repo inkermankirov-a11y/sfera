@@ -2215,11 +2215,11 @@ export function App() {
           </div>
 
           <div className="desktop-actions section-header-actions projects-header-actions">
-            <button className={`sphere-manage-toggle task-manage-toggle ${taskManageMode ? "active" : ""}`} onClick={() => { setTaskManageMode((value) => !value); setDraggedId(null); }}>
+            <button className={`section-manage-button sphere-manage-toggle task-manage-toggle ${taskManageMode ? "active" : ""}`} onClick={() => { setTaskManageMode((value) => !value); setDraggedId(null); }}>
               <AppIcon name="edit" size={16} /> {taskManageMode ? "Готово" : "Редактировать"}
             </button>
             <button
-              className="section-add-square projects-add-root"
+              className="section-add-button section-add-square projects-add-root"
               aria-label="Добавить задачу"
               title="Добавить задачу"
               onClick={() => document.getElementById("quick-add")?.focus()}
@@ -2400,7 +2400,7 @@ export function App() {
                 </div>
                 <div className="projects-header-actions">
                   <button
-                    className={`sphere-manage-toggle ${sphereManageMode ? "active" : ""}`}
+                    className={`section-manage-button sphere-manage-toggle ${sphereManageMode ? "active" : ""}`}
                     onClick={() => { setSphereManageMode((value) => !value); setDraggedSphereId(null); }}
                     aria-pressed={sphereManageMode}
                     title={sphereManageMode ? "Готово" : "Редактировать сферы"}
@@ -2412,7 +2412,7 @@ export function App() {
                     <button className={projectView === "grid" ? "active" : ""} onClick={() => setProjectViewMode("grid")} aria-label="Плитка" title="Плитка">▦</button>
                     <button className={projectView === "list" ? "active" : ""} onClick={() => setProjectViewMode("list")} aria-label="Список" title="Список">☷</button>
                   </div>
-                  <button className="projects-add-root" aria-label="Создать сферу жизни" onClick={() => { setProjectParentId(""); setProjectCreateOpen(true); }}>＋</button>
+                  <button className="section-add-button projects-add-root" aria-label="Создать сферу жизни" onClick={() => { setProjectParentId(""); setProjectCreateOpen(true); }}>＋</button>
                 </div>
               </header>
               {projectView === "grid" ? renderProjectGrid(null) : (
@@ -2581,10 +2581,10 @@ export function App() {
           <header className="module-page-header notes-page-header">
             <div><span>Личная база знаний</span><h2>Заметки</h2></div>
             <div className="notes-header-actions section-header-actions projects-header-actions">
-              <button className={`sphere-manage-toggle note-manage-toggle ${noteManageMode ? "active" : ""}`} onClick={() => { setNoteManageMode((value) => !value); setDraggedNoteId(null); }}>
+              <button className={`section-manage-button sphere-manage-toggle note-manage-toggle ${noteManageMode ? "active" : ""}`} onClick={() => { setNoteManageMode((value) => !value); setDraggedNoteId(null); }}>
                 <AppIcon name="edit" size={16} /><span>{noteManageMode ? "Готово" : "Редактировать"}</span>
               </button>
-              <button className="section-add-square projects-add-root" aria-label="Создать заметку" title="Создать заметку" onClick={openNewNote}>＋</button>
+              <button className="section-add-button section-add-square projects-add-root" aria-label="Создать заметку" title="Создать заметку" onClick={openNewNote}>＋</button>
             </div>
           </header>
 
