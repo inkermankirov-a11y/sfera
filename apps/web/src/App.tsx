@@ -64,6 +64,8 @@ import {
 import { DesktopCalendar } from "./calendar/DesktopCalendar";
 import { RelationsGraph } from "./RelationsGraph";
 import { HomeDashboard } from "./HomeDashboard";
+import { ShoppingList } from "./ShoppingList";
+import { SHOPPING_STORAGE_KEY } from "./shopping-model";
 import { DesktopSidebar, MobileNavigation, type AppSection } from "./AppNavigation";
 import { AppIcon } from "./ui/AppIcon";
 import { MoonCalendar } from "./MoonCalendar";
@@ -88,6 +90,7 @@ const BACKUP_KEYS = [
   GOALS_STORAGE_KEY,
   RELATIONS_STORAGE_KEY,
   ATTACHMENTS_STORAGE_KEY,
+  SHOPPING_STORAGE_KEY,
   PROFILE_NAME_STORAGE_KEY,
   DAILY_FOCUS_STORAGE_KEY,
   "sfera.projectView"
@@ -100,7 +103,8 @@ const BACKUP_ARRAY_KEYS = new Set([
   NOTES_STORAGE_KEY,
   GOALS_STORAGE_KEY,
   RELATIONS_STORAGE_KEY,
-  ATTACHMENTS_STORAGE_KEY
+  ATTACHMENTS_STORAGE_KEY,
+  SHOPPING_STORAGE_KEY
 ]);
 
 type BackupRecord = Record<string, unknown>;
@@ -1021,7 +1025,7 @@ export function App() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(mergedTasks));
         localStorage.removeItem("sfera.tasks.v1");
 
-        const collectionKeys = [PROJECTS_STORAGE_KEY, NOTES_STORAGE_KEY, GOALS_STORAGE_KEY] as const;
+        const collectionKeys = [PROJECTS_STORAGE_KEY, NOTES_STORAGE_KEY, GOALS_STORAGE_KEY, SHOPPING_STORAGE_KEY] as const;
         for (const key of collectionKeys) {
           const current = parseBackupArray(localStorage.getItem(key));
           const incoming = typeof data[key] === "string" ? parseBackupArray(data[key] as string) : [];
@@ -1861,7 +1865,7 @@ export function App() {
           </button>
           <div className="mobile-app-title">
             <strong>СФЕРА</strong>
-            <span>{mobileSection === "home" ? "Сегодня" : mobileSection === "projects" ? "Сферы" : mobileSection === "tasks" ? "Задачи" : mobileSection === "notes" ? "Заметки" : mobileSection === "photos" ? "Фото" : mobileSection === "relations" ? "Связи" : "Календарь"}</span>
+            <span>{mobileSection === "home" ? "Сегодня" : mobileSection === "projects" ? "Сферы" : mobileSection === "tasks" ? "Задачи" : mobileSection === "shopping" ? "Покупки" : mobileSection === "notes" ? "Заметки" : mobileSection === "photos" ? "Фото" : mobileSection === "relations" ? "Связи" : "Календарь"}</span>
           </div>
           <div className="mobile-app-actions">
             {mobileSection === "tasks" && (
@@ -2254,6 +2258,8 @@ export function App() {
             </>
           )}
         </section>
+
+        <ShoppingList active={mobileSection === "shopping"} />
 
         <section className={`mobile-module-screen notes-screen ${mobileSection === "notes" ? "active" : ""}`} aria-hidden={mobileSection !== "notes"}>
           <header className="module-page-header">
