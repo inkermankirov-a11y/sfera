@@ -3835,3 +3835,190 @@
     padding-bottom: 45px !important;
   }
 }
+
+
+/* Shopping display and management v18 */
+.shopping-header-actions {
+  margin-left: auto;
+}
+
+.shopping-list-cards.shopping-display-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.shopping-list-cards.shopping-display-list {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 7px;
+}
+
+.shopping-list-card {
+  position: relative;
+}
+
+.shopping-display-grid .shopping-list-card {
+  min-height: 132px;
+  grid-template-columns: 42px minmax(0,1fr) 20px;
+  align-content: center;
+  padding: 16px;
+}
+
+.shopping-display-grid .shopping-list-card-icon {
+  align-self: start;
+}
+
+.shopping-display-grid .shopping-list-card-copy strong {
+  font-size: .94rem;
+}
+
+.shopping-display-grid .shopping-list-card-copy small {
+  margin-top: 6px;
+  line-height: 1.35;
+}
+
+.shopping-list-card.is-managing {
+  cursor: grab;
+  padding-bottom: 55px;
+  border-color: #cadad4;
+  background: #fbfdfc;
+}
+
+.shopping-list-card.is-managing:active {
+  cursor: grabbing;
+}
+
+.shopping-list-card.is-dragging {
+  opacity: .45;
+  transform: scale(.985);
+}
+
+.shopping-manage-controls {
+  position: absolute;
+  right: 9px;
+  bottom: 9px;
+  left: 9px;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 4px;
+  border: 1px solid #dfe6e2;
+  border-radius: 10px;
+  background: rgba(247,250,248,.98);
+}
+
+.shopping-drag-handle {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  margin-right: auto;
+  color: #718078;
+  cursor: grab;
+  font-size: 1rem;
+}
+
+.shopping-manage-controls button {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #dce4e0;
+  border-radius: 8px;
+  background: #fff;
+  color: #65736d;
+  cursor: pointer;
+}
+
+.shopping-manage-controls button:disabled {
+  opacity: .3;
+  cursor: default;
+}
+
+.shopping-manage-controls button.danger {
+  border-color: #efd8d5;
+  color: #a9564f;
+}
+
+@media (min-width: 721px) {
+  .shopping-screen .shopping-header {
+    min-height: 58px !important;
+    display: grid !important;
+    grid-template-columns: 38px minmax(0,1fr) auto !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
+
+  .shopping-screen .shopping-header-copy {
+    min-width: 0;
+  }
+
+  .shopping-screen .shopping-header-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+    margin-left: auto !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .shopping-screen .shopping-header {
+    grid-template-columns: 36px minmax(0, 1fr) auto !important;
+  }
+
+  .shopping-screen .shopping-header-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    min-width: max-content !important;
+  }
+
+  .shopping-screen .shopping-header-actions .section-manage-button {
+    width: 34px !important;
+    min-width: 34px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    padding: 0 !important;
+  }
+
+  .shopping-screen .shopping-header-actions .section-manage-button span {
+    display: none !important;
+  }
+
+  .shopping-screen .shopping-header-actions .project-view-toggle {
+    height: 34px !important;
+    padding: 2px !important;
+  }
+
+  .shopping-screen .shopping-header-actions .project-view-toggle button {
+    width: 27px !important;
+    min-width: 27px !important;
+    height: 28px !important;
+  }
+
+  .shopping-screen .shopping-header-actions .section-add-button {
+    width: 30px !important;
+    min-width: 30px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+  }
+
+  .shopping-list-cards.shopping-display-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 7px;
+  }
+
+  .shopping-display-grid .shopping-list-card {
+    min-height: 88px;
+    padding: 12px;
+  }
+
+  .shopping-list-card.is-managing {
+    padding-bottom: 50px;
+  }
+
+  .shopping-drag-handle {
+    display: none;
+  }
+}
