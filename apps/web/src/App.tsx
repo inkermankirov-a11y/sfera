@@ -2209,19 +2209,21 @@ export function App() {
         <div className={`tasks-module-content ${mobileSection === "tasks" ? "mobile-section-active" : "mobile-section-hidden"}`}>
         <div className="page-header">
           <div>
-            <p className="eyebrow">Модуль</p>
+            <p className="eyebrow">Планирование</p>
             <h1>Задачи</h1>
             <p className="subtitle">{activeCount} активных · иерархия и подзадачи</p>
           </div>
 
-          <div className="desktop-actions">
+          <div className="desktop-actions section-header-actions">
             <button className={`task-manage-toggle ${taskManageMode ? "active" : ""}`} onClick={() => { setTaskManageMode((value) => !value); setDraggedId(null); }}>
               <AppIcon name="edit" size={16} /> {taskManageMode ? "Готово" : "Редактировать"}
             </button>
-            <button className="icon-button" aria-label="Поиск" onClick={() => setSearchOpen((value) => !value)}>⌕</button>
-            <button className="primary-button" onClick={() => document.getElementById("quick-add")?.focus()}>
-              ＋ Добавить
-            </button>
+            <button
+              className="section-add-square"
+              aria-label="Добавить задачу"
+              title="Добавить задачу"
+              onClick={() => document.getElementById("quick-add")?.focus()}
+            >＋</button>
           </div>
         </div>
 
@@ -2578,11 +2580,11 @@ export function App() {
         <section className={`mobile-module-screen notes-screen ${mobileSection === "notes" ? "active" : ""}`} aria-hidden={mobileSection !== "notes"}>
           <header className="module-page-header notes-page-header">
             <div><span>Личная база знаний</span><h2>Заметки</h2></div>
-            <div className="notes-header-actions">
+            <div className="notes-header-actions section-header-actions">
               <button className={`note-manage-toggle ${noteManageMode ? "active" : ""}`} onClick={() => { setNoteManageMode((value) => !value); setDraggedNoteId(null); }}>
                 <AppIcon name="edit" size={16} /><span>{noteManageMode ? "Готово" : "Редактировать"}</span>
               </button>
-              <button className="notes-add-button" aria-label="Создать заметку" onClick={openNewNote}>＋</button>
+              <button className="section-add-square" aria-label="Создать заметку" title="Создать заметку" onClick={openNewNote}>＋</button>
             </div>
           </header>
 
