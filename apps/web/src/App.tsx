@@ -2214,12 +2214,12 @@ export function App() {
             <p className="subtitle">{activeCount} активных · иерархия и подзадачи</p>
           </div>
 
-          <div className="desktop-actions section-header-actions">
-            <button className={`task-manage-toggle ${taskManageMode ? "active" : ""}`} onClick={() => { setTaskManageMode((value) => !value); setDraggedId(null); }}>
+          <div className="desktop-actions section-header-actions projects-header-actions">
+            <button className={`sphere-manage-toggle task-manage-toggle ${taskManageMode ? "active" : ""}`} onClick={() => { setTaskManageMode((value) => !value); setDraggedId(null); }}>
               <AppIcon name="edit" size={16} /> {taskManageMode ? "Готово" : "Редактировать"}
             </button>
             <button
-              className="section-add-square"
+              className="section-add-square projects-add-root"
               aria-label="Добавить задачу"
               title="Добавить задачу"
               onClick={() => document.getElementById("quick-add")?.focus()}
@@ -2580,11 +2580,11 @@ export function App() {
         <section className={`mobile-module-screen notes-screen ${mobileSection === "notes" ? "active" : ""}`} aria-hidden={mobileSection !== "notes"}>
           <header className="module-page-header notes-page-header">
             <div><span>Личная база знаний</span><h2>Заметки</h2></div>
-            <div className="notes-header-actions section-header-actions">
-              <button className={`note-manage-toggle ${noteManageMode ? "active" : ""}`} onClick={() => { setNoteManageMode((value) => !value); setDraggedNoteId(null); }}>
+            <div className="notes-header-actions section-header-actions projects-header-actions">
+              <button className={`sphere-manage-toggle note-manage-toggle ${noteManageMode ? "active" : ""}`} onClick={() => { setNoteManageMode((value) => !value); setDraggedNoteId(null); }}>
                 <AppIcon name="edit" size={16} /><span>{noteManageMode ? "Готово" : "Редактировать"}</span>
               </button>
-              <button className="section-add-square" aria-label="Создать заметку" title="Создать заметку" onClick={openNewNote}>＋</button>
+              <button className="section-add-square projects-add-root" aria-label="Создать заметку" title="Создать заметку" onClick={openNewNote}>＋</button>
             </div>
           </header>
 
