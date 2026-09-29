@@ -103,6 +103,91 @@ const BACKUP_ARRAY_KEYS = new Set([
   ATTACHMENTS_STORAGE_KEY
 ]);
 
+type BackupRecord = Record<string, unknown>;
+
+function parseBackupArray(value: string | null): BackupRecord[] {
+  if (!value) return [];
+  const parsed = JSON.parse(value);
+  if (!Array.isArray(parsed)) throw new Error("invalid_collection");
+  return parsed.filter((item): item is BackupRecord => Boolean(item) && typeof item === "object" && !Array.isArray(item));
+}
+
+function itemTimestamp(item: BackupRecord) {
+  const value = typeof item.updatedAt === "string"
+    ? item.updatedAt
+    : typeof item.createdAt === "string"
+      ? item.createdAt
+      : "";
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? timestamp : 0;
+}
+
+function mergeRecordsById(current: BackupRecord[], incoming: BackupRecord[]) {
+  const merged = new Map<string, BackupRecord>();
+
+  for (const item of current) {
+    if (typeof item.id === "string" && item.id) merged.set(item.id, item);
+  }
+
+  for (const item of incoming) {
+    if (typeof item.id !== "string" || !item.id) continue;
+    const existing = merged.get(item.id);
+    if (!existing || itemTimestamp(item) > itemTimestamp(existing)) merged.set(item.id, item);
+  }
+
+  return Array.from(merged.values());
+}
+
+function relationIdentity(item: BackupRecord) {
+  const a = item.a as BackupRecord | undefined;
+  const b = item.b as BackupRecord | undefined;
+  if (!a || !b || typeof a.type !== "string" || typeof a.id !== "string" || typeof b.type !== "string" || typeof b.id !== "string") {
+    return typeof item.id === "string" ? item.id : "";
+  }
+  return [`${a.type}:${a.id}`, `${b.type}:${b.id}`].sort().join("|");
+}
+
+function mergeRelations(current: BackupRecord[], incoming: BackupRecord[]) {
+  const merged = new Map<string, BackupRecord>();
+  for (const item of [...current, ...incoming]) {
+    const identity = relationIdentity(item);
+    if (!identity) continue;
+    const existing = merged.get(identity);
+    if (!existing || itemTimestamp(item) > itemTimestamp(existing)) merged.set(identity, item);
+  }
+  return Array.from(merged.values());
+}
+
+function attachmentLinkIdentity(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return "";
+  const ref = value as BackupRecord;
+  return typeof ref.type === "string" && typeof ref.id === "string" ? `${ref.type}:${ref.id}` : "";
+}
+
+function mergeAttachments(current: BackupRecord[], incoming: BackupRecord[]) {
+  const merged = new Map<string, BackupRecord>();
+
+  for (const item of [...current, ...incoming]) {
+    if (typeof item.id !== "string" || !item.id) continue;
+    const existing = merged.get(item.id);
+    if (!existing) {
+      merged.set(item.id, item);
+      continue;
+    }
+
+    const links = new Map<string, unknown>();
+    for (const link of [...(Array.isArray(existing.links) ? existing.links : []), ...(Array.isArray(item.links) ? item.links : [])]) {
+      const identity = attachmentLinkIdentity(link);
+      if (identity) links.set(identity, link);
+    }
+
+    const preferred = itemTimestamp(item) > itemTimestamp(existing) ? item : existing;
+    merged.set(item.id, { ...preferred, links: Array.from(links.values()) });
+  }
+
+  return Array.from(merged.values());
+}
+
 const filterLabels: Record<Filter, string> = {
   all: "Все",
   today: "Сегодня",
@@ -908,8 +993,7 @@ export function App() {
         if (value !== null && typeof value !== "string") throw new Error("invalid_value");
 
         if (typeof value === "string" && BACKUP_ARRAY_KEYS.has(key)) {
-          const decoded = JSON.parse(value);
-          if (!Array.isArray(decoded)) throw new Error("invalid_collection");
+          parseBackupArray(value);
         }
 
         if (key === DAILY_FOCUS_STORAGE_KEY && typeof value === "string") {
@@ -922,15 +1006,57 @@ export function App() {
         }
       }
 
-      if (!window.confirm("Восстановить эту копию? Текущие данные СФЕРЫ будут полностью заменены данными из файла.")) return;
+      if (!window.confirm("Объединить данные из этой копии с текущей СФЕРОЙ? Данные на этом устройстве не будут удалены.")) return;
 
       const previous = Object.fromEntries(BACKUP_KEYS.map((key) => [key, localStorage.getItem(key)]));
 
       try {
-        for (const key of BACKUP_KEYS) localStorage.removeItem(key);
-        for (const key of importedKeys) {
-          const value = data[key];
-          if (typeof value === "string") localStorage.setItem(key, value);
+        const currentTasks = parseBackupArray(localStorage.getItem(STORAGE_KEY));
+        const incomingTasksV2 = typeof data[STORAGE_KEY] === "string" ? parseBackupArray(data[STORAGE_KEY] as string) : [];
+        const incomingTasksV1 = typeof data["sfera.tasks.v1"] === "string" ? parseBackupArray(data["sfera.tasks.v1"] as string) : [];
+        const normalizedIncomingTasks = [...incomingTasksV2, ...incomingTasksV1]
+          .filter((item) => typeof item.title === "string")
+          .map((item) => createTask(item as Partial<Task> & Pick<Task, "title">));
+        const mergedTasks = mergeRecordsById(currentTasks, normalizedIncomingTasks as unknown as BackupRecord[]);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(mergedTasks));
+        localStorage.removeItem("sfera.tasks.v1");
+
+        const collectionKeys = [PROJECTS_STORAGE_KEY, NOTES_STORAGE_KEY, GOALS_STORAGE_KEY] as const;
+        for (const key of collectionKeys) {
+          const current = parseBackupArray(localStorage.getItem(key));
+          const incoming = typeof data[key] === "string" ? parseBackupArray(data[key] as string) : [];
+          localStorage.setItem(key, JSON.stringify(mergeRecordsById(current, incoming)));
+        }
+
+        const currentRelations = parseBackupArray(localStorage.getItem(RELATIONS_STORAGE_KEY));
+        const incomingRelations = typeof data[RELATIONS_STORAGE_KEY] === "string"
+          ? parseBackupArray(data[RELATIONS_STORAGE_KEY] as string)
+          : [];
+        localStorage.setItem(RELATIONS_STORAGE_KEY, JSON.stringify(mergeRelations(currentRelations, incomingRelations)));
+
+        const currentAttachments = parseBackupArray(localStorage.getItem(ATTACHMENTS_STORAGE_KEY));
+        const incomingAttachments = typeof data[ATTACHMENTS_STORAGE_KEY] === "string"
+          ? parseBackupArray(data[ATTACHMENTS_STORAGE_KEY] as string)
+          : [];
+        localStorage.setItem(ATTACHMENTS_STORAGE_KEY, JSON.stringify(mergeAttachments(currentAttachments, incomingAttachments)));
+
+        if (!localStorage.getItem(PROFILE_NAME_STORAGE_KEY) && typeof data[PROFILE_NAME_STORAGE_KEY] === "string") {
+          localStorage.setItem(PROFILE_NAME_STORAGE_KEY, data[PROFILE_NAME_STORAGE_KEY] as string);
+        }
+
+        if (!localStorage.getItem("sfera.projectView") && (data["sfera.projectView"] === "grid" || data["sfera.projectView"] === "list")) {
+          localStorage.setItem("sfera.projectView", data["sfera.projectView"] as string);
+        }
+
+        const currentFocusRaw = localStorage.getItem(DAILY_FOCUS_STORAGE_KEY);
+        const incomingFocusRaw = typeof data[DAILY_FOCUS_STORAGE_KEY] === "string" ? data[DAILY_FOCUS_STORAGE_KEY] as string : null;
+        if (incomingFocusRaw) {
+          const currentFocus = currentFocusRaw ? JSON.parse(currentFocusRaw) as { date?: string; text?: string } : null;
+          const incomingFocus = JSON.parse(incomingFocusRaw) as { date?: string; text?: string };
+          const currentHasText = currentFocus?.date === isoToday() && typeof currentFocus.text === "string" && currentFocus.text.trim();
+          if (!currentHasText && incomingFocus?.date === isoToday() && typeof incomingFocus.text === "string") {
+            localStorage.setItem(DAILY_FOCUS_STORAGE_KEY, incomingFocusRaw);
+          }
         }
       } catch (error) {
         for (const key of BACKUP_KEYS) {
@@ -941,10 +1067,10 @@ export function App() {
         throw error;
       }
 
-      setToast("Копия восстановлена");
+      setToast("Данные объединены");
       window.setTimeout(() => window.location.reload(), 450);
     } catch {
-      setToast("Не удалось восстановить копию: файл повреждён или не подходит");
+      setToast("Не удалось объединить копию: файл повреждён или не подходит");
     }
   }
 
@@ -2693,7 +2819,7 @@ export function App() {
           <div className="settings-card">
             <button onClick={downloadBackup}><span className="settings-icon">↓</span><span>Скачать копию данных</span><b>›</b></button>
             <button onClick={() => document.getElementById("restore-backup-file")?.click()}>
-              <span className="settings-icon">↑</span><span>Восстановить из копии</span><b>›</b>
+              <span className="settings-icon">↑</span><span>Объединить с копией</span><b>›</b>
             </button>
             <input
               id="restore-backup-file"
@@ -2706,7 +2832,7 @@ export function App() {
               }}
             />
           </div>
-          <p className="settings-data-note">Копию можно перенести на другое устройство и восстановить все сохранённые данные СФЕРЫ.</p>
+          <p className="settings-data-note">Копию можно перенести с другого устройства и объединить с текущими данными без их удаления.</p>
         </div>
       </section>
 
