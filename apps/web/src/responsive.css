@@ -3542,3 +3542,296 @@
     gap: 7px !important;
   }
 }
+
+
+/* Task and note display modes v17 */
+.task-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.task-display-card {
+  position: relative;
+  min-width: 0;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid #dfe7e3;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 5px 16px rgba(36, 56, 49, .045);
+}
+
+.task-display-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 14px;
+  left: 14px;
+  height: 3px;
+  border-radius: 0 0 999px 999px;
+  background: #aebbb6;
+}
+
+.task-display-card.p1::before { background: #c84c48; }
+.task-display-card.p2::before { background: #d58a2c; }
+.task-display-card.p3::before { background: #3977cf; }
+
+.task-display-card.is-done {
+  opacity: .68;
+}
+
+.task-display-card.is-dragging {
+  opacity: .42;
+  transform: scale(.985);
+}
+
+.task-display-card.task-managing {
+  cursor: grab;
+  padding-bottom: 56px;
+}
+
+.task-display-card.task-managing:active {
+  cursor: grabbing;
+}
+
+.task-display-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.task-display-card-top .check-button {
+  width: 28px !important;
+  min-width: 28px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  margin: 0 !important;
+}
+
+.task-display-symbol {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  color: #6f7d77;
+  font-size: .72rem;
+}
+
+.task-display-priority {
+  margin-left: auto;
+  color: #84908a;
+  font-size: .66rem;
+  font-weight: 650;
+}
+
+.task-display-card-main {
+  min-width: 0;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.task-display-card-main strong {
+  display: block;
+  overflow: hidden;
+  color: #26352f;
+  font-size: .94rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-display-card-main p {
+  display: -webkit-box;
+  margin: 7px 0 0;
+  overflow: hidden;
+  color: #74817b;
+  font-size: .73rem;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.task-display-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 8px;
+  margin-top: auto;
+  color: #7e8984;
+  font-size: .66rem;
+}
+
+.task-display-card-meta .overdue {
+  color: #b6534d;
+  font-weight: 700;
+}
+
+.task-card-manage-controls {
+  position: absolute;
+  right: 9px;
+  bottom: 9px;
+  left: 9px;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 4px;
+  border: 1px solid #dfe6e2;
+  border-radius: 10px;
+  background: #f7faf8;
+}
+
+.task-card-manage-controls .task-drag-handle {
+  margin-right: auto;
+}
+
+.task-card-manage-controls button {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #dce4e0;
+  border-radius: 8px;
+  background: #fff;
+  color: #65736d;
+  cursor: pointer;
+}
+
+.task-card-manage-controls button.danger {
+  border-color: #efd8d5;
+  color: #a9564f;
+}
+
+.notes-grid.notes-display-list {
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 6px !important;
+}
+
+.notes-display-list .note-card,
+.notes-display-list .note-card[class*="note-kind-"] {
+  min-height: 68px !important;
+  display: grid !important;
+  grid-template-columns: 120px minmax(0, 1fr) minmax(0, 1.15fr) auto !important;
+  grid-template-rows: auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 10px 12px !important;
+  border: 1px solid #e0e7e3 !important;
+  border-radius: 13px !important;
+  background: #fff !important;
+}
+
+.notes-display-list .note-card-top {
+  min-width: 0;
+  margin: 0 !important;
+}
+
+.notes-display-list .note-card h3 {
+  min-width: 0;
+  margin: 0 !important;
+  overflow: hidden;
+  font-size: .86rem !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notes-display-list .note-card p {
+  display: block !important;
+  min-width: 0;
+  margin: 0 !important;
+  overflow: hidden;
+  color: #76837d !important;
+  font-size: .7rem !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notes-display-list .note-card footer {
+  min-width: 0;
+  margin: 0 !important;
+  justify-content: flex-end;
+  white-space: nowrap;
+}
+
+.notes-display-list .note-card.note-managing {
+  min-height: 84px !important;
+  grid-template-columns: 105px minmax(0,1fr) minmax(0,1fr) auto !important;
+  padding-bottom: 48px !important;
+}
+
+.notes-display-list .note-manage-controls {
+  right: 8px;
+  bottom: 7px;
+  left: 8px;
+  min-height: 32px;
+}
+
+@media (max-width: 900px) and (min-width: 721px) {
+  .task-card-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .notes-display-list .note-card,
+  .notes-display-list .note-card[class*="note-kind-"] {
+    grid-template-columns: 100px minmax(0, 1fr) minmax(0, .8fr) auto !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .task-card-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 7px;
+  }
+
+  .task-display-card {
+    min-height: 128px;
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .task-display-card.task-managing {
+    padding-bottom: 52px;
+  }
+
+  .task-card-manage-controls .task-drag-handle {
+    display: none !important;
+  }
+
+  .notes-grid.notes-display-list {
+    gap: 0 !important;
+  }
+
+  .notes-display-list .note-card,
+  .notes-display-list .note-card[class*="note-kind-"] {
+    min-height: 64px !important;
+    display: grid !important;
+    grid-template-columns: 78px minmax(0, 1fr) auto !important;
+    gap: 8px !important;
+    padding: 9px 8px !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e8ece9 !important;
+    border-radius: 0 !important;
+  }
+
+  .notes-display-list .note-card p {
+    display: none !important;
+  }
+
+  .notes-display-list .note-card footer {
+    font-size: .61rem !important;
+  }
+
+  .notes-display-list .note-card.note-managing {
+    min-height: 80px !important;
+    padding-bottom: 45px !important;
+  }
+}
