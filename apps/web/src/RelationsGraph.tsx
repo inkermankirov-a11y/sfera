@@ -80,6 +80,7 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
   } | null>(null);
   const [nodes, setNodes] = useState<GraphNode[]>([]);
   const [hovered, setHovered] = useState<string | null>(null);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [viewBox, setViewBox] = useState<GraphViewBox>(INITIAL_VIEWBOX);
   const viewBoxRef = useRef<GraphViewBox>(INITIAL_VIEWBOX);
   const [live, setLive] = useState(true);
@@ -164,15 +165,62 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
     return result;
   }, [nodeRefs, structureEdges]);
 
-  const connectedToHovered = useMemo(() => {
-    if (!hovered) return new Set<string>();
-    const result = new Set<string>([hovered]);
+  const focusedKey = hovered ?? selectedKey;
+
+  const connectedToFocused = useMemo(() => {
+    if (!focusedKey) return new Set<string>();
+    const result = new Set<string>([focusedKey]);
     edgeKeys.forEach((edge) => {
-      if (edge.a === hovered) result.add(edge.b);
-      if (edge.b === hovered) result.add(edge.a);
+      if (edge.a === focusedKey) result.add(edge.b);
+      if (edge.b === focusedKey) result.add(edge.a);
     });
     return result;
-  }, [edgeKeys, hovered]);
+  }, [edgeKeys, focusedKey]);
+
+  const selectedRef = useMemo(
+    () => selectedKey ? nodeRefs.find((ref) => keyOf(ref) === selectedKey) ?? null : null,
+    [nodeRefs, selectedKey]
+  );
+
+  const selectedConnections = useMemo(() => {
+    if (!selectedKey) return [];
+
+    const refsByKey = new Map(nodeRefs.map((ref) => [keyOf(ref), ref]));
+    const grouped = new Map<string, { ref: ObjectRef; manual: boolean; structure: boolean }>();
+
+    const add = (otherKey: string, kind: "manual" | "structure") => {
+      const ref = refsByKey.get(otherKey);
+      if (!ref) return;
+      const current = grouped.get(otherKey) ?? { ref, manual: false, structure: false };
+      if (kind === "manual") current.manual = true;
+      else current.structure = true;
+      grouped.set(otherKey, current);
+    };
+
+    structureEdges.forEach((edge) => {
+      const a = keyOf(edge.a);
+      const b = keyOf(edge.b);
+      if (a === selectedKey) add(b, "structure");
+      if (b === selectedKey) add(a, "structure");
+    });
+
+    relations.forEach((relation) => {
+      const a = keyOf(relation.a);
+      const b = keyOf(relation.b);
+      if (a === selectedKey) add(b, "manual");
+      if (b === selectedKey) add(a, "manual");
+    });
+
+    return Array.from(grouped.values()).sort((a, b) =>
+      getTitle(a.ref).localeCompare(getTitle(b.ref), "ru")
+    );
+  }, [getTitle, nodeRefs, relations, selectedKey, structureEdges]);
+
+  useEffect(() => {
+    if (selectedKey && !nodeRefs.some((ref) => keyOf(ref) === selectedKey)) {
+      setSelectedKey(null);
+    }
+  }, [nodeRefs, selectedKey]);
 
   useEffect(() => {
     const previous = new Map(simulationRef.current.map((node) => [node.key, node]));
@@ -430,6 +478,7 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
         </div>
       </header>
 
+      <div className={`relations-graph-body ${selectedRef ? "has-selection" : ""}`}>
       <div className="relations-graph-stage">
         <svg
           ref={svgRef}
@@ -494,13 +543,13 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
                 const a = byKey.get(edge.a);
                 const b = byKey.get(edge.b);
                 if (!a || !b) return null;
-                const active = !hovered || edge.a === hovered || edge.b === hovered;
+                const active = !focusedKey || edge.a === focusedKey || edge.b === focusedKey;
                 return <line key={edge.id} x1={a.x} y1={a.y} x2={b.x} y2={b.y} className={`${edge.kind === "structure" ? "structure" : "relation"} ${active ? "active" : "dimmed"}`} />;
               })}
             </g>
             <g className="relations-graph-nodes">
               {nodes.map((node) => {
-                const highlighted = !hovered || connectedToHovered.has(node.key);
+                const highlighted = !focusedKey || connectedToFocused.has(node.key);
                 const meta = hierarchy.get(node.key);
                 const depth = meta?.depth ?? 0;
                 const degree = degreeByKey.get(node.key) ?? 0;
@@ -509,11 +558,12 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
                   : depth <= 1 ? 10 : depth === 2 ? 8.5 : 7.5;
                 const degreeBoost = depth === 0 ? Math.min(2, degree * .22) : 0;
                 const radius = baseRadius + degreeBoost;
-                const activeRadius = hovered === node.key ? radius + 2.5 : radius;
+                const isSelected = selectedKey === node.key;
+                const activeRadius = hovered === node.key || isSelected ? radius + 2.5 : radius;
                 return (
                   <g
                     key={node.key}
-                    className={`graph-node node-${node.ref.type} depth-${Math.min(depth, 4)} ${highlighted ? "" : "dimmed"} ${hovered === node.key ? "hovered" : ""}`}
+                    className={`graph-node node-${node.ref.type} depth-${Math.min(depth, 4)} ${highlighted ? "" : "dimmed"} ${hovered === node.key ? "hovered" : ""} ${isSelected ? "selected" : ""}`}
                     transform={`translate(${node.x} ${node.y})`}
                     onPointerEnter={() => setHovered(node.key)}
                     onPointerLeave={() => setHovered(null)}
@@ -538,11 +588,11 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
                       event.currentTarget.releasePointerCapture(event.pointerId);
                       const moved = dragRef.current?.moved;
                       dragRef.current = null;
-                      if (!moved) onOpen(node.ref);
+                      if (!moved) setSelectedKey(node.key);
                     }}
                   >
                     <circle className="graph-node-halo" r={Math.max(24, radius + 12)} />
-                    <circle className="graph-node-core" r={activeRadius} filter={hovered === node.key ? "url(#nodeGlow)" : undefined} />
+                    <circle className="graph-node-core" r={activeRadius} filter={hovered === node.key || isSelected ? "url(#nodeGlow)" : undefined} />
                     <text className="graph-node-label" x="0" y="30" textAnchor="middle">{shortTitle(getTitle(node.ref))}</text>
                   </g>
                 );
@@ -556,6 +606,61 @@ export function RelationsGraph({ relations, objects, structureEdges = [], getTit
           <span><i className="note" />Заметка</span>
           <small>Колесо — масштаб · потяни фон — перемещение</small>
         </div>
+      </div>
+
+      {selectedRef && (
+        <aside className="relations-object-panel" aria-label="Связи выбранного объекта">
+          <div className="relations-object-panel-head">
+            <div>
+              <small>{getTypeLabel(selectedRef.type)}</small>
+              <h3>{getTitle(selectedRef)}</h3>
+            </div>
+            <button className="relations-object-panel-close" onClick={() => setSelectedKey(null)} aria-label="Закрыть">×</button>
+          </div>
+
+          <button className="relations-object-open" onClick={() => onOpen(selectedRef)}>
+            Открыть объект
+          </button>
+
+          <div className="relations-object-panel-section">
+            <div className="relations-object-panel-title">
+              <strong>Связи</strong>
+              <span>{selectedConnections.length}</span>
+            </div>
+
+            {selectedConnections.length === 0 ? (
+              <p className="relations-object-empty">У этого объекта пока нет прямых связей.</p>
+            ) : (
+              <div className="relations-object-list">
+                {selectedConnections.map((connection) => {
+                  const connectionKey = keyOf(connection.ref);
+                  return (
+                    <div className="relations-object-row" key={connectionKey}>
+                      <button className="relations-object-select" onClick={() => setSelectedKey(connectionKey)}>
+                        <span className={`relations-object-dot ${connection.ref.type}`} />
+                        <span className="relations-object-copy">
+                          <small>{getTypeLabel(connection.ref.type)}</small>
+                          <strong>{getTitle(connection.ref)}</strong>
+                          <span className="relations-object-kinds">
+                            {connection.manual && <em>Ручная</em>}
+                            {connection.structure && <em>Структура</em>}
+                          </span>
+                        </span>
+                      </button>
+                      <button
+                        className="relations-object-row-open"
+                        onClick={() => onOpen(connection.ref)}
+                        aria-label={`Открыть «${getTitle(connection.ref)}»`}
+                        title="Открыть объект"
+                      >↗</button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </aside>
+      )}
       </div>
     </section>
   );
