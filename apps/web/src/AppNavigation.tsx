@@ -49,8 +49,7 @@ export function DesktopSidebar({
       <nav className="side-nav">
         <button className={section === "home" ? "active" : ""} onClick={() => onSection("home")}><span><AppIcon name="home" /></span>Сегодня</button>
         <button className={section === "tasks" ? "active" : ""} onClick={() => onSection("tasks")}><span><AppIcon name="check" /></span>Задачи</button>
-        <button className={section === "projects" ? "active" : ""} onClick={() => onSection("projects")}><span><AppIcon name="orbit" /></span>Сферы</button>
-        <button className={section === "shopping" ? "active" : ""} onClick={() => onSection("shopping")}><span><AppIcon name="cart" /></span>Покупки</button>
+        <button className={section === "projects" || section === "shopping" ? "active" : ""} onClick={() => onSection("projects")}><span><AppIcon name="orbit" /></span>Сферы</button>
         <button className={section === "notes" ? "active" : ""} onClick={() => onSection("notes")}><span><AppIcon name="note" /></span>Заметки</button>
 
         <span className="side-nav-label">Ещё</span>
@@ -112,8 +111,7 @@ export function MobileNavigation({
         <button className={section === "home" && !settingsOpen ? "active" : ""} onClick={() => onSection("home")}><span><AppIcon name="home" /></span>Сегодня</button>
         <button className={section === "tasks" && !settingsOpen ? "active" : ""} onClick={() => onSection("tasks")}><span><AppIcon name="check" /></span>Задачи</button>
         <button className="mobile-add-nav" aria-label="Добавить" onClick={onAdd}><span><AppIcon name="plus" /></span>Добавить</button>
-        <button className={section === "projects" && !settingsOpen ? "active" : ""} onClick={() => onSection("projects")}><span><AppIcon name="orbit" /></span>Сферы</button>
-        <button className={section === "shopping" && !settingsOpen ? "active" : ""} onClick={() => onSection("shopping")}><span><AppIcon name="cart" /></span>Покупки</button>
+        <button className={(section === "projects" || section === "shopping") && !settingsOpen ? "active" : ""} onClick={() => onSection("projects")}><span><AppIcon name="orbit" /></span>Сферы</button>
         <button className={moreActive ? "active" : ""} onClick={() => onMoreOpenChange(true)}><span><AppIcon name="more" /></span>Ещё</button>
       </nav>
 
