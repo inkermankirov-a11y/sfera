@@ -8,6 +8,7 @@ export type Note = {
   projectId: string | null;
   date: string | null;
   favorite: boolean;
+  order: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -34,6 +35,7 @@ export function createNote(partial: Partial<Note> & Pick<Note, "title">): Note {
     projectId: partial.projectId ?? null,
     date: partial.date ?? null,
     favorite: partial.favorite ?? false,
+    order: partial.order ?? 0,
     createdAt: partial.createdAt ?? now,
     updatedAt: partial.updatedAt ?? now
   };
@@ -47,20 +49,23 @@ export function seedNotes(): Note[] {
       body: "Сохранить тему и вернуться к ней при подготовке контента.",
       kind: "idea",
       projectId: "project-tarot-content",
-      favorite: true
+      favorite: true,
+      order: 10
     }),
     createNote({
       id: "note-diary-today",
       title: "Что сегодня дало мне силы",
       body: "Короткая запись дня. Дневник всегда привязан к дате.",
       kind: "diary",
-      date: todayIso()
+      date: todayIso(),
+      order: 20
     }),
     createNote({
       id: "note-books",
       title: "Книги на осень",
       body: "Коллекция книг, которые хочется прочитать.",
-      kind: "collection"
+      kind: "collection",
+      order: 30
     })
   ];
 }
@@ -70,7 +75,12 @@ export function readNotes(): Note[] {
     const raw = localStorage.getItem(NOTES_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed.map((item) => createNote(item));
+      if (Array.isArray(parsed)) {
+        return parsed.map((item, index) => createNote({
+          ...item,
+          order: typeof item?.order === "number" ? item.order : (index + 1) * 10
+        }));
+      }
     }
   } catch {
     // fall through
