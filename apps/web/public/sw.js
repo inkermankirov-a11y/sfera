@@ -1,4 +1,4 @@
-const CACHE = "sfera-shell-v10";
+const CACHE = "sfera-shell-v11";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
