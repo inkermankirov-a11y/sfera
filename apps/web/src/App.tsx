@@ -369,6 +369,8 @@ export function App() {
   const [projectView, setProjectView] = useState<"grid" | "list">(() => {
     try { return localStorage.getItem("sfera.projectView") === "list" ? "list" : "grid"; } catch { return "grid"; }
   });
+  const [sphereManageMode, setSphereManageMode] = useState(false);
+  const [draggedSphereId, setDraggedSphereId] = useState<string | null>(null);
   const [relations, setRelations] = useState<Relation[]>(() => readRelations());
   const [attachments, setAttachments] = useState<Attachment[]>(() => readAttachments());
   const [linkType, setLinkType] = useState<EntityType>("project");
@@ -1235,7 +1237,9 @@ export function App() {
     const parentId = project.parentId;
     setProjects((current) => current
       .filter((item) => item.id !== project.id)
-      .map((item) => item.parentId === project.id ? { ...item, parentId, updatedAt: nowIso() } : item));
+      .map((item) => item.parentId === project.id
+        ? { ...item, parentId, kind: parentId ? "project" : "sphere", updatedAt: nowIso() }
+        : item));
     setTasks((current) => current.map((task) => task.projectId === project.id ? { ...task, projectId: parentId, updatedAt: nowIso() } : task));
     setNotes((current) => current.map((note) => note.projectId === project.id ? { ...note, projectId: parentId, updatedAt: nowIso() } : note));
     setRelations((current) => removeRelationsFor(current, ref));
@@ -1244,7 +1248,47 @@ export function App() {
       .filter((attachment) => attachment.links.length > 0));
     setSelectedProjectId(parentId);
     setProjectEditOpen(false);
-    setToast("Проект удалён");
+    setToast(project.kind === "sphere" ? "Сфера удалена" : "Проект удалён");
+  }
+
+  function renameSphere(project: ProjectNode) {
+    const title = window.prompt("Новое название сферы", project.title)?.trim();
+    if (!title || title === project.title) return;
+    patchProject(project.id, { title });
+    setToast("Сфера переименована");
+  }
+
+  function reorderRootSpheres(draggedId: string, targetId: string) {
+    if (draggedId === targetId) return;
+    setProjects((current) => {
+      const roots = current
+        .filter((project) => project.parentId === null)
+        .sort((a, b) => a.order - b.order || a.createdAt.localeCompare(b.createdAt));
+      const from = roots.findIndex((project) => project.id === draggedId);
+      const to = roots.findIndex((project) => project.id === targetId);
+      if (from < 0 || to < 0) return current;
+
+      const reordered = [...roots];
+      const [moved] = reordered.splice(from, 1);
+      reordered.splice(to, 0, moved);
+      const orderById = new Map(reordered.map((project, index) => [project.id, (index + 1) * 10]));
+      const changedAt = nowIso();
+
+      return current.map((project) => {
+        const nextOrder = orderById.get(project.id);
+        return nextOrder === undefined || nextOrder === project.order
+          ? project
+          : { ...project, order: nextOrder, updatedAt: changedAt };
+      });
+    });
+  }
+
+  function moveRootSphere(id: string, direction: -1 | 1) {
+    const roots = projectChildren(projects, null);
+    const index = roots.findIndex((project) => project.id === id);
+    const target = roots[index + direction];
+    if (!target) return;
+    reorderRootSpheres(id, target.id);
   }
 
   function setProjectViewMode(mode: "grid" | "list") {
@@ -1314,7 +1358,7 @@ export function App() {
   function renderProjectGrid(parentId: string | null) {
     const items = projectChildren(projects, parentId);
     return (
-      <div className="project-grid">
+      <div className={`project-grid ${parentId === null && sphereManageMode ? "sphere-manage-mode" : ""}`}>
         {parentId === null && (
           <button
             className="project-tile sphere-root-tile shopping-sphere-tile"
@@ -1333,11 +1377,44 @@ export function App() {
           const children = projectChildren(projects, project.id);
           const tone = sphereTone(projects, project.id);
           const sphereIndex = rootSpheres.findIndex((sphere) => sphere.id === project.id);
+          const isRoot = parentId === null;
+          const rootIndex = isRoot ? items.findIndex((item) => item.id === project.id) : -1;
           return (
-            <button
-              className={`project-tile sphere-tone-${tone} ${project.kind === "sphere" ? "sphere-root-tile" : "sphere-child-tile"}`}
+            <div
+              className={`project-tile sphere-tone-${tone} ${project.kind === "sphere" ? "sphere-root-tile" : "sphere-child-tile"} ${isRoot && sphereManageMode ? "is-managing" : ""} ${draggedSphereId === project.id ? "is-dragging" : ""}`}
               key={project.id}
-              onClick={() => setSelectedProjectId(project.id)}
+              role="button"
+              tabIndex={sphereManageMode && isRoot ? -1 : 0}
+              draggable={isRoot && sphereManageMode}
+              onClick={() => {
+                if (!sphereManageMode || !isRoot) setSelectedProjectId(project.id);
+              }}
+              onKeyDown={(event) => {
+                if ((event.key === "Enter" || event.key === " ") && (!sphereManageMode || !isRoot)) {
+                  event.preventDefault();
+                  setSelectedProjectId(project.id);
+                }
+              }}
+              onDragStart={(event) => {
+                if (!isRoot || !sphereManageMode) return;
+                setDraggedSphereId(project.id);
+                event.dataTransfer.effectAllowed = "move";
+                event.dataTransfer.setData("text/plain", project.id);
+              }}
+              onDragEnd={() => setDraggedSphereId(null)}
+              onDragOver={(event) => {
+                if (isRoot && sphereManageMode && draggedSphereId) {
+                  event.preventDefault();
+                  event.dataTransfer.dropEffect = "move";
+                }
+              }}
+              onDrop={(event) => {
+                if (!isRoot || !sphereManageMode) return;
+                event.preventDefault();
+                const sourceId = draggedSphereId || event.dataTransfer.getData("text/plain");
+                if (sourceId) reorderRootSpheres(sourceId, project.id);
+                setDraggedSphereId(null);
+              }}
             >
               <span className="project-tile-top">
                 <span className="project-tile-icon"><AppIcon name={project.kind === "sphere" ? "orbit" : "folder"} size={20} /></span>
@@ -1346,7 +1423,31 @@ export function App() {
               <strong>{project.title}</strong>
               <small>{projectTaskCount(project.id)} {russianPlural(projectTaskCount(project.id), "задача", "задачи", "задач")} · {children.length} {russianPlural(children.length, "подпроект", "подпроекта", "подпроектов")}</small>
               <b><AppIcon name="chevron" size={16} /></b>
-            </button>
+
+              {isRoot && sphereManageMode && (
+                <div className="sphere-manage-controls" onClick={(event) => event.stopPropagation()}>
+                  <span className="sphere-drag-handle" title="Перетащить" aria-hidden="true">⠿</span>
+                  <button
+                    type="button"
+                    onClick={() => moveRootSphere(project.id, -1)}
+                    disabled={rootIndex <= 0}
+                    aria-label={`Переместить «${project.title}» выше`}
+                    title="Выше"
+                  >↑</button>
+                  <button
+                    type="button"
+                    onClick={() => moveRootSphere(project.id, 1)}
+                    disabled={rootIndex >= items.length - 1}
+                    aria-label={`Переместить «${project.title}» ниже`}
+                    title="Ниже"
+                  >↓</button>
+                  <button type="button" onClick={() => renameSphere(project)} aria-label={`Переименовать «${project.title}»`} title="Переименовать">
+                    <AppIcon name="edit" size={15} />
+                  </button>
+                  <button className="danger" type="button" onClick={() => deleteProjectNode(project)} aria-label={`Удалить «${project.title}»`} title="Удалить">×</button>
+                </div>
+              )}
+            </div>
           );
         })}
       </div>
@@ -1354,29 +1455,62 @@ export function App() {
   }
 
   function renderProjectTree(parentId: string | null, depth = 0): React.ReactNode {
-    const rows = projectChildren(projects, parentId).map((project) => {
+    const items = projectChildren(projects, parentId);
+    const rows = items.map((project, index) => {
       const children = projectChildren(projects, project.id);
+      const isRoot = parentId === null;
       return (
-        <div className="project-tree-node" key={project.id}>
+        <div
+          className={`project-tree-node ${isRoot && sphereManageMode ? "is-managing" : ""} ${draggedSphereId === project.id ? "is-dragging" : ""}`}
+          key={project.id}
+          draggable={isRoot && sphereManageMode}
+          onDragStart={(event) => {
+            if (!isRoot || !sphereManageMode) return;
+            setDraggedSphereId(project.id);
+            event.dataTransfer.effectAllowed = "move";
+            event.dataTransfer.setData("text/plain", project.id);
+          }}
+          onDragEnd={() => setDraggedSphereId(null)}
+          onDragOver={(event) => {
+            if (isRoot && sphereManageMode && draggedSphereId) event.preventDefault();
+          }}
+          onDrop={(event) => {
+            if (!isRoot || !sphereManageMode) return;
+            event.preventDefault();
+            const sourceId = draggedSphereId || event.dataTransfer.getData("text/plain");
+            if (sourceId) reorderRootSpheres(sourceId, project.id);
+            setDraggedSphereId(null);
+          }}
+        >
           <div className={`project-tree-row project-depth-${Math.min(depth, 4)} sphere-tone-${sphereTone(projects, project.id)} ${depth === 0 ? "sphere-root-row" : "sphere-child-row"}`}>
             <button
               className="project-toggle"
-              disabled={children.length === 0}
+              disabled={children.length === 0 || (isRoot && sphereManageMode)}
               onClick={() => patchProject(project.id, { collapsed: !project.collapsed })}
               aria-label={project.collapsed ? "Развернуть" : "Свернуть"}
             >
-              {children.length ? (project.collapsed ? "›" : "⌄") : ""}
+              {children.length && !(isRoot && sphereManageMode) ? (project.collapsed ? "›" : "⌄") : ""}
             </button>
-            <button className="project-main" onClick={() => setSelectedProjectId(project.id)}>
+            <button className="project-main" onClick={() => { if (!(isRoot && sphereManageMode)) setSelectedProjectId(project.id); }}>
               <span className="project-folder-icon"><AppIcon name={project.kind === "sphere" ? "orbit" : "folder"} size={18} /></span>
               <span>
                 <strong>{project.title}</strong>
                 <small>{projectTaskCount(project.id)} активных задач</small>
               </span>
             </button>
-            <button className="project-open" aria-label={`Открыть ${project.kind === "sphere" ? "сферу" : "проект"} «${project.title}»`} onClick={() => setSelectedProjectId(project.id)}><AppIcon name="chevron" size={16} /></button>
+            {isRoot && sphereManageMode ? (
+              <div className="sphere-tree-manage-controls">
+                <span className="sphere-drag-handle" title="Перетащить" aria-hidden="true">⠿</span>
+                <button type="button" onClick={() => moveRootSphere(project.id, -1)} disabled={index <= 0} aria-label="Выше">↑</button>
+                <button type="button" onClick={() => moveRootSphere(project.id, 1)} disabled={index >= items.length - 1} aria-label="Ниже">↓</button>
+                <button type="button" onClick={() => renameSphere(project)} aria-label="Переименовать"><AppIcon name="edit" size={14} /></button>
+                <button className="danger" type="button" onClick={() => deleteProjectNode(project)} aria-label="Удалить">×</button>
+              </div>
+            ) : (
+              <button className="project-open" aria-label={`Открыть ${project.kind === "sphere" ? "сферу" : "проект"} «${project.title}»`} onClick={() => setSelectedProjectId(project.id)}><AppIcon name="chevron" size={16} /></button>
+            )}
           </div>
-          {!project.collapsed && children.length > 0 && (
+          {!project.collapsed && children.length > 0 && !(isRoot && sphereManageMode) && (
             <div className="project-subtree">{renderProjectTree(project.id, depth + 1)}</div>
           )}
         </div>
@@ -2198,6 +2332,15 @@ export function App() {
                   <h2>Сферы</h2>
                 </div>
                 <div className="projects-header-actions">
+                  <button
+                    className={`sphere-manage-toggle ${sphereManageMode ? "active" : ""}`}
+                    onClick={() => { setSphereManageMode((value) => !value); setDraggedSphereId(null); }}
+                    aria-pressed={sphereManageMode}
+                    title={sphereManageMode ? "Готово" : "Редактировать сферы"}
+                  >
+                    <AppIcon name="edit" size={16} />
+                    <span>{sphereManageMode ? "Готово" : "Редактировать"}</span>
+                  </button>
                   <div className="project-view-toggle" role="group" aria-label="Вид сфер">
                     <button className={projectView === "grid" ? "active" : ""} onClick={() => setProjectViewMode("grid")} aria-label="Плитка" title="Плитка">▦</button>
                     <button className={projectView === "list" ? "active" : ""} onClick={() => setProjectViewMode("list")} aria-label="Список" title="Список">☷</button>
