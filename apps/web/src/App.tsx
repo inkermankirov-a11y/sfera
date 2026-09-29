@@ -80,6 +80,29 @@ import {
 const PROFILE_NAME_STORAGE_KEY = "sfera.profile.name";
 const DAILY_FOCUS_STORAGE_KEY = "sfera.dashboard.daily-focus";
 
+const BACKUP_KEYS = [
+  STORAGE_KEY,
+  "sfera.tasks.v1",
+  PROJECTS_STORAGE_KEY,
+  NOTES_STORAGE_KEY,
+  GOALS_STORAGE_KEY,
+  RELATIONS_STORAGE_KEY,
+  ATTACHMENTS_STORAGE_KEY,
+  PROFILE_NAME_STORAGE_KEY,
+  DAILY_FOCUS_STORAGE_KEY,
+  "sfera.projectView"
+];
+
+const BACKUP_ARRAY_KEYS = new Set([
+  STORAGE_KEY,
+  "sfera.tasks.v1",
+  PROJECTS_STORAGE_KEY,
+  NOTES_STORAGE_KEY,
+  GOALS_STORAGE_KEY,
+  RELATIONS_STORAGE_KEY,
+  ATTACHMENTS_STORAGE_KEY
+]);
+
 const filterLabels: Record<Filter, string> = {
   all: "Все",
   today: "Сегодня",
@@ -848,10 +871,8 @@ export function App() {
   }
 
   function downloadBackup() {
-    const keys = [STORAGE_KEY, PROJECTS_STORAGE_KEY, NOTES_STORAGE_KEY, GOALS_STORAGE_KEY,
-      RELATIONS_STORAGE_KEY, ATTACHMENTS_STORAGE_KEY, PROFILE_NAME_STORAGE_KEY, DAILY_FOCUS_STORAGE_KEY, "sfera.projectView"];
     try {
-      const data = Object.fromEntries(keys.map((key) => [key, localStorage.getItem(key)]));
+      const data = Object.fromEntries(BACKUP_KEYS.map((key) => [key, localStorage.getItem(key)]));
       const blob = new Blob([JSON.stringify({ format: "sfera-backup-v1", exportedAt: nowIso(), data }, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -862,6 +883,68 @@ export function App() {
       setToast("Копия данных скачана");
     } catch {
       setToast("Не удалось создать копию данных");
+    }
+  }
+
+  async function restoreBackup(file: File | null) {
+    if (!file) return;
+
+    try {
+      const parsed = JSON.parse(await file.text()) as {
+        format?: unknown;
+        data?: unknown;
+      };
+
+      if (parsed.format !== "sfera-backup-v1" || !parsed.data || typeof parsed.data !== "object" || Array.isArray(parsed.data)) {
+        throw new Error("invalid_backup");
+      }
+
+      const data = parsed.data as Record<string, unknown>;
+      const importedKeys = BACKUP_KEYS.filter((key) => Object.prototype.hasOwnProperty.call(data, key));
+      if (importedKeys.length === 0) throw new Error("empty_backup");
+
+      for (const key of importedKeys) {
+        const value = data[key];
+        if (value !== null && typeof value !== "string") throw new Error("invalid_value");
+
+        if (typeof value === "string" && BACKUP_ARRAY_KEYS.has(key)) {
+          const decoded = JSON.parse(value);
+          if (!Array.isArray(decoded)) throw new Error("invalid_collection");
+        }
+
+        if (key === DAILY_FOCUS_STORAGE_KEY && typeof value === "string") {
+          const decoded = JSON.parse(value);
+          if (!decoded || typeof decoded !== "object" || Array.isArray(decoded)) throw new Error("invalid_focus");
+        }
+
+        if (key === "sfera.projectView" && value !== null && value !== "grid" && value !== "list") {
+          throw new Error("invalid_project_view");
+        }
+      }
+
+      if (!window.confirm("Восстановить эту копию? Текущие данные СФЕРЫ будут полностью заменены данными из файла.")) return;
+
+      const previous = Object.fromEntries(BACKUP_KEYS.map((key) => [key, localStorage.getItem(key)]));
+
+      try {
+        for (const key of BACKUP_KEYS) localStorage.removeItem(key);
+        for (const key of importedKeys) {
+          const value = data[key];
+          if (typeof value === "string") localStorage.setItem(key, value);
+        }
+      } catch (error) {
+        for (const key of BACKUP_KEYS) {
+          const value = previous[key];
+          if (value === null) localStorage.removeItem(key);
+          else localStorage.setItem(key, value);
+        }
+        throw error;
+      }
+
+      setToast("Копия восстановлена");
+      window.setTimeout(() => window.location.reload(), 450);
+    } catch {
+      setToast("Не удалось восстановить копию: файл повреждён или не подходит");
     }
   }
 
@@ -2609,8 +2692,21 @@ export function App() {
           <p className="settings-section-label">ВАШИ ДАННЫЕ</p>
           <div className="settings-card">
             <button onClick={downloadBackup}><span className="settings-icon">↓</span><span>Скачать копию данных</span><b>›</b></button>
+            <button onClick={() => document.getElementById("restore-backup-file")?.click()}>
+              <span className="settings-icon">↑</span><span>Восстановить из копии</span><b>›</b>
+            </button>
+            <input
+              id="restore-backup-file"
+              type="file"
+              accept=".json,application/json"
+              hidden
+              onChange={(event) => {
+                void restoreBackup(event.currentTarget.files?.[0] ?? null);
+                event.currentTarget.value = "";
+              }}
+            />
           </div>
-          <p className="settings-data-note">Данные хранятся в этом браузере. Скачайте копию, чтобы сохранить их отдельно.</p>
+          <p className="settings-data-note">Копию можно перенести на другое устройство и восстановить все сохранённые данные СФЕРЫ.</p>
         </div>
       </section>
 
