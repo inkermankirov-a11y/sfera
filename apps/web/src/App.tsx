@@ -65,7 +65,7 @@ import { DesktopCalendar } from "./calendar/DesktopCalendar";
 import { RelationsGraph } from "./RelationsGraph";
 import { HomeDashboard } from "./HomeDashboard";
 import { ShoppingList } from "./ShoppingList";
-import { SHOPPING_STORAGE_KEY } from "./shopping-model";
+import { LEGACY_SHOPPING_LIST_ID, SHOPPING_STORAGE_KEY } from "./shopping-model";
 import { DesktopSidebar, MobileNavigation, type AppSection } from "./AppNavigation";
 import { AppIcon } from "./ui/AppIcon";
 import { MoonCalendar } from "./MoonCalendar";
@@ -137,6 +137,69 @@ function mergeRecordsById(current: BackupRecord[], incoming: BackupRecord[]) {
     if (typeof item.id !== "string" || !item.id) continue;
     const existing = merged.get(item.id);
     if (!existing || itemTimestamp(item) > itemTimestamp(existing)) merged.set(item.id, item);
+  }
+
+  return Array.from(merged.values());
+}
+
+function normalizeShoppingLists(records: BackupRecord[]) {
+  if (records.length === 0) return [];
+
+  const alreadyLists = records.every((record) => Array.isArray(record.items));
+  if (alreadyLists) return records;
+
+  const validItems = records.filter((record) => typeof record.id === "string" && typeof record.title === "string");
+  if (validItems.length === 0) return [];
+
+  const timestamps = validItems
+    .map((item) => typeof item.updatedAt === "string" ? item.updatedAt : typeof item.createdAt === "string" ? item.createdAt : "")
+    .filter(Boolean)
+    .sort();
+
+  return [{
+    id: LEGACY_SHOPPING_LIST_ID,
+    title: "Мои покупки",
+    items: validItems,
+    createdAt: timestamps[0] ?? "",
+    updatedAt: timestamps.at(-1) ?? ""
+  } satisfies BackupRecord];
+}
+
+function mergeShoppingLists(currentRecords: BackupRecord[], incomingRecords: BackupRecord[]) {
+  const current = normalizeShoppingLists(currentRecords);
+  const incoming = normalizeShoppingLists(incomingRecords);
+  const merged = new Map<string, BackupRecord>();
+
+  for (const list of current) {
+    if (typeof list.id === "string" && list.id) merged.set(list.id, list);
+  }
+
+  for (const list of incoming) {
+    if (typeof list.id !== "string" || !list.id) continue;
+    const existing = merged.get(list.id);
+
+    if (!existing) {
+      merged.set(list.id, list);
+      continue;
+    }
+
+    const currentItems = Array.isArray(existing.items)
+      ? existing.items.filter((item): item is BackupRecord => Boolean(item) && typeof item === "object" && !Array.isArray(item))
+      : [];
+    const incomingItems = Array.isArray(list.items)
+      ? list.items.filter((item): item is BackupRecord => Boolean(item) && typeof item === "object" && !Array.isArray(item))
+      : [];
+
+    const preferred = itemTimestamp(list) > itemTimestamp(existing) ? list : existing;
+    const updatedAt = itemTimestamp(list) > itemTimestamp(existing)
+      ? list.updatedAt
+      : existing.updatedAt;
+
+    merged.set(list.id, {
+      ...preferred,
+      items: mergeRecordsById(currentItems, incomingItems),
+      updatedAt
+    });
   }
 
   return Array.from(merged.values());
@@ -1025,12 +1088,21 @@ export function App() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(mergedTasks));
         localStorage.removeItem("sfera.tasks.v1");
 
-        const collectionKeys = [PROJECTS_STORAGE_KEY, NOTES_STORAGE_KEY, GOALS_STORAGE_KEY, SHOPPING_STORAGE_KEY] as const;
+        const collectionKeys = [PROJECTS_STORAGE_KEY, NOTES_STORAGE_KEY, GOALS_STORAGE_KEY] as const;
         for (const key of collectionKeys) {
           const current = parseBackupArray(localStorage.getItem(key));
           const incoming = typeof data[key] === "string" ? parseBackupArray(data[key] as string) : [];
           localStorage.setItem(key, JSON.stringify(mergeRecordsById(current, incoming)));
         }
+
+        const currentShopping = parseBackupArray(localStorage.getItem(SHOPPING_STORAGE_KEY));
+        const incomingShopping = typeof data[SHOPPING_STORAGE_KEY] === "string"
+          ? parseBackupArray(data[SHOPPING_STORAGE_KEY] as string)
+          : [];
+        localStorage.setItem(
+          SHOPPING_STORAGE_KEY,
+          JSON.stringify(mergeShoppingLists(currentShopping, incomingShopping))
+        );
 
         const currentRelations = parseBackupArray(localStorage.getItem(RELATIONS_STORAGE_KEY));
         const incomingRelations = typeof data[RELATIONS_STORAGE_KEY] === "string"
