@@ -3084,3 +3084,258 @@
     height: 28px;
   }
 }
+
+
+/* Task and note management v13 */
+.task-manage-toggle,
+.note-manage-toggle {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 11px;
+  border: 1px solid #d9e2de;
+  border-radius: 11px;
+  background: rgba(255,255,255,.82);
+  color: #5f6e68;
+  cursor: pointer;
+  font-size: .72rem;
+  font-weight: 700;
+}
+
+.task-manage-toggle.active,
+.note-manage-toggle.active,
+.mobile-icon-action.active {
+  border-color: #9fc9bf !important;
+  background: #e9f4f1 !important;
+  color: #167b72 !important;
+}
+
+.section-tasks .task-row > .task-row-actions {
+  grid-column: 3 !important;
+  justify-self: end !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  min-width: 36px !important;
+}
+
+.section-tasks .task-row-actions > .row-more {
+  width: 36px !important;
+  min-width: 36px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 10px !important;
+  background: transparent !important;
+  color: #83908a !important;
+  font-size: .8rem !important;
+  letter-spacing: .08em !important;
+}
+
+.section-tasks .task-row-actions > .row-more:hover {
+  background: #f0f4f2 !important;
+  color: #44534d !important;
+}
+
+.section-tasks .task-row.task-managing {
+  grid-template-columns: 34px minmax(0,1fr) auto !important;
+  cursor: grab !important;
+  border-color: #cad9d4 !important;
+  background: #fbfdfc !important;
+}
+
+.section-tasks .task-row.task-managing:active {
+  cursor: grabbing !important;
+}
+
+.section-tasks .task-row.is-dragging {
+  opacity: .45 !important;
+}
+
+.task-drag-handle {
+  width: 28px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  color: #718078;
+  cursor: grab;
+  font-size: 1rem;
+}
+
+.section-tasks .task-row-actions > button:not(.row-more) {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #dde5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #66746e;
+  cursor: pointer;
+  font-size: .75rem;
+}
+
+.section-tasks .task-row-actions > button.danger {
+  border-color: #efd8d5;
+  color: #a9564f;
+}
+
+.notes-page-header {
+  gap: 12px !important;
+}
+
+.notes-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: auto;
+}
+
+.notes-add-button {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: #263a35;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.15rem;
+}
+
+.note-card.note-managing {
+  position: relative;
+  min-height: 170px;
+  padding-bottom: 58px !important;
+  cursor: grab !important;
+  border-color: #cbdad5 !important;
+  background: #fbfdfc !important;
+}
+
+.note-card.note-managing:active {
+  cursor: grabbing !important;
+}
+
+.note-card.is-dragging {
+  opacity: .45 !important;
+  transform: scale(.985);
+}
+
+.note-manage-controls {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  left: 10px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  padding: 4px 5px;
+  border: 1px solid #dfe6e2;
+  border-radius: 11px;
+  background: rgba(247,250,248,.96);
+}
+
+.note-drag-handle {
+  width: 30px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  margin-right: auto;
+  color: #718078;
+  cursor: grab;
+  font-size: 1rem;
+}
+
+.note-manage-controls button {
+  width: 29px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #dde5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #66746e;
+  cursor: pointer;
+  font-size: .75rem;
+}
+
+.note-manage-controls button:disabled,
+.section-tasks .task-row-actions > button:disabled {
+  opacity: .3;
+  cursor: default;
+}
+
+.note-manage-controls button.danger {
+  border-color: #efd8d5;
+  color: #a9564f;
+}
+
+@media (max-width: 720px) {
+  .task-manage-toggle,
+  .note-manage-toggle {
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 0 !important;
+  }
+
+  .note-manage-toggle span {
+    display: none !important;
+  }
+
+  .notes-header-actions {
+    gap: 6px !important;
+  }
+
+  .section-tasks .task-row.task-managing {
+    grid-template-columns: 28px minmax(0,1fr) auto !important;
+  }
+
+  .section-tasks .task-row-actions {
+    gap: 2px !important;
+  }
+
+  .task-drag-handle {
+    display: none !important;
+  }
+
+  .section-tasks .task-row-actions > button:not(.row-more) {
+    width: 27px;
+    height: 27px;
+    font-size: .7rem;
+  }
+
+  .note-card.note-managing {
+    min-height: 158px;
+    padding-bottom: 54px !important;
+  }
+
+  .note-manage-controls {
+    right: 8px;
+    bottom: 8px;
+    left: 8px;
+    gap: 3px;
+    padding: 3px 4px;
+  }
+
+  .note-drag-handle {
+    display: none;
+  }
+
+  .note-manage-controls button {
+    width: 28px;
+    height: 28px;
+  }
+}
