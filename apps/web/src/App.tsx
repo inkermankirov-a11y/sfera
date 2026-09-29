@@ -371,6 +371,9 @@ export function App() {
   });
   const [sphereManageMode, setSphereManageMode] = useState(false);
   const [draggedSphereId, setDraggedSphereId] = useState<string | null>(null);
+  const [taskManageMode, setTaskManageMode] = useState(false);
+  const [noteManageMode, setNoteManageMode] = useState(false);
+  const [draggedNoteId, setDraggedNoteId] = useState<string | null>(null);
   const [relations, setRelations] = useState<Relation[]>(() => readRelations());
   const [attachments, setAttachments] = useState<Attachment[]>(() => readAttachments());
   const [linkType, setLinkType] = useState<EntityType>("project");
@@ -610,12 +613,14 @@ export function App() {
   }, [rootSpheres, projects, tasks]);
 
   const visibleNotes = useMemo(() => {
-    if (noteView === "ideas") return notes.filter((note) => note.kind === "idea");
-    if (noteView === "diary") return notes.filter((note) => note.kind === "diary");
-    if (noteView === "collections") return notes.filter((note) => note.kind === "collection");
-    if (noteView === "lists") return notes.filter((note) => note.kind === "list");
-    if (noteView === "favorites") return notes.filter((note) => note.favorite);
-    return notes;
+    let result: Note[];
+    if (noteView === "ideas") result = notes.filter((note) => note.kind === "idea");
+    else if (noteView === "diary") result = notes.filter((note) => note.kind === "diary");
+    else if (noteView === "collections") result = notes.filter((note) => note.kind === "collection");
+    else if (noteView === "lists") result = notes.filter((note) => note.kind === "list");
+    else if (noteView === "favorites") result = notes.filter((note) => note.favorite);
+    else result = notes;
+    return [...result].sort((a, b) => a.order - b.order || a.createdAt.localeCompare(b.createdAt));
   }, [notes, noteView]);
   const visiblePhotos = useMemo(() => {
     const images = attachments.filter((item) => item.mime.startsWith("image/"));
@@ -732,12 +737,14 @@ export function App() {
     event?.preventDefault();
     const title = noteTitle.trim();
     if (!title) return;
+    const minNoteOrder = notes.length ? Math.min(...notes.map((item) => item.order)) : 10;
     const note = createNote({
       title,
       body: noteBody.trim(),
       kind: noteKind,
       projectId: noteProjectId,
-      date: noteKind === "diary" ? isoToday() : null
+      date: noteKind === "diary" ? isoToday() : null,
+      order: notes.length ? minNoteOrder - 10 : 10
     });
     setNotes((current) => [note, ...current]);
     setNoteTitle("");
@@ -1207,6 +1214,44 @@ export function App() {
       .filter((attachment) => attachment.links.length > 0));
     setSelectedNoteId(null);
     setToast("Заметка удалена");
+  }
+
+  function reorderVisibleNotes(sourceId: string, targetId: string) {
+    if (sourceId === targetId) return;
+    setNotes((current) => {
+      const visibleIds = new Set(visibleNotes.map((note) => note.id));
+      const visible = visibleNotes
+        .map((note) => current.find((item) => item.id === note.id))
+        .filter((note): note is Note => Boolean(note));
+      const from = visible.findIndex((note) => note.id === sourceId);
+      const to = visible.findIndex((note) => note.id === targetId);
+      if (from < 0 || to < 0) return current;
+
+      const reorderedVisible = [...visible];
+      const [moved] = reorderedVisible.splice(from, 1);
+      reorderedVisible.splice(to, 0, moved);
+
+      const orderedAll = [...current].sort((a, b) => a.order - b.order || a.createdAt.localeCompare(b.createdAt));
+      let visibleIndex = 0;
+      const rebuilt = orderedAll.map((note) =>
+        visibleIds.has(note.id) ? reorderedVisible[visibleIndex++] : note
+      );
+      const changedAt = nowIso();
+      const orderById = new Map(rebuilt.map((note, index) => [note.id, (index + 1) * 10]));
+      return current.map((note) => {
+        const nextOrder = orderById.get(note.id);
+        return nextOrder === undefined || nextOrder === note.order
+          ? note
+          : { ...note, order: nextOrder, updatedAt: changedAt };
+      });
+    });
+  }
+
+  function moveVisibleNote(note: Note, direction: -1 | 1) {
+    const index = visibleNotes.findIndex((item) => item.id === note.id);
+    const target = visibleNotes[index + direction];
+    if (!target) return;
+    reorderVisibleNotes(note.id, target.id);
   }
 
   function openProjectEditor(project: ProjectNode) {
@@ -1942,12 +1987,12 @@ export function App() {
       return (
         <div className="tree-node" key={task.id}>
           <article
-            className={`task-row task-depth-${Math.min(depth, 4)} ${directChildren.length ? "has-children" : ""} ${selectedId === task.id ? "selected" : ""}`}
-            draggable
-            onDragStart={() => setDraggedId(task.id)}
+            className={`task-row task-depth-${Math.min(depth, 4)} ${directChildren.length ? "has-children" : ""} ${selectedId === task.id ? "selected" : ""} ${taskManageMode ? "task-managing" : ""} ${draggedId === task.id ? "is-dragging" : ""}`}
+            draggable={taskManageMode}
+            onDragStart={() => { if (taskManageMode) setDraggedId(task.id); }}
             onDragEnd={() => setDraggedId(null)}
-            onDragOver={(event) => event.preventDefault()}
-            onDrop={() => dropBefore(task)}
+            onDragOver={(event) => { if (taskManageMode) event.preventDefault(); }}
+            onDrop={() => { if (taskManageMode) dropBefore(task); }}
           >
             {task.uncompletable ? (
               <span className="uncompletable-mark" aria-label="Незавершаемая задача">◆</span>
@@ -1987,7 +2032,18 @@ export function App() {
               </span>
             </button>
 
-            <button className="row-more" aria-label={`Открыть детали задачи «${task.title}»`} onClick={() => openDetail(task.id)}>•••</button>
+            <div className="task-row-actions">
+              {taskManageMode ? (
+                <>
+                  <span className="task-drag-handle" title="Перетащить" aria-hidden="true">⠿</span>
+                  <button type="button" onClick={() => moveSibling(task, -1)} aria-label="Выше" title="Выше">↑</button>
+                  <button type="button" onClick={() => moveSibling(task, 1)} aria-label="Ниже" title="Ниже">↓</button>
+                  <button className="danger" type="button" onClick={() => deleteTask(task)} aria-label={`Удалить «${task.title}»`} title="Удалить">×</button>
+                </>
+              ) : (
+                <button className="row-more" aria-label={`Открыть детали задачи «${task.title}»`} onClick={() => openDetail(task.id)}>•••</button>
+              )}
+            </div>
           </article>
 
           {showNested && directChildren.length > 0 && (
@@ -2109,7 +2165,13 @@ export function App() {
           </div>
           <div className="mobile-app-actions">
             {mobileSection === "tasks" && (
-              <button className="mobile-icon-action" aria-label="Поиск" onClick={() => setSearchOpen((value) => !value)}><AppIcon name="search" /></button>
+              <>
+                <button className="mobile-icon-action" aria-label="Поиск" onClick={() => setSearchOpen((value) => !value)}><AppIcon name="search" /></button>
+                <button className={`mobile-icon-action ${taskManageMode ? "active" : ""}`} aria-label={taskManageMode ? "Готово" : "Редактировать задачи"} onClick={() => { setTaskManageMode((value) => !value); setDraggedId(null); }}><AppIcon name="edit" /></button>
+              </>
+            )}
+            {mobileSection === "notes" && (
+              <button className={`mobile-icon-action ${noteManageMode ? "active" : ""}`} aria-label={noteManageMode ? "Готово" : "Редактировать заметки"} onClick={() => { setNoteManageMode((value) => !value); setDraggedNoteId(null); }}><AppIcon name="edit" /></button>
             )}
             <button className="mobile-icon-action" aria-label="Настройки" onClick={() => setSettingsOpen(true)}><AppIcon name="settings" /></button>
           </div>
@@ -2153,6 +2215,9 @@ export function App() {
           </div>
 
           <div className="desktop-actions">
+            <button className={`task-manage-toggle ${taskManageMode ? "active" : ""}`} onClick={() => { setTaskManageMode((value) => !value); setDraggedId(null); }}>
+              <AppIcon name="edit" size={16} /> {taskManageMode ? "Готово" : "Редактировать"}
+            </button>
             <button className="icon-button" aria-label="Поиск" onClick={() => setSearchOpen((value) => !value)}>⌕</button>
             <button className="primary-button" onClick={() => document.getElementById("quick-add")?.focus()}>
               ＋ Добавить
@@ -2511,9 +2576,14 @@ export function App() {
         <ShoppingList active={mobileSection === "shopping"} onBack={() => setMobileSection("projects")} />
 
         <section className={`mobile-module-screen notes-screen ${mobileSection === "notes" ? "active" : ""}`} aria-hidden={mobileSection !== "notes"}>
-          <header className="module-page-header">
+          <header className="module-page-header notes-page-header">
             <div><span>Личная база знаний</span><h2>Заметки</h2></div>
-            <button aria-label="Создать заметку" onClick={openNewNote}>＋</button>
+            <div className="notes-header-actions">
+              <button className={`note-manage-toggle ${noteManageMode ? "active" : ""}`} onClick={() => { setNoteManageMode((value) => !value); setDraggedNoteId(null); }}>
+                <AppIcon name="edit" size={16} /><span>{noteManageMode ? "Готово" : "Редактировать"}</span>
+              </button>
+              <button className="notes-add-button" aria-label="Создать заметку" onClick={openNewNote}>＋</button>
+            </div>
           </header>
 
           <div className="section-tabs notes-tabs" role="tablist" aria-label="Типы заметок">
@@ -2542,15 +2612,36 @@ export function App() {
           <div className="notes-grid">
             {visibleNotes.length === 0 ? (
               <div className="module-empty-card"><strong>Здесь пока пусто</strong><span>Создай первую запись через кнопку «+».</span></div>
-            ) : visibleNotes.map((note) => (
-              <article className={`note-card note-kind-${note.kind}`} key={note.id} role="button" tabIndex={0}
-                aria-label={`Открыть заметку «${note.title}»`}
-                onClick={() => setSelectedNoteId(note.id)}
-                onKeyDown={(event) => { if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); setSelectedNoteId(note.id); } }}>
+            ) : visibleNotes.map((note, noteIndex) => (
+              <article
+                className={`note-card note-kind-${note.kind} ${noteManageMode ? "note-managing" : ""} ${draggedNoteId === note.id ? "is-dragging" : ""}`}
+                key={note.id}
+                role="button"
+                tabIndex={noteManageMode ? -1 : 0}
+                draggable={noteManageMode}
+                aria-label={noteManageMode ? `Управление заметкой «${note.title}»` : `Открыть заметку «${note.title}»`}
+                onClick={() => { if (!noteManageMode) setSelectedNoteId(note.id); }}
+                onKeyDown={(event) => { if (!noteManageMode && event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); setSelectedNoteId(note.id); } }}
+                onDragStart={(event) => {
+                  if (!noteManageMode) return;
+                  setDraggedNoteId(note.id);
+                  event.dataTransfer.effectAllowed = "move";
+                  event.dataTransfer.setData("text/plain", note.id);
+                }}
+                onDragEnd={() => setDraggedNoteId(null)}
+                onDragOver={(event) => { if (noteManageMode && draggedNoteId) event.preventDefault(); }}
+                onDrop={(event) => {
+                  if (!noteManageMode) return;
+                  event.preventDefault();
+                  const sourceId = draggedNoteId || event.dataTransfer.getData("text/plain");
+                  if (sourceId) reorderVisibleNotes(sourceId, note.id);
+                  setDraggedNoteId(null);
+                }}
+              >
                 <div className="note-card-top">
                   <span>{note.kind === "diary" ? "☼" : note.kind === "idea" ? "✦" : note.kind === "collection" ? "▦" : note.kind === "list" ? "☷" : "✎"}</span>
                   <small>{noteKindLabels[note.kind]}</small>
-                  <button className={note.favorite ? "favorite active" : "favorite"} aria-label={note.favorite ? "Убрать из важного" : "Добавить в важное"} onClick={(event) => { event.stopPropagation(); setNotes((current) => current.map((item) => item.id === note.id ? { ...item, favorite: !item.favorite, updatedAt: nowIso() } : item)); }}>☆</button>
+                  {!noteManageMode && <button className={note.favorite ? "favorite active" : "favorite"} aria-label={note.favorite ? "Убрать из важного" : "Добавить в важное"} onClick={(event) => { event.stopPropagation(); setNotes((current) => current.map((item) => item.id === note.id ? { ...item, favorite: !item.favorite, updatedAt: nowIso() } : item)); }}>☆</button>}
                 </div>
                 <h3>{note.title}</h3>
                 {note.body && <p>{note.body}</p>}
@@ -2558,6 +2649,14 @@ export function App() {
                   <span>{note.date ? formatDate(note.date) : new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short" }).format(new Date(note.updatedAt))}</span>
                   {note.projectId && <span>{projectPath(projects, note.projectId)}</span>}
                 </footer>
+                {noteManageMode && (
+                  <div className="note-manage-controls" onClick={(event) => event.stopPropagation()}>
+                    <span className="note-drag-handle" title="Перетащить" aria-hidden="true">⠿</span>
+                    <button type="button" onClick={() => moveVisibleNote(note, -1)} disabled={noteIndex <= 0} aria-label="Выше" title="Выше">↑</button>
+                    <button type="button" onClick={() => moveVisibleNote(note, 1)} disabled={noteIndex >= visibleNotes.length - 1} aria-label="Ниже" title="Ниже">↓</button>
+                    <button className="danger" type="button" onClick={() => deleteNote(note)} aria-label={`Удалить «${note.title}»`} title="Удалить">×</button>
+                  </div>
+                )}
               </article>
             ))}
           </div>
