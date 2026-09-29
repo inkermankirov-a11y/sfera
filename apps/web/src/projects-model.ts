@@ -33,25 +33,14 @@ export function createProject(partial: Partial<ProjectNode> & Pick<ProjectNode, 
 
 export function seedProjects(): ProjectNode[] {
   return [
-    createProject({ id: "sphere-family", title: "Семья", kind: "sphere", order: 10 }),
-    createProject({ id: "project-home", title: "Мой дом", parentId: "sphere-family", order: 10 }),
-    createProject({ id: "project-repair", title: "Ремонт", parentId: "project-home", order: 10 }),
-
-    createProject({ id: "sphere-tarot", title: "Таро и хиромантия", kind: "sphere", order: 20 }),
-    createProject({ id: "project-clients", title: "Клиенты", parentId: "sphere-tarot", order: 10 }),
-    createProject({ id: "project-tarot-content", title: "Контент", parentId: "sphere-tarot", order: 20 }),
-
-    createProject({ id: "sphere-spiritual", title: "Духовные практики", kind: "sphere", order: 30 }),
-    createProject({ id: "project-practices", title: "Практики", parentId: "sphere-spiritual", order: 10 }),
-
-    createProject({ id: "sphere-work", title: "Работа", kind: "sphere", order: 40 }),
-    createProject({ id: "project-beauty", title: "Beauty / салон", parentId: "sphere-work", order: 10 }),
-
-    createProject({ id: "sphere-travel", title: "Путешествия", kind: "sphere", order: 50 }),
-    createProject({ id: "project-trips", title: "Поездки", parentId: "sphere-travel", order: 10 }),
-
-    createProject({ id: "sphere-personal", title: "Личное", kind: "sphere", order: 60 }),
-    createProject({ id: "project-self", title: "Для себя", parentId: "sphere-personal", order: 10 })
+    createProject({ id: "sphere-health", title: "Здоровье", kind: "sphere", order: 10 }),
+    createProject({ id: "sphere-family", title: "Семья и отношения", kind: "sphere", order: 20 }),
+    createProject({ id: "sphere-work", title: "Работа / Карьера", kind: "sphere", order: 30 }),
+    createProject({ id: "sphere-money", title: "Деньги", kind: "sphere", order: 40 }),
+    createProject({ id: "sphere-home", title: "Дом и быт", kind: "sphere", order: 50 }),
+    createProject({ id: "sphere-growth", title: "Личное развитие", kind: "sphere", order: 60 }),
+    createProject({ id: "sphere-hobbies", title: "Отдых и хобби", kind: "sphere", order: 70 }),
+    createProject({ id: "sphere-travel", title: "Путешествия", kind: "sphere", order: 80 })
   ];
 }
 
