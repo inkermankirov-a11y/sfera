@@ -2889,3 +2889,198 @@
     white-space: nowrap !important;
   }
 }
+
+
+/* Sphere management v12 */
+.sphere-manage-toggle {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 11px;
+  border: 1px solid #d9e2de;
+  border-radius: 11px;
+  background: rgba(255,255,255,.78);
+  color: #5f6e68;
+  cursor: pointer;
+  font-size: .72rem;
+  font-weight: 700;
+}
+
+.sphere-manage-toggle.active {
+  border-color: #9fc9bf;
+  background: #e9f4f1;
+  color: #167b72;
+}
+
+.projects-screen .project-tile.is-managing {
+  cursor: grab !important;
+  outline: 2px dashed rgba(255,255,255,.42);
+  outline-offset: -8px;
+}
+
+.projects-screen .project-tile.is-managing:active {
+  cursor: grabbing !important;
+}
+
+.projects-screen .project-tile.is-dragging,
+.projects-screen .project-tree-node.is-dragging {
+  opacity: .48 !important;
+  transform: scale(.985) !important;
+}
+
+.sphere-manage-controls {
+  position: absolute;
+  z-index: 6;
+  right: 10px;
+  bottom: 10px;
+  left: 10px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  padding: 4px 5px;
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 11px;
+  background: rgba(25,42,38,.48);
+  backdrop-filter: blur(10px);
+}
+
+.sphere-drag-handle {
+  width: 30px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  margin-right: auto;
+  border-radius: 8px;
+  color: rgba(255,255,255,.9);
+  cursor: grab;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.sphere-manage-controls button {
+  width: 29px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 8px;
+  background: rgba(255,255,255,.12);
+  color: #fff;
+  cursor: pointer;
+  font-size: .78rem;
+}
+
+.sphere-manage-controls button:disabled {
+  opacity: .28;
+  cursor: default;
+}
+
+.sphere-manage-controls button.danger {
+  background: rgba(117,37,32,.28);
+  color: #ffe9e6;
+}
+
+.projects-screen .project-tile.is-managing > small {
+  margin-bottom: 44px !important;
+}
+
+.sphere-tree-manage-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.sphere-tree-manage-controls .sphere-drag-handle {
+  width: 28px;
+  height: 30px;
+  margin: 0;
+  color: #76847e;
+}
+
+.sphere-tree-manage-controls button {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #dde5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #66746e;
+  cursor: pointer;
+}
+
+.sphere-tree-manage-controls button:disabled {
+  opacity: .3;
+  cursor: default;
+}
+
+.sphere-tree-manage-controls button.danger {
+  border-color: #efd8d5;
+  color: #a9564f;
+}
+
+.project-tree-node.is-managing > .project-tree-row {
+  border-color: #cbdad5 !important;
+  background: #fbfdfc !important;
+}
+
+@media (max-width: 720px) {
+  .sphere-manage-toggle {
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+
+  .sphere-manage-toggle span {
+    display: none !important;
+  }
+
+  .projects-screen .project-tile.is-managing {
+    height: 188px !important;
+    min-height: 188px !important;
+  }
+
+  .projects-screen .project-tile.is-managing > small {
+    margin-bottom: 42px !important;
+  }
+
+  .sphere-manage-controls {
+    right: 7px;
+    bottom: 7px;
+    left: 7px;
+    gap: 3px;
+    padding: 3px 4px;
+  }
+
+  .sphere-manage-controls button {
+    width: 27px;
+    height: 27px;
+  }
+
+  .sphere-drag-handle {
+    width: 26px;
+    height: 27px;
+  }
+
+  .sphere-tree-manage-controls {
+    gap: 3px;
+  }
+
+  .sphere-tree-manage-controls .sphere-drag-handle {
+    display: none;
+  }
+
+  .sphere-tree-manage-controls button {
+    width: 28px;
+    height: 28px;
+  }
+}
