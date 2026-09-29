@@ -3403,3 +3403,82 @@
     min-height: 38px !important;
   }
 }
+
+
+/* Exact sphere-style action groups v15 */
+@media (min-width: 721px) {
+  .tasks-module-content .page-header,
+  .notes-screen .notes-page-header {
+    min-height: 58px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 20px !important;
+  }
+
+  .tasks-module-content .projects-header-actions,
+  .notes-screen .projects-header-actions {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 7px !important;
+    margin-left: auto !important;
+    flex: 0 0 auto !important;
+  }
+
+  .tasks-module-content .sphere-manage-toggle,
+  .notes-screen .sphere-manage-toggle {
+    min-width: 0 !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 0 12px !important;
+    border: 1px solid #d9e2de !important;
+    border-radius: 11px !important;
+    background: #fff !important;
+    color: #60706a !important;
+    box-shadow: none !important;
+    font-size: .72rem !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+  }
+
+  .tasks-module-content .sphere-manage-toggle.active,
+  .notes-screen .sphere-manage-toggle.active {
+    border-color: #9fc9bf !important;
+    background: #e9f4f1 !important;
+    color: #167b72 !important;
+  }
+
+  .tasks-module-content .section-add-square.projects-add-root,
+  .notes-screen .section-add-square.projects-add-root {
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    display: grid !important;
+    place-items: center !important;
+    padding: 0 !important;
+    border: 1px solid #9daaa5 !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    color: #23342f !important;
+    box-shadow: none !important;
+    font-size: 1rem !important;
+    line-height: 1 !important;
+  }
+
+  .tasks-module-content .section-add-square.projects-add-root:hover,
+  .notes-screen .section-add-square.projects-add-root:hover {
+    border-color: #7e928a !important;
+    background: #f7faf8 !important;
+    color: #167b72 !important;
+  }
+
+  .notes-screen .notes-page-header > div:first-child {
+    min-width: 0 !important;
+  }
+
+  .notes-screen .notes-page-header > div:first-child h2 {
+    margin: 2px 0 0 !important;
+  }
+}
