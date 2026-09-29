@@ -369,6 +369,12 @@ export function App() {
   const [projectView, setProjectView] = useState<"grid" | "list">(() => {
     try { return localStorage.getItem("sfera.projectView") === "list" ? "list" : "grid"; } catch { return "grid"; }
   });
+  const [taskDisplayView, setTaskDisplayView] = useState<"grid" | "list">(() => {
+    try { return localStorage.getItem("sfera.taskDisplayView") === "grid" ? "grid" : "list"; } catch { return "list"; }
+  });
+  const [noteDisplayView, setNoteDisplayView] = useState<"grid" | "list">(() => {
+    try { return localStorage.getItem("sfera.noteDisplayView") === "list" ? "list" : "grid"; } catch { return "grid"; }
+  });
   const [sphereManageMode, setSphereManageMode] = useState(false);
   const [draggedSphereId, setDraggedSphereId] = useState<string | null>(null);
   const [taskManageMode, setTaskManageMode] = useState(false);
@@ -688,6 +694,15 @@ export function App() {
 
   const topLevelForView = useMemo(() => {
     return childrenOf(tasks, null).filter((task) => matchesFilter(task) || hasMatchingDescendant(task));
+  }, [tasks, filter, query]);
+  const visibleTaskCards = useMemo(() => {
+    return tasks
+      .filter(matchesFilter)
+      .sort((a, b) =>
+        a.order - b.order ||
+        (a.date ?? "9999-12-31").localeCompare(b.date ?? "9999-12-31") ||
+        a.createdAt.localeCompare(b.createdAt)
+      );
   }, [tasks, filter, query]);
 
   function patchTask(id: string, patch: Partial<Task>) {
@@ -1339,6 +1354,16 @@ export function App() {
   function setProjectViewMode(mode: "grid" | "list") {
     setProjectView(mode);
     try { localStorage.setItem("sfera.projectView", mode); } catch {}
+  }
+
+  function setTaskDisplayViewMode(mode: "grid" | "list") {
+    setTaskDisplayView(mode);
+    try { localStorage.setItem("sfera.taskDisplayView", mode); } catch {}
+  }
+
+  function setNoteDisplayViewMode(mode: "grid" | "list") {
+    setNoteDisplayView(mode);
+    try { localStorage.setItem("sfera.noteDisplayView", mode); } catch {}
   }
 
   function renderProjectLocationPicker(
@@ -2218,6 +2243,10 @@ export function App() {
             <button className={`section-manage-button sphere-manage-toggle task-manage-toggle ${taskManageMode ? "active" : ""}`} onClick={() => { setTaskManageMode((value) => !value); setDraggedId(null); }}>
               <AppIcon name="edit" size={16} /> {taskManageMode ? "Готово" : "Редактировать"}
             </button>
+            <div className="project-view-toggle" role="group" aria-label="Вид задач">
+              <button className={taskDisplayView === "grid" ? "active" : ""} onClick={() => setTaskDisplayViewMode("grid")} aria-label="Карточки" title="Карточки">▦</button>
+              <button className={taskDisplayView === "list" ? "active" : ""} onClick={() => setTaskDisplayViewMode("list")} aria-label="Список" title="Список">☷</button>
+            </div>
             <button
               className="section-add-button section-add-square projects-add-root"
               aria-label="Добавить задачу"
@@ -2373,13 +2402,60 @@ export function App() {
             </div>
           </section>
         ) : (
-          <section className="task-list todo-tree" aria-live="polite">
+          <section className={`task-list todo-tree task-display-${taskDisplayView}`} aria-live="polite">
             {visibleCount === 0 ? (
               <div className="empty-state">
                 <div className="empty-icon">✓</div>
                 <h2>{query ? "Ничего не найдено" : "Здесь пока нет задач"}</h2>
                 <p>{query ? "Измени запрос или сбрось фильтр." : "Добавь первую задачу. Внутри неё можно создавать подзадачи любого уровня."}</p>
                 {query && <button className="secondary-button" onClick={() => setQuery("")}>Сбросить поиск</button>}
+              </div>
+            ) : taskDisplayView === "grid" ? (
+              <div className="task-card-grid">
+                {visibleTaskCards.map((task) => {
+                  const parent = task.parentId ? tasks.find((item) => item.id === task.parentId) ?? null : null;
+                  return (
+                    <article
+                      className={`task-display-card p${task.priority} ${task.status === "done" ? "is-done" : ""} ${taskManageMode ? "task-managing" : ""} ${draggedId === task.id ? "is-dragging" : ""}`}
+                      key={task.id}
+                      draggable={taskManageMode}
+                      onDragStart={() => { if (taskManageMode) setDraggedId(task.id); }}
+                      onDragEnd={() => setDraggedId(null)}
+                      onDragOver={(event) => { if (taskManageMode) event.preventDefault(); }}
+                      onDrop={() => { if (taskManageMode) dropBefore(task); }}
+                    >
+                      <div className="task-display-card-top">
+                        {task.uncompletable ? (
+                          <span className="task-display-symbol" aria-label="Незавершаемая задача">◆</span>
+                        ) : (
+                          <button
+                            className={`check-button priority-ring p${task.priority} ${task.status === "done" ? "checked" : ""}`}
+                            aria-label={task.status === "done" ? `Вернуть задачу «${task.title}»` : `Выполнить задачу «${task.title}»`}
+                            onClick={() => completeTask(task)}
+                          >{task.status === "done" ? "✓" : ""}</button>
+                        )}
+                        <span className="task-display-priority">{priorityLabels[task.priority]}</span>
+                      </div>
+                      <button className="task-display-card-main" onClick={() => openDetail(task.id)}>
+                        <strong>{task.title}</strong>
+                        {task.description && <p>{task.description}</p>}
+                      </button>
+                      <div className="task-display-card-meta">
+                        {task.date && <span className={task.date < isoToday() ? "overdue" : ""}>{formatDate(task.date)}{task.time ? " · " + task.time : ""}</span>}
+                        {parent && <span>↳ {parent.title}</span>}
+                        {task.projectId && <span>{projectPath(projects, task.projectId)}</span>}
+                      </div>
+                      {taskManageMode && (
+                        <div className="task-card-manage-controls">
+                          <span className="task-drag-handle" title="Перетащить" aria-hidden="true">⠿</span>
+                          <button type="button" onClick={() => moveSibling(task, -1)} aria-label="Выше" title="Выше">↑</button>
+                          <button type="button" onClick={() => moveSibling(task, 1)} aria-label="Ниже" title="Ниже">↓</button>
+                          <button className="danger" type="button" onClick={() => deleteTask(task)} aria-label={`Удалить «${task.title}»`} title="Удалить">×</button>
+                        </div>
+                      )}
+                    </article>
+                  );
+                })}
               </div>
             ) : (
               <div className="task-rows tree-rows">{renderTree(null)}</div>
@@ -2584,6 +2660,10 @@ export function App() {
               <button className={`section-manage-button sphere-manage-toggle note-manage-toggle ${noteManageMode ? "active" : ""}`} onClick={() => { setNoteManageMode((value) => !value); setDraggedNoteId(null); }}>
                 <AppIcon name="edit" size={16} /><span>{noteManageMode ? "Готово" : "Редактировать"}</span>
               </button>
+              <div className="project-view-toggle" role="group" aria-label="Вид заметок">
+                <button className={noteDisplayView === "grid" ? "active" : ""} onClick={() => setNoteDisplayViewMode("grid")} aria-label="Карточки" title="Карточки">▦</button>
+                <button className={noteDisplayView === "list" ? "active" : ""} onClick={() => setNoteDisplayViewMode("list")} aria-label="Список" title="Список">☷</button>
+              </div>
               <button className="section-add-button section-add-square projects-add-root" aria-label="Создать заметку" title="Создать заметку" onClick={openNewNote}>＋</button>
             </div>
           </header>
@@ -2611,7 +2691,7 @@ export function App() {
             </div>
           )}
 
-          <div className="notes-grid">
+          <div className={`notes-grid notes-display-${noteDisplayView}`}>
             {visibleNotes.length === 0 ? (
               <div className="module-empty-card"><strong>Здесь пока пусто</strong><span>Создай первую запись через кнопку «+».</span></div>
             ) : visibleNotes.map((note, noteIndex) => (
