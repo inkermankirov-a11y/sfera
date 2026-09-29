@@ -2806,41 +2806,86 @@
   }
 
   .bottom-nav.mobile-tabbar {
-    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
-    padding-inline: 2px !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    padding-inline: 5px !important;
   }
 
   .bottom-nav.mobile-tabbar button,
   .bottom-nav.mobile-tabbar button:nth-child(n) {
-    font-size: .54rem !important;
+    font-size: .61rem !important;
   }
 
   .bottom-nav.mobile-tabbar button > span {
-    width: 27px !important;
+    width: 30px !important;
   }
 
   .bottom-nav.mobile-tabbar button svg {
-    width: 18px !important;
-    height: 18px !important;
+    width: 19px !important;
+    height: 19px !important;
   }
 
   .bottom-nav.mobile-tabbar .mobile-add-nav > span {
-    width: 35px !important;
-    height: 35px !important;
+    width: 38px !important;
+    height: 38px !important;
   }
 }
 
 @media (max-width: 370px) {
   .bottom-nav.mobile-tabbar button,
   .bottom-nav.mobile-tabbar button:nth-child(n) {
-    font-size: .5rem !important;
+    font-size: .56rem !important;
   }
 
   .bottom-nav.mobile-tabbar button > span {
-    width: 25px !important;
+    width: 28px !important;
   }
 
   .shopping-numbered-row {
     grid-template-columns: 24px 25px minmax(0,1fr) 28px;
+  }
+}
+
+
+/* Shopping inside spheres v11 */
+.shopping-sphere-tile {
+  border-color: #d9e5df !important;
+  background: linear-gradient(145deg, #f1f8f5 0%, #e9f3ef 100%) !important;
+}
+
+.shopping-sphere-tile .project-tile-icon,
+.shopping-sphere-row .project-folder-icon {
+  background: #dceee8 !important;
+  color: #157d73 !important;
+}
+
+.shopping-sphere-tile .project-tile-number {
+  color: #397b70 !important;
+}
+
+.shopping-sphere-row {
+  border-color: #d9e5df !important;
+  background: #f3f8f6 !important;
+}
+
+.shopping-root-back {
+  flex: 0 0 36px;
+}
+
+@media (max-width: 720px) {
+  .shopping-screen .shopping-header {
+    display: grid !important;
+    grid-template-columns: 36px minmax(0, 1fr) 38px !important;
+    align-items: center !important;
+    gap: 9px !important;
+  }
+
+  .shopping-screen .shopping-header > div {
+    min-width: 0 !important;
+  }
+
+  .shopping-screen .shopping-header h2 {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
   }
 }
