@@ -1,0 +1,28 @@
+name: Source backup
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/source-backup.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full project
+        uses: actions/checkout@v4
+
+      - name: Upload full source backup
+        uses: actions/upload-artifact@v4
+        with:
+          name: SFERA-project-backup
+          path: |
+            .
+            !.git/**
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
